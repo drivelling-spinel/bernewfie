@@ -213,15 +213,19 @@ void H2_Main(void)
 
 	InitMapMusicInfo();		// Init music fields in mapinfo
 
-#ifdef __WATCOMC__
 	ST_Message("S_InitScript\n");
 	S_InitScript();
-#endif
 
 	ST_Message("SN_InitSequenceScript: Registering sound sequences.\n");
 	SN_InitSequenceScript();
 	ST_Message("I_Init: Setting up machine state.\n");
 	I_Init();
+
+	ST_Message("  S_Init... ");
+	S_Init();
+	//IO_StartupTimer();
+	S_Start();  
+
 
 	ST_Message("ST_Init: Init startup screen.\n");
 	ST_Init();

@@ -207,7 +207,7 @@ int disk_icon;
 //static BITMAP *diskflash, *old_data;
 
 int UpdateState;
-
+int DisplayTicker;
 
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
