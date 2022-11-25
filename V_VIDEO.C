@@ -14,7 +14,7 @@
 
 #define SC_INDEX 0x3c4
 
-byte *screen;
+byte *vscreen;
 int dirtybox[4];
 int usegamma;
 
@@ -35,7 +35,7 @@ byte gammatable[5][256] =
 //
 // PROC V_DrawPatch
 //
-// Draws a column based masked pic to the screen.
+// Draws a column based masked pic to the vscreen.
 //
 //---------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
 		I_Error("Bad V_DrawPatch");
 	}
 	col = 0;
-	desttop = screen+y*SCREENWIDTH+x;
+	desttop = vscreen+y*SCREENWIDTH+x;
 	w = SHORT(patch->width);
 	for(; col < w; x++, col++, desttop++)
 	{
@@ -83,7 +83,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
 =
 = V_DrawFuzzPatch
 =
-= Masks a column based translucent masked pic to the screen.
+= Masks a column based translucent masked pic to the vscreen.
 =
 ==================
 */
@@ -99,11 +99,12 @@ void V_DrawFuzzPatch (int x, int y, patch_t *patch)
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
 
-	if (x<0||x+SHORT(patch->width) >SCREENWIDTH || y<0 || y+SHORT(patch->height)>SCREENHEIGHT)
+	if (x<0||x+SHORT(patch->width) >SCREENWIDTH || y<0 || y+SHORT(patch->height)>SCREENHEIGHT
+)
 		I_Error ("Bad V_DrawPatch");
 
 	col = 0;
-	desttop = screen+y*SCREENWIDTH+x;
+	desttop = vscreen+y*SCREENWIDTH+x;
 	
 	w = SHORT(patch->width);
 	for ( ; col<w ; x++, col++, desttop++)
@@ -133,7 +134,7 @@ void V_DrawFuzzPatch (int x, int y, patch_t *patch)
 =
 = V_DrawAltFuzzPatch
 =
-= Masks a column based translucent masked pic to the screen.
+= Masks a column based translucent masked pic to the vscreen.
 =
 ==================
 */
@@ -150,13 +151,14 @@ void V_DrawAltFuzzPatch (int x, int y, patch_t *patch)
 	x -= SHORT(patch->leftoffset);
 
 	if (x<0||x+SHORT(patch->width) >SCREENWIDTH || y<0 
-		|| y+SHORT(patch->height)>SCREENHEIGHT)
+		|| y+SHORT(patch->height)>SCREENHEIGHT
+)
 	{	
 		I_Error ("Bad V_DrawPatch");
 	}
 
 	col = 0;
-	desttop = screen+y*SCREENWIDTH+x;
+	desttop = vscreen+y*SCREENWIDTH+x;
 	
 	w = SHORT(patch->width);
 	for ( ; col<w ; x++, col++, desttop++)
@@ -186,7 +188,7 @@ void V_DrawAltFuzzPatch (int x, int y, patch_t *patch)
 =
 = V_DrawShadowedPatch
 =
-= Masks a column based masked pic to the screen.
+= Masks a column based masked pic to the vscreen.
 =
 ==================
 */
@@ -202,12 +204,13 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
 
-	if (x<0||x+SHORT(patch->width) >SCREENWIDTH || y<0 || y+SHORT(patch->height)>SCREENHEIGHT)
+	if (x<0||x+SHORT(patch->width) >SCREENWIDTH || y<0 || y+SHORT(patch->height)>SCREENHEIGHT
+)
 		I_Error ("Bad V_DrawPatch");
 
 	col = 0;
-	desttop = screen+y*SCREENWIDTH+x;
-	desttop2 = screen+(y+2)*SCREENWIDTH+x+2;
+	desttop = vscreen+y*SCREENWIDTH+x;
+	desttop2 = vscreen+(y+2)*SCREENWIDTH+x+2;
 	
 	w = SHORT(patch->width);
 	for ( ; col<w ; x++, col++, desttop++, desttop2++)
@@ -245,7 +248,7 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
 
 void V_DrawRawScreen(byte *raw)
 {
-	memcpy(screen, raw, SCREENWIDTH*SCREENHEIGHT);
+	memcpy(vscreen, raw, SCREENWIDTH*SCREENHEIGHT);
 }
 
 //---------------------------------------------------------------------------
@@ -256,6 +259,6 @@ void V_DrawRawScreen(byte *raw)
 
 void V_Init(void)
 {
-	// I_AllocLow will put screen in low dos memory on PCs.
-	screen = I_AllocLow(SCREENWIDTH*SCREENHEIGHT);
+	// I_AllocLow will put vscreen in low dos memory on PCs.
+	vscreen = I_AllocLow(SCREENWIDTH*SCREENHEIGHT);
 }

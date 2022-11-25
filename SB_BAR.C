@@ -1698,7 +1698,7 @@ void Draw_TeleportIcon(void)
 	patch = W_CacheLumpNum(W_GetNumForName("teleicon"), PU_CACHE);
 	V_DrawPatch(100, 68, patch);
 	UpdateState |= I_FULLSCRN;
-	I_Update();
+	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
 }
 
@@ -1713,7 +1713,7 @@ void Draw_SaveIcon(void)
 	patch = W_CacheLumpNum(W_GetNumForName("saveicon"), PU_CACHE);
 	V_DrawPatch(100, 68, patch);
 	UpdateState |= I_FULLSCRN;
-	I_Update();
+	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
 }
 
@@ -1728,7 +1728,7 @@ void Draw_LoadIcon(void)
 	patch = W_CacheLumpNum(W_GetNumForName("loadicon"), PU_CACHE);
 	V_DrawPatch(100, 68, patch);
 	UpdateState |= I_FULLSCRN;
-	I_Update();
+	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
 }
 

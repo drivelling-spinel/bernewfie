@@ -43,6 +43,7 @@ int				dc_yl;
 int				dc_yh;
 fixed_t			dc_iscale;
 fixed_t			dc_texturemid;
+int     dc_texheight;    // killough
 byte			*dc_source;		// first pixel in a column (possibly virtual)
 
 int				dccount;		// just for profiling
@@ -446,7 +447,7 @@ void R_InitBuffer (int width, int height)
 	else
 		viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1;
 	for (i=0 ; i<height ; i++)
-		ylookup[i] = screen + (i+viewwindowy)*SCREENWIDTH;
+		ylookup[i] = vscreen + (i+viewwindowy)*SCREENWIDTH;
 }
 
 
@@ -470,7 +471,7 @@ void R_DrawViewBorder (void)
 		return;
 
 	src = W_CacheLumpName("F_022", PU_CACHE);
-	dest = screen;
+	dest = vscreen;
 	
 	for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++)
 	{
@@ -536,7 +537,7 @@ void R_DrawTopBorder (void)
 	}
 */
 	src = W_CacheLumpName("F_022", PU_CACHE);
-	dest = screen;
+	dest = vscreen;
 	
 	for (y=0 ; y<34 ; y++)
 	{

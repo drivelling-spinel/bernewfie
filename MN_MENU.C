@@ -300,7 +300,6 @@ static Menu_t *Menus[] =
 	&SaveMenu
 };
 
-#ifdef __WATCOMC__
 static char *GammaText[] = 
 {
 	TXT_GAMMA_LEVEL_OFF,
@@ -309,7 +308,6 @@ static char *GammaText[] =
 	TXT_GAMMA_LEVEL_3,
 	TXT_GAMMA_LEVEL_4
 };
-#endif
 	
 // CODE --------------------------------------------------------------------
 
@@ -323,7 +321,7 @@ void MN_Init(void)
 {
 	InitFonts();
 	MenuActive = false;
-//	messageson = true;		// Set by defaults in .CFG
+//	messageson = true;		// Set by _s in .CFG
 	MauloBaseLump = W_GetNumForName("FBULA0"); // ("M_SKL00");
 }
 
@@ -1697,7 +1695,7 @@ void MN_DeactivateMenu(void)
 void MN_DrawInfo(void)
 {
 	I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
-	memcpy(screen, (byte *)W_CacheLumpNum(W_GetNumForName("TITLE")+InfoType,
+	memcpy(vscreen, (byte *)W_CacheLumpNum(W_GetNumForName("TITLE")+InfoType,
 		PU_CACHE), SCREENWIDTH*SCREENHEIGHT);
 //	V_DrawPatch(0, 0, W_CacheLumpNum(W_GetNumForName("TITLE")+InfoType,
 //		PU_CACHE));

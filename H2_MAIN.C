@@ -112,6 +112,8 @@ event_t events[MAXEVENTS];
 int eventhead;
 int eventtail;
 
+boolean safeparm;
+
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 static int WarpMap;
@@ -161,6 +163,14 @@ void H2_Main(void)
 	startskill = sk_medium;
 	startmap = 1;
 	shareware = false; // Always false for Hexen
+
+  safeparm                    = M_CheckParm ("-safe");   // GB 2014  
+  // GB 2014, safeparm: skip nearptr_enable function, retain memory protection. 0,1 FPS less if I put it in i_main
+  if (_get_dos_version(1)==0x532) {printf("Windows NT based OS detected: Safe mode enabled.\n"); safeparm=1;} // Windows NT, 2000, XP
+  if (!safeparm) 
+   // 2/2/98 Stan, Must call this here.  It's required by both netgames and i_video.c.
+  if (!__djgpp_nearptr_enable()) {printf ("Failed trying to allocate DOS near pointers, try -safe parameter.\n"); return;}
+
 
 	HandleArgs();
 
@@ -324,8 +334,6 @@ static void HandleArgs(void)
 		}
 	}
 
-	// Look for an external device driver
-	I_CheckExternDriver();
 }
 
 //==========================================================================
@@ -659,7 +667,7 @@ static void DrawAndBlit(void)
 	NetUpdate();
 
 	// Flush buffered stuff to screen
-	I_Update();
+	I_FinishUpdate();
 }
 
 //==========================================================================
@@ -858,21 +866,6 @@ void CleanExit(void)
 }
 */
 #endif
-
-//==========================================================================
-//
-// FixedDiv
-//
-//==========================================================================
-
-fixed_t FixedDiv(fixed_t a, fixed_t b)
-{
-	if((abs(a)>>14) >= abs(b))
-	{
-		return((a^b)<0 ? MININT : MAXINT);
-	}
-	return(FixedDiv2(a, b));
-}
 
 
 //==========================================================================

@@ -318,7 +318,8 @@ void M_FindResponseFile(void)
 			handle = fopen(&myargv[i][1], "rb");
 			if(!handle)
 			{
-				printf("\nNo such response file!");
+
+				printf("\nNo such response file!");
 				exit(1);
 			}
 			ST_Message("Found response file %s!\n",&myargv[i][1]);
@@ -446,12 +447,12 @@ typedef struct
 
 #ifndef __NeXT__
 extern int snd_Channels;
-extern int snd_DesiredMusicDevice, snd_DesiredSfxDevice;
+int snd_DesiredMusicDevice, snd_DesiredSfxDevice;
 extern int snd_MusicDevice, // current music card # (index to dmxCodes)
 	snd_SfxDevice; // current sfx card # (index to dmxCodes)
 
-extern int     snd_SBport, snd_SBirq, snd_SBdma;       // sound blaster variables
-extern int     snd_Mport;                              // midi variables
+int     snd_SBport, snd_SBirq, snd_SBdma;       // sound blaster variables
+int     snd_Mport;                              // midi variables
 #endif
 
 default_t defaults[] =
@@ -560,9 +561,9 @@ default_t defaults[] =
 #ifdef __NeXT__
 	#define DEFAULT_SAVEPATH		"hexndata/"
 #endif
-#ifdef __WATCOMC__
-	#define DEFAULT_SAVEPATH		"hexndata\\"
-#endif
+
+#define DEFAULT_SAVEPATH		"hexndata\\"
+
 	{ "savedir", (int *) &SavePath, (int) DEFAULT_SAVEPATH },
 
 	{ "messageson", (int *) &messageson, 1 },
@@ -705,7 +706,8 @@ void M_LoadDefaults(char *fileName)
 				}
 			}
 		}
-		fclose (f);
+
+		fclose (f);
 	}
 
 #ifdef __WATCOMC__
@@ -828,17 +830,11 @@ void M_ScreenShot (void)
 	char    lbmname[12];
 	byte *pal;
 
-#ifdef _WATCOMC_
-	extern  byte *pcscreen;
-#endif
 //
 // munge planar buffer to linear
 //
-#ifdef _WATCOMC_
-	linear = pcscreen;
-#else
-	linear = screen;
-#endif
+	linear = vscreen;
+
 //
 // find a file name to save it to
 //
@@ -857,22 +853,10 @@ void M_ScreenShot (void)
 //
 // save the pcx file
 //
-#ifdef __WATCOMC__
-	pal = (byte *)Z_Malloc(768, PU_STATIC, NULL);
-	outp(0x3c7, 0);
-	for(i = 0; i < 768; i++)
-	{
-		*(pal+i) = inp(0x3c9)<<2;
-	}
-#else
 	pal = (byte *)W_CacheLumpName("PLAYPAL", PU_CACHE);
-#endif
 
 	WritePCXfile (lbmname, linear, SCREENWIDTH, SCREENHEIGHT
 		, pal);
 
 	P_SetMessage(&players[consoleplayer], "SCREEN SHOT", false);
-#ifdef __WATCOMC__
-	Z_Free(pal);
-#endif
 }

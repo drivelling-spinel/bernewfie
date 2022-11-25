@@ -504,6 +504,7 @@ extern  int                             dc_yh;
 extern  fixed_t                 dc_iscale;
 extern  fixed_t                 dc_texturemid;
 extern  byte                    *dc_source;             // first pixel in a column
+extern  int                     dc_texheight;
 
 void    R_DrawColumn (void);
 void    R_DrawColumnLow (void);

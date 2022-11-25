@@ -127,7 +127,8 @@ void R_InstallSpriteLump (int lump, unsigned frame, unsigned rotation, boolean f
 = Pass a null terminated list of sprite names (4 chars exactly) to be used
 = Builds the sprite rotation matrixes to account for horizontally flipped
 = sprites.  Will report an error if the lumps are inconsistant
-=Only called at startup
+=
+Only called at startup
 =
 = Sprite lump names are 4 characters for the actor, a letter for the frame,
 = and a number for the rotation, A sprite that is flippable will have an
@@ -317,6 +318,8 @@ void R_DrawMaskedColumn (column_t *column, signed int baseclip)
 	fixed_t	basetexturemid;
 
 	basetexturemid = dc_texturemid;
+
+  dc_texheight = 0; // killough 11/98
 
 	for ( ; column->topdelta != 0xff ; )
 	{

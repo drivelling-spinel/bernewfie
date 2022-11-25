@@ -22,6 +22,9 @@
 #define	strncasecmp strnicmp
 #endif
 
+#define	strcmpi strcasecmp 
+#define	strnicmp strncasecmp 
+
 #define VERSION 110
 #define VERSION_TEXT "v1.1"
 
@@ -66,45 +69,6 @@ extern byte *destview, *destscreen;	// PC direct to screen pointers
 //
 // most key data are simple ascii (uppercased)
 //
-#define	KEY_RIGHTARROW		0xae
-#define	KEY_LEFTARROW		0xac
-#define	KEY_UPARROW			0xad
-#define	KEY_DOWNARROW		0xaf
-#define	KEY_ESCAPE			27
-#define	KEY_ENTER			13
-#define	KEY_F1				(0x80+0x3b)
-#define	KEY_F2				(0x80+0x3c)
-#define	KEY_F3				(0x80+0x3d)
-#define	KEY_F4				(0x80+0x3e)
-#define	KEY_F5				(0x80+0x3f)
-#define	KEY_F6				(0x80+0x40)
-#define	KEY_F7				(0x80+0x41)
-#define	KEY_F8				(0x80+0x42)
-#define	KEY_F9				(0x80+0x43)
-#define	KEY_F10				(0x80+0x44)
-#define	KEY_F11				(0x80+0x57)
-#define	KEY_F12				(0x80+0x58)
-
-#define	KEY_BACKSPACE		127
-#define	KEY_PAUSE			0xff
-
-#define KEY_EQUALS			0x3d
-#define KEY_MINUS			0x2d
-
-#define	KEY_RSHIFT			(0x80+0x36)
-#define	KEY_RCTRL			(0x80+0x1d)
-#define	KEY_RALT			(0x80+0x38)
-
-#define	KEY_LALT			KEY_RALT
-
-#define KEY_FIVE			0x35
-#define KEY_SIX				0x36
-#define KEY_SEVEN			0x37
-#define KEY_EIGHT			0x38
-#define KEY_NINE			0x39
-#define KEY_ZERO			0x30
-#define KEY_BACKSLASH		0x5C
-
 
 #define MAXCHAR ((char)0x7f)
 #define MAXSHORT ((short)0x7fff)
@@ -465,22 +429,6 @@ typedef enum
 
 typedef enum
 {
-	KEY_1,
-	KEY_2,
-	KEY_3,
-	KEY_4,
-	KEY_5,
-	KEY_6,
-	KEY_7,
-	KEY_8,
-	KEY_9,
-	KEY_A,
-	KEY_B,
-	NUMKEYS
-} keytype_t;
-
-typedef enum
-{
 	ARMOR_ARMOR,
 	ARMOR_SHIELD,
 	ARMOR_HELMET,
@@ -836,7 +784,7 @@ extern int mouseSensitivity;
 
 extern boolean precache; // if true, load all graphics at level load
 
-extern byte *screen; // off screen work buffer, from V_video.c
+extern byte *vscreen; // off screen work buffer, from V_video.c
 
 extern boolean singledemo; // quit after playing a demo from cmdline
 
@@ -856,79 +804,140 @@ extern boolean autostart;
 */
 
 
-fixed_t	FixedMul (fixed_t a, fixed_t b);
-fixed_t	FixedDiv (fixed_t a, fixed_t b);
-fixed_t	FixedDiv2 (fixed_t a, fixed_t b);
+// killough 5/10/98: In djgpp, use inlined assembly for performance
+// killough 9/05/98: better code seems to be gotten from using inlined C
 
-#ifdef __WATCOMC__
-#pragma aux FixedMul =	\
-	"imul ebx",			\
-	"shrd eax,edx,16"	\
-	parm	[eax] [ebx] \
-	value	[eax]		\
-	modify exact [eax edx]
+#ifdef DJGPP
+#define abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
+#endif // DJGPP
 
-#pragma aux FixedDiv2 =	\
-	"cdq",				\
-	"shld edx,eax,16",	\
-	"sal eax,16",		\
-	"idiv ebx"			\
-	parm	[eax] [ebx] \
-	value	[eax]		\
-	modify exact [eax edx]
-#endif
+__inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
+{
+  fixed_t result;
 
-#ifdef __BIG_ENDIAN__
-short ShortSwap(short);
-long LongSwap(long);
-#define SHORT(x)	ShortSwap(x)
-#define LONG(x)		LongSwap(x)
-#else
+
+  /* Julian 6/7/2001
+
+        1) turned from asm to __asm__ as encouraged in docs for .h
+        2) made asm block const since output depends only on values
+        3) cleansed the constraints (now much simpler)
+        
+	haleyjd 02/16/02: 
+	fix for Joel -- GCC 3.03 seems to not like the const
+  */
+
+
+  __asm__ /*CONST*/ (
+
+  "  imull %2 \n"
+  "  shrdl $16,%%edx,%0"
+  : "=a" (result)           // eax is always the result
+  : "0"  (a),               // eax is also first operand
+    "rm" (b)                // second operand can be mem or reg
+  : "%edx", "%cc"           // edx and condition codes clobbered
+  );
+
+  return result;
+}
+
+// killough 5/10/98: In djgpp, use inlined assembly for performance
+// killough 9/5/98: optimized to reduce the number of branches
+
+__inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
+{
+  if (abs(a) >> 14 < abs(b))
+    {
+      fixed_t result;
+
+
+      /* Julian 6/7/2001
+
+            1) turned from asm to __asm__ as encouraged in docs for .h
+            2) made asm block const since output depends only on values
+            3) cleansed the constraints (now much simpler)
+            4) removed edx from clobbered regs as it is used as an input
+               (was useless on old gcc and error maker with modern gcc)
+	    
+	    haleyjd 02/16/02: 
+	    fix for Joel -- GCC 3.03 doesn't like the const
+      */
+
+
+      __asm__ /*CONST*/ (
+
+      " idivl %3"
+      : "=a" (result)
+      : "0" (a<<16),
+        "d" (a>>16),
+        "rm" (b)
+      : "%cc"
+      );
+
+      return result;
+    }
+  return ((a^b)>>31) ^ MAXINT;
+}
+
 #define SHORT(x)	(x)
 #define LONG(x)		(x)
-#endif
 
+
+// Remove all definitions before including system definitions
+
+#undef malloc
+#undef free
+#undef realloc
+#undef calloc
+#undef strdup
 
 //-----------
 //MEMORY ZONE
 //-----------
-// tags < 100 are not overwritten until freed
-#define	PU_STATIC		1			// static entire execution time
-#define	PU_SOUND		2			// static while playing
-#define	PU_MUSIC		3			// static while playing
-#define	PU_DAVE			4			// anything else Dave wants static
-#define	PU_LEVEL		50			// static until level exited
-#define	PU_LEVSPEC		51			// a special thinker in a level
-// tags >= 100 are purgable whenever needed
-#define	PU_PURGELEVEL	100
-#define	PU_CACHE		101
+// ZONE MEMORY
+// PU - purge tags.
 
+enum {PU_FREE, PU_STATIC, PU_SOUND, PU_MUSIC, PU_LEVEL, PU_LEVSPEC, PU_CACHE,
+      /* Must always be last -- killough */ PU_MAX};
 
-void	Z_Init (void);
-void 	*Z_Malloc (int size, int tag, void *ptr);
-void 	Z_Free (void *ptr);
-void 	Z_FreeTags (int lowtag, int hightag);
-//void 	Z_DumpHeap (int lowtag, int hightag);
-//void	Z_FileDumpHeap (FILE *f);
-void	Z_CheckHeap (void);
-void	Z_ChangeTag2 (void *ptr, int tag);
-//int 	Z_FreeMemory (void);
+#define PU_PURGELEVEL PU_CACHE        /* First purgable tag's level */
 
-typedef struct memblock_s
-{
-	int                     size;           // including the header and possibly tiny fragments
-	void            **user;         // NULL if a free block
-	int                     tag;            // purgelevel
-	int                     id;                     // should be ZONEID
-	struct memblock_s       *next, *prev;
-} memblock_t;
+void *(Z_Malloc)(size_t size, int tag, void **ptr, const char *, int);
+void (Z_Free)(void *ptr, const char *, int);
+void (Z_FreeTags)(int lowtag, int hightag, const char *, int);
+void (Z_ChangeTag)(void *ptr, int tag, const char *, int);
+void (Z_Init)(void);
+void *(Z_Calloc)(size_t n, size_t n2, int tag, void **user, const char *, int);
+void *(Z_Realloc)(void *p, size_t n, int tag, void **user, const char *, int);
+char *(Z_Strdup)(const char *s, int tag, void **user, const char *, int);
+void (Z_CheckHeap)(const char *,int);   // killough 3/22/98: add file/line info
+void Z_DumpHistory(char *);
+void Z_ReInit();
 
-#define Z_ChangeTag(p,t) \
-{ \
-if (( (memblock_t *)( (byte *)(p) - sizeof(memblock_t)))->id!=0x1d4a11) \
-	I_Error("Z_CT at "__FILE__":%i",__LINE__); \
-Z_ChangeTag2(p,t); \
-};
+#define Z_Free(a)          (Z_Free)     (a,      __FILE__,__LINE__)
+#define Z_FreeTags(a,b)    (Z_FreeTags) (a,b,    __FILE__,__LINE__)
+#define Z_ChangeTag(a,b)   (Z_ChangeTag)(a,b,    __FILE__,__LINE__)
+#define Z_Malloc(a,b,c)    (Z_Malloc)   (a,b,c,  __FILE__,__LINE__)
+#define Z_Strdup(a,b,c)    (Z_Strdup)   (a,b,c,  __FILE__,__LINE__)
+#define Z_Calloc(a,b,c,d)  (Z_Calloc)   (a,b,c,d,__FILE__,__LINE__)
+#define Z_Realloc(a,b,c,d) (Z_Realloc)  (a,b,c,d,__FILE__,__LINE__)
+#define Z_CheckHeap()      (Z_CheckHeap)(__FILE__,__LINE__)
+
+#define malloc(n)          Z_Malloc(n,PU_STATIC,0)
+#define free(p)            Z_Free(p)
+#define realloc(p,n)       Z_Realloc(p,n,PU_STATIC,0)
+#define calloc(n1,n2)      Z_Calloc(n1,n2,PU_STATIC,0)
+#define strdup(s)          Z_Strdup(s,PU_STATIC,0)
+
+// Doom-style printf
+void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
+
+void Z_ZoneHistory(char *);
+
+#ifdef INSTRUMENTED
+extern int printstats;        // killough 8/23/98
+void Z_PrintStats(void);      // killough 8/23/98
+#endif
+
 
 //-------
 //WADFILE
@@ -1027,8 +1036,9 @@ void I_NetCmd (void);
 
 void I_CheckExternDriver(void);
 
-void I_Error (char *error, ...);
-// called by anything that can generate a terminal error
+// killough 3/20/98: add const
+// killough 4/25/98: add gcc attributes
+void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));// called by anything that can generate a terminal error
 // bad exit with diagnostic message
 
 void I_Quit (void);
@@ -1050,12 +1060,11 @@ void I_WaitVBL(int count);
 void I_BeginRead (void);
 void I_EndRead (void);
 
-byte	*I_AllocLow (int length);
-// allocates from low memory under dos, just mallocs under unix
+// Allocates from low memory under dos, just mallocs under unix
 
-void I_Tactile (int on, int off, int total);
+#define I_AllocLow(length) calloc((length),1)            /* killough */
+#define I_Tactile(on, off, total)
 
-#ifdef __WATCOMC__
 extern boolean useexterndriver;
 
 #define EBT_FIRE			1
@@ -1084,7 +1093,7 @@ typedef struct
 	signed char flyDirection; // flyheight (+1/-1)
 	unsigned short buttons; // EBT_* flags
 } externdata_t;
-#endif
+
 
 //----
 //GAME

@@ -393,7 +393,7 @@ void IN_Drawer(void)
 		return;
 	}
 	UpdateState |= I_FULLSCRN;
-	memcpy(screen, (byte *)patchINTERPIC, SCREENWIDTH*SCREENHEIGHT);
+	memcpy(vscreen, (byte *)patchINTERPIC, SCREENWIDTH*SCREENHEIGHT);
 
 	if(gametype == SINGLE)
 	{
