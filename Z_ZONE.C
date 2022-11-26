@@ -38,6 +38,7 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.3 2000-08-12 21:29:34 fraggle Exp
 
 #ifdef DJGPP
 #include <dpmi.h>
+#include <stdarg.h>
 #endif
 
 // Uncomment this to see real-time memory allocation
@@ -122,7 +123,7 @@ int printstats;                    // killough 8/23/98
 
 void Z_PrintStats(void)            // Print allocation statistics
 {
-  if (printstats)
+  if (printstats || debugmode)
     {
       unsigned long total_memory = free_memory + active_memory +
 	purgable_memory + inactive_memory +
@@ -660,6 +661,25 @@ void (Z_CheckHeap)(const char *file, int line)
               );
   while ((block=block->next) != zone);
 }
+
+
+#define MAX_MESSAGE_SIZE 1024
+
+void dmprintf(const char *s, ...)
+{
+  static char msg[MAX_MESSAGE_SIZE];
+  va_list v;
+  
+  if(debugfile) {
+    va_start(v,s);
+    vsprintf(msg,s,v);                  // print message in buffer
+    va_end(v);
+  
+    fprintf(debugfile, msg);
+    fflush(debugfile);
+  } 
+}
+ 
 
 //-----------------------------------------------------------------------------
 //
