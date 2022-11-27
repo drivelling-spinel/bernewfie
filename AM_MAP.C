@@ -24,8 +24,8 @@ static int grid = 0;
 static int leveljuststarted = 1; // kluge until AM_LevelInit() is called
 
 boolean    automapactive = false;
-static int finit_width = SCREENWIDTH;
-static int finit_height = SCREENHEIGHT-SBARHEIGHT-3;
+static int finit_width;
+static int finit_height;
 static int f_x, f_y; // location of window on screen
 static int f_w, f_h; // size of window on screen
 static int lightlev; // used for funky strobing effect
@@ -357,7 +357,10 @@ void AM_Stop (void)
 void AM_Start (void)
 {
   static int lastlevel = -1, lastepisode = -1;
-  return;
+  
+  finit_width = SCREENWIDTH;
+  finit_height = SCREENHEIGHT-SBARHEIGHT-3;
+ 
   if (!stopped) AM_Stop();
   stopped = false;
   if(gamestate != GS_LEVEL)

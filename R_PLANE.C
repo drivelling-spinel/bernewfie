@@ -50,23 +50,23 @@ short openings[MAXOPENINGS], *lastopening;
 // Clip values are the solid pixel bounding the range.
 // floorclip start out SCREENHEIGHT
 // ceilingclip starts out -1
-short floorclip[SCREENWIDTH];
-short ceilingclip[SCREENWIDTH];
+short floorclip[MAXSCREENWIDTH];
+short ceilingclip[MAXSCREENWIDTH];
 
 // spanstart holds the start of a plane span, initialized to 0
-int spanstart[SCREENHEIGHT];
-int spanstop[SCREENHEIGHT];
+int spanstart[MAXSCREENHEIGHT];
+int spanstop[MAXSCREENHEIGHT];
 
 // Texture mapping
 lighttable_t **planezlight;
 fixed_t planeheight;
-fixed_t yslope[SCREENHEIGHT];
-fixed_t distscale[SCREENWIDTH];
+fixed_t yslope[MAXSCREENHEIGHT];
+fixed_t distscale[MAXSCREENWIDTH];
 fixed_t basexscale, baseyscale;
-fixed_t cachedheight[SCREENHEIGHT];
-fixed_t cacheddistance[SCREENHEIGHT];
-fixed_t cachedxstep[SCREENHEIGHT];
-fixed_t cachedystep[SCREENHEIGHT];
+fixed_t cachedheight[MAXSCREENHEIGHT];
+fixed_t cacheddistance[MAXSCREENHEIGHT];
+fixed_t cachedxstep[MAXSCREENHEIGHT];
+fixed_t cachedystep[MAXSCREENHEIGHT];
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -102,7 +102,7 @@ void R_InitSky(int map)
 void R_InitSkyMap(void)
 {
 	skyflatnum = R_FlatNumForName("F_SKY");
-	skytexturemid = 200*FRACUNIT;
+	skytexturemid = SCREENHEIGHT*FRACUNIT;
 	skyiscale = FRACUNIT;
 }
 
@@ -360,7 +360,7 @@ void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
 //
 //==========================================================================
 
-#define SKYTEXTUREMIDSHIFTED 200
+#define SKYTEXTUREMIDSHIFTED (SCREENHEIGHT)
 
 void R_DrawPlanes(void)
 {

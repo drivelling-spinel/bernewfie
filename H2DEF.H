@@ -1012,13 +1012,11 @@ void TryRunTics (void);
 //---------
 //SYSTEM IO
 //---------
-#if 1
-#define	SCREENWIDTH		320
-#define	SCREENHEIGHT	200
-#else
-#define	SCREENWIDTH		560
-#define	SCREENHEIGHT	375
-#endif
+extern int SCREENWIDTH;
+extern int SCREENHEIGHT;
+
+#define MAXSCREENWIDTH (640)
+#define MAXSCREENHEIGHT (400)
 
 byte *I_ZoneBase (int *size);
 // called by startup code to get the ammount of memory to malloc

@@ -169,11 +169,9 @@ void H2_Main(void)
 
 
 	HandleArgs();
-
+	
 	// Initialize subsystems
-
 	ST_Message("V_Init: allocate screens.\n");
-	V_Init();
 
 	// Load defaults before initing other systems
 	ST_Message("M_LoadDefaults: Load system defaults.\n");
@@ -189,8 +187,15 @@ void H2_Main(void)
 	ST_Message("W_Init: Init WADfiles.\n");
 	W_InitMultipleFiles(wadfiles);
 
+	if(M_CheckParm("-debugfile"))
+	{
+		char filename[20];
+		sprintf(filename, "debug%i.txt", consoleplayer);
+		debugfile = fopen(filename,"w");
+	}
+	I_InitGraphics();
+	
 	ST_Message("Z_Init: Init zone memory allocation daemon.\n");
-	Z_Init();
 
 	ST_Message("MN_Init: Init menu system.\n");
 	MN_Init();
@@ -235,6 +240,7 @@ void H2_Main(void)
 	// MAPINFO.TXT script must be already processed.
 	WarpCheck();
 
+
 	if(autostart)
 	{
 		ST_Message("Warp to Map %d (\"%s\":%d), Skill %d\n",
@@ -247,6 +253,12 @@ void H2_Main(void)
 	ST_Message("SB_Init: Loading patches.\n");
 	SB_Init();
 	
+
+#if defined(DEBUG_PTRS)
+	DM_PrintActions();
+	DM_PrintThinkers();
+#endif
+
 	CheckRecordFrom();
 	
 	p = M_CheckParm("-record");
@@ -509,19 +521,6 @@ static void ExecOptionMAXZONE(char **args, int tag)
 
 void H2_GameLoop(void)
 {
-	if(M_CheckParm("-debugfile"))
-	{
-		char filename[20];
-		sprintf(filename, "debug%i.txt", consoleplayer);
-		debugfile = fopen(filename,"w");
-	}
-	I_InitGraphics();
-
-#if defined(DEBUG_PTRS)
-	DM_PrintActions();
-	DM_PrintThinkers();
-#endif
-
 	while(1)
 	{
 		// Frame syncronous IO operations
