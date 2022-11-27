@@ -283,6 +283,8 @@ void A_LeafSpawn(mobj_t *actor)
 	mobj_t *mo;
 	int i;
 
+  if(!actor) {dmprintf("A_LeafSpawn, actor=%p\n", actor); return;}
+
 	for(i = (P_Random()&3)+1; i; i--)
 	{
 		mo = P_SpawnMobj(actor->x+((P_Random()-P_Random())<<14), actor->y+

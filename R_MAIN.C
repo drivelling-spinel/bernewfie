@@ -841,13 +841,13 @@ void R_RenderPlayerView (player_t *player)
 	NetUpdate ();					// check for new console commands
 
 	// Make displayed player invisible locally
-	if (localQuakeHappening[displayplayer] && gamestate == GS_LEVEL)
+/*	if (localQuakeHappening[displayplayer] && gamestate == GS_LEVEL)
 	{
 		players[displayplayer].mo->flags2 |= MF2_DONTDRAW;
 		R_RenderBSPNode (numnodes-1);	// head node is the last node output
 		players[displayplayer].mo->flags2 &= ~MF2_DONTDRAW;
 	}
-	else
+	else*/
 	{
 		R_RenderBSPNode (numnodes-1);	// head node is the last node output
 	}
