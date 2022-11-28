@@ -220,6 +220,7 @@ void H2_Main(void)
 	S_Init();
 	//IO_StartupTimer();
 	S_Start();  
+	S_StartSongName("orb", true);
 
 
 	ST_Message("ST_Init: Init startup screen.\n");
@@ -522,6 +523,8 @@ static void ExecOptionMAXZONE(char **args, int tag)
 
 void H2_GameLoop(void)
 {
+  sleep(3);
+
   while(1)
 	{
 		// Frame syncronous IO operations

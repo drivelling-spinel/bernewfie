@@ -343,14 +343,8 @@ void I_InitSound(void)
       //GB 2014, show sound driver:
       snd_card=1;
 	  mus_card=1;
-	  textcolor(WHITE);  // GB 2014
-	  cprintf("\n");
-	  gotoxy(1,wherey());
-	  cprintf(" Sound: %s\n",digi_driver->desc);
-	  gotoxy(1,wherey());
-      cprintf(" Music: %s\n",midi_driver->desc);
-	  gotoxy(1,wherey());
-	  textcolor(LIGHTGRAY);  // GB 2014
+	  printf(" Sound: %s\n",digi_driver->desc);
+    printf(" Music: %s\n",midi_driver->desc);
 	  LOCK_VARIABLE(channel);  // killough 2/7/98: prevent VM swapping of sfx
       atexit(I_ShutdownSound); // killough
 
@@ -370,12 +364,9 @@ void I_InitSound(void)
   // int load_ibk(char *filename, int drums)
   if (mus_card>0)
   {
-    if (0) 
-    {	
 	   if (load_ibk("MBF_D2GM.IBK",0)==0) fputs(" - MBF_D2GM.IBK loaded", stdout);
 	   else                               fputs(" - failed to load MBF_D2GM.IBK", stdout); 
        //load_ibk("drum.ibk",1);
-    }	
   }
   // Finished initialization.
   puts("\nI_InitSound: sound module ready");    // killough 8/8/98
