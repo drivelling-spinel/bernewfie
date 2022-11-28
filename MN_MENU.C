@@ -146,6 +146,8 @@ static int currentSlot;
 static int quicksave;
 static int quickload;
 
+static int goffsx, goffsy;
+
 static MenuItem_t MainItems[] =
 {
 	{ ITT_SETMENU, "NEW GAME", SCNetCheck2, 1, MENU_CLASS },
@@ -518,26 +520,29 @@ void MN_Drawer(void)
 	int y;
 	MenuItem_t *item;
 	char *selName;
+	
+	goffsx = (SCREENWIDTH - LORESWIDTH) / 2;
+	goffsy = (SCREENHEIGHT - LORESHEIGHT) / 2;
 
 	if(MenuActive == false)
 	{
 		if(askforquit)
 		{
-			MN_DrTextA(QuitEndMsg[typeofask-1], 160-
-				MN_TextAWidth(QuitEndMsg[typeofask-1])/2, 80);
+			MN_DrTextA(QuitEndMsg[typeofask-1], goffsx + 160-
+				MN_TextAWidth(QuitEndMsg[typeofask-1])/2, goffsy + 80);
 			if(typeofask == 3)
 			{
-				MN_DrTextA(SlotText[quicksave-1], 160-
-					MN_TextAWidth(SlotText[quicksave-1])/2, 90);
-				MN_DrTextA("?", 160+
-					MN_TextAWidth(SlotText[quicksave-1])/2, 90);
+				MN_DrTextA(SlotText[quicksave-1], goffsx + 160-
+					MN_TextAWidth(SlotText[quicksave-1])/2, goffsy + 90);
+				MN_DrTextA("?", goffsx + 160+
+					MN_TextAWidth(SlotText[quicksave-1])/2, goffsy + 90);
 			}
 			if(typeofask == 4)
 			{
-				MN_DrTextA(SlotText[quickload-1], 160-
-					MN_TextAWidth(SlotText[quickload-1])/2, 90);
-				MN_DrTextA("?", 160+
-					MN_TextAWidth(SlotText[quicksave-1])/2, 90);
+				MN_DrTextA(SlotText[quickload-1], goffsx + 160-
+					MN_TextAWidth(SlotText[quickload-1])/2, goffsy + 90);
+				MN_DrTextA("?", goffsx + 160+
+					MN_TextAWidth(SlotText[quicksave-1])/2, goffsy + 90);
 			}
 			UpdateState |= I_FULLSCRN;
 		}
@@ -559,8 +564,8 @@ void MN_Drawer(void)
 		{
 			CurrentMenu->drawFunc();
 		}
-		x = CurrentMenu->x;
-		y = CurrentMenu->y;
+		x = goffsx + CurrentMenu->x;
+		y = goffsy + CurrentMenu->y;
 		item = CurrentMenu->items;
 		for(i = 0; i < CurrentMenu->itemCount; i++)
 		{
@@ -571,7 +576,7 @@ void MN_Drawer(void)
 			y += ITEM_HEIGHT;
 			item++;
 		}
-		y = CurrentMenu->y+(CurrentItPos*ITEM_HEIGHT)+SELECTOR_YOFFSET;
+		y = goffsy + CurrentMenu->y+(CurrentItPos*ITEM_HEIGHT)+SELECTOR_YOFFSET;
 		selName = MenuTime&16 ? "M_SLCTR1" : "M_SLCTR2";
 		V_DrawPatch(x+SELECTOR_XOFFSET, y,
 			W_CacheLumpName(selName, PU_CACHE));
@@ -589,11 +594,11 @@ static void DrawMainMenu(void)
 	int frame;
 
 	frame = (MenuTime/5)%7;
-	V_DrawPatch(88, 0, W_CacheLumpName("M_HTIC", PU_CACHE));
+	V_DrawPatch(goffsx + 88, goffsy + 0, W_CacheLumpName("M_HTIC", PU_CACHE));
 // Old Gold skull positions: (40, 10) and (232, 10)
-	V_DrawPatch(37, 80, W_CacheLumpNum(MauloBaseLump+(frame+2)%7, 
+	V_DrawPatch(goffsx + 37, goffsy + 80, W_CacheLumpNum(MauloBaseLump+(frame+2)%7, 
 		PU_CACHE));
-	V_DrawPatch(278, 80, W_CacheLumpNum(MauloBaseLump+frame, PU_CACHE));
+	V_DrawPatch(goffsx + 278, goffsy + 80, W_CacheLumpNum(MauloBaseLump+frame, PU_CACHE));
 }
 
 //==========================================================================
@@ -618,10 +623,10 @@ static void DrawClassMenu(void)
 		"m_mwalk1"
 	};
 
-	MN_DrTextB("CHOOSE CLASS:", 34, 24);
+	MN_DrTextB("CHOOSE CLASS:", goffsx + 34, goffsy + 24);
 	class = (pclass_t)CurrentMenu->items[CurrentItPos].option;
-	V_DrawPatch(174, 8, W_CacheLumpName(boxLumpName[class], PU_CACHE));
-	V_DrawPatch(174+24, 8+12,
+	V_DrawPatch(goffsx + 174, goffsy + 8, W_CacheLumpName(boxLumpName[class], PU_CACHE));
+	V_DrawPatch(goffsx + 174+24, goffsy + 8+12,
 		W_CacheLumpNum(W_GetNumForName(walkLumpName[class])
 		+((MenuTime>>3)&3), PU_CACHE));
 }
@@ -634,7 +639,7 @@ static void DrawClassMenu(void)
 
 static void DrawSkillMenu(void)
 {
-	MN_DrTextB("CHOOSE SKILL LEVEL:", 74, 16);
+	MN_DrTextB("CHOOSE SKILL LEVEL:", goffsx + 74, goffsy + 16);
 }
 
 //---------------------------------------------------------------------------
@@ -659,7 +664,7 @@ static void DrawFilesMenu(void)
 
 static void DrawLoadMenu(void)
 {
-	MN_DrTextB("LOAD GAME", 160-MN_TextBWidth("LOAD GAME")/2, 10);
+	MN_DrTextB("LOAD GAME", goffsx + 160-MN_TextBWidth("LOAD GAME")/2, goffsy + 10);
 	if(!slottextloaded)
 	{
 		MN_LoadSlotText();
@@ -675,7 +680,7 @@ static void DrawLoadMenu(void)
 
 static void DrawSaveMenu(void)
 {
-	MN_DrTextB("SAVE GAME", 160-MN_TextBWidth("SAVE GAME")/2, 10);
+	MN_DrTextB("SAVE GAME", goffsx + 160-MN_TextBWidth("SAVE GAME")/2, goffsy + 10);
 	if(!slottextloaded)
 	{
 		MN_LoadSlotText();
@@ -741,8 +746,8 @@ static void DrawFileSlots(Menu_t *menu)
 	int x;
 	int y;
 
-	x = menu->x;
-	y = menu->y;
+	x = goffsx + menu->x;
+	y = goffsy + menu->y;
 	for(i = 0; i < 6; i++)
 	{
 		V_DrawPatch(x, y, W_CacheLumpName("M_FSLOT", PU_CACHE));
@@ -764,11 +769,11 @@ static void DrawOptionsMenu(void)
 {
 	if(messageson)
 	{
-		MN_DrTextB("ON", 196, 50);
+		MN_DrTextB("ON", goffsx + 196, goffsy + 50);
 	}
 	else
 	{
-		MN_DrTextB("OFF", 196, 50);
+		MN_DrTextB("OFF", goffsx + 196, goffsy + 50);
 	}
 	DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity);
 }
@@ -971,7 +976,7 @@ static void SCClass(int option)
 	switch(MenuPClass)
 	{
 		case PCLASS_FIGHTER:
-			SkillMenu.x = 120;
+			SkillMenu.x = goffsx + 120;
 			SkillItems[0].text = "SQUIRE";
 			SkillItems[1].text = "KNIGHT";
 			SkillItems[2].text = "WARRIOR";
@@ -979,7 +984,7 @@ static void SCClass(int option)
 			SkillItems[4].text = "TITAN";
 			break;
 		case PCLASS_CLERIC:
-			SkillMenu.x = 116;
+			SkillMenu.x = goffsx + 116;
 			SkillItems[0].text = "ALTAR BOY";
 			SkillItems[1].text = "ACOLYTE";
 			SkillItems[2].text = "PRIEST";
@@ -987,7 +992,7 @@ static void SCClass(int option)
 			SkillItems[4].text = "POPE";
 			break;
 		case PCLASS_MAGE:
-			SkillMenu.x = 112;
+			SkillMenu.x = goffsx + 112;
 			SkillItems[0].text = "APPRENTICE";
 			SkillItems[1].text = "ENCHANTER";
 			SkillItems[2].text = "SORCERER";
@@ -1717,7 +1722,7 @@ static void DrawSlider(Menu_t *menu, int item, int width, int slot)
 	int x2;
 	int count;
 
-	x = menu->x+24;
+	x = goffsx + menu->x+24;
 	y = menu->y+2+(item*ITEM_HEIGHT);
 	V_DrawPatch(x-32, y, W_CacheLumpName("M_SLDLT", PU_CACHE));
 	for(x2 = x, count = width; count--; x2 += 8)
