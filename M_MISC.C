@@ -464,7 +464,6 @@ default_t defaults[] =
 	{ "music_volume", &snd_MusicVolume, 10},
 #endif
 
-#ifdef __WATCOMC__
 #define SC_UPARROW              0x48
 #define SC_DOWNARROW            0x50
 #define SC_LEFTARROW            0x4b
@@ -505,31 +504,6 @@ default_t defaults[] =
 	{ "key_use", &key_use, SC_SPACE, 1 },
 	{ "key_strafe", &key_strafe, SC_RALT, 1 },
 	{ "key_speed", &key_speed, SC_RSHIFT, 1 },
-#endif
-
-#ifdef __NeXT__
-	{ "key_right", &key_right, KEY_RIGHTARROW },
-	{ "key_left", &key_left, KEY_LEFTARROW },
-	{ "key_up", &key_up, KEY_UPARROW },
-	{ "key_down", &key_down, KEY_DOWNARROW },
-	{ "key_strafeleft", &key_strafeleft, ',' },
-	{ "key_straferight", &key_straferight, '.' },
-	{ "key_jump", &key_jump, '/'},
-	{ "key_flyup", &key_flyup, 'u' },
-	{ "key_flydown", &key_flydown, 'j' },
-	{ "key_flycenter", &key_flycenter, 'k' },
-	{ "key_lookup", &key_lookup, 'm' },
-	{ "key_lookdown", &key_lookdown, 'b' },
-	{ "key_lookcenter", &key_lookcenter, 'n' },
-	{ "key_invleft", &key_invleft, '[' },
-	{ "key_invright", &key_invright, ']' },
-	{ "key_useartifact", &key_useartifact, 13 },
-
-	{ "key_fire", &key_fire, ' ', 1 },
-	{ "key_use", &key_use, 'x', 1 },
-	{ "key_strafe", &key_strafe, 'c', 1 },
-	{ "key_speed", &key_speed, 'z', 1 },
-#endif
 
 	{ "use_mouse", &usemouse, 1 },
 	{ "mouseb_fire", &mousebfire, 0 },
@@ -558,11 +532,7 @@ default_t defaults[] =
 
 	{ "usegamma", &usegamma, 0 },
 
-#ifdef __NeXT__
-	#define DEFAULT_SAVEPATH		"hexndata/"
-#endif
-
-#define DEFAULT_SAVEPATH		"hexndata\\"
+#define DEFAULT_SAVEPATH		"hexndata/"
 
 	{ "savedir", (int *) &SavePath, (int) DEFAULT_SAVEPATH },
 
@@ -602,10 +572,8 @@ void M_SaveDefaults (void)
 
 	for (i=0 ; i<numdefaults ; i++)
 	{
-#ifdef __WATCOMC__
 		if (defaults[i].scantranslate)
 			defaults[i].location = &defaults[i].untranslated;
-#endif
 		if (defaults[i].defaultvalue > -0xfff
 		  && defaults[i].defaultvalue < 0xfff)
 		{
@@ -710,7 +678,6 @@ void M_LoadDefaults(char *fileName)
 		fclose (f);
 	}
 
-#ifdef __WATCOMC__
 	// Translate the key scancodes
 	for(i = 0; i < numdefaults; i++)
 	{
@@ -718,10 +685,9 @@ void M_LoadDefaults(char *fileName)
 		{
 			parm = *defaults[i].location;
 			defaults[i].untranslated = parm;
-			*defaults[i].location = scantokey[parm];
+			*defaults[i].location = I_ScanCode2DoomCode(parm);;
 		}
 	}
-#endif
 }
 
 /*
@@ -860,3 +826,4 @@ void M_ScreenShot (void)
 
 	P_SetMessage(&players[consoleplayer], "SCREEN SHOT", false);
 }
+
