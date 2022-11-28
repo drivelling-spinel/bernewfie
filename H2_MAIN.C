@@ -193,12 +193,15 @@ void H2_Main(void)
 		sprintf(filename, "debug%i.txt", consoleplayer);
 		debugfile = fopen(filename,"w");
 	}
+
+	MN_Init();
 	I_InitGraphics();
 	
+	ST_Message("V_Init: allocate screens.\n");
+	ST_Message("M_LoadDefaults: Load system defaults.\n");
+	ST_Message("W_Init: Init WADfiles.\n");
 	ST_Message("Z_Init: Init zone memory allocation daemon.\n");
-
 	ST_Message("MN_Init: Init menu system.\n");
-	MN_Init();
 
 	ST_Message("CT_Init: Init chat mode data.\n");
 	CT_Init();
@@ -221,8 +224,6 @@ void H2_Main(void)
 
 	ST_Message("ST_Init: Init startup screen.\n");
 	ST_Init();
-
-	S_StartSongName("orb", true);
 
 	// Show version message now, so it's visible during R_Init()
 	ST_Message("Executable: "VERSIONTEXT".\n");
@@ -349,7 +350,7 @@ static void WarpCheck(void)
 {
 	int p;
 	int map;
-
+  
 	p = M_CheckParm("-warp");
 	if(p && p < myargc-1)
 	{
@@ -521,6 +522,10 @@ static void ExecOptionMAXZONE(char **args, int tag)
 
 void H2_GameLoop(void)
 {
+  wait(4);
+
+	S_StartSongName("orb", true);
+
 	while(1)
 	{
 		// Frame syncronous IO operations
