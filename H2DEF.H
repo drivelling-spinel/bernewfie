@@ -930,7 +930,7 @@ __inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
 }
 
 // Swap 16bit, that is, MSB and LSB byte.
-/*
+
 #ifdef __GNUC__
 __inline__
 #endif
@@ -951,11 +951,7 @@ static long LONG(long x)
          (((unsigned char *) &x)[2]<<16) +
          (((unsigned char *) &x)[1]<< 8) +
           ((unsigned char *) &x)[0];
-} */
-
-#define SHORT(x) (x)
-#define LONG(x) (x)
-
+} 
 
 //-------
 //WADFILE

@@ -616,8 +616,8 @@ void R_ExecuteSetViewSize (void)
 //
 // psprite scales
 //
-	pspritescale = FRACUNIT*viewwidth/SCREENWIDTH;
-	pspriteiscale = FRACUNIT*SCREENWIDTH/viewwidth;
+	pspritescale = (FRACUNIT*viewwidth/SCREENWIDTH) ;
+	pspriteiscale = (FRACUNIT*SCREENWIDTH/viewwidth) ;
 
 //
 // thing clipping

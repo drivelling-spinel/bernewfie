@@ -16,10 +16,6 @@
 #include "p_local.h"
 #include "soundst.h"
 
-#ifdef __WATCOMC__
-#include "i_sound.h" // For CD stuff
-#endif
-
 // MACROS ------------------------------------------------------------------
 
 #define CHEAT_ENCRYPT(a) \
@@ -90,8 +86,6 @@ static void CheatScriptFunc1(player_t *player, Cheat_t *cheat);
 static void CheatScriptFunc2(player_t *player, Cheat_t *cheat);
 static void CheatScriptFunc3(player_t *player, Cheat_t *cheat);
 static void CheatRevealFunc(player_t *player, Cheat_t *cheat);
-static void CheatTrackFunc1(player_t *player, Cheat_t *cheat);
-static void CheatTrackFunc2(player_t *player, Cheat_t *cheat);
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
@@ -99,13 +93,6 @@ extern byte *vscreen;
 extern int ArmorIncrement[NUMCLASSES][NUMARMOR];
 extern int AutoArmorSave[NUMCLASSES];
 
-#ifdef __WATCOMC__
-extern boolean i_CDMusic;
-extern int i_CDMusicLength;
-extern int i_CDTrack;
-extern int i_CDCurrentTrack;
-extern int oldTic;
-#endif
 
 // PUBLIC DATA DECLARATIONS ------------------------------------------------
 
@@ -114,10 +101,6 @@ boolean inventory;
 int curpos;
 int inv_ptr;
 int ArtifactFlash;
-
-#ifndef __WATCOMC__
-boolean i_CDMusic; // in Watcom, defined in i_ibm
-#endif
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -484,22 +467,8 @@ static byte CheatRevealSeq[] =
 	0xff, 0
 };
 
-static byte CheatTrackSeq1[] = 
-{
-	CHEAT_ENCRYPT('`'),
-	0xff, 0
-};
-
-static byte CheatTrackSeq2[] = 
-{
-	CHEAT_ENCRYPT('`'),
-	0, 0, 0xff, 0
-};
-
 static Cheat_t Cheats[] =
 {
-	{ CheatTrackFunc1, CheatTrackSeq1, NULL, 0, 0, 0 },
-	{ CheatTrackFunc2, CheatTrackSeq2, NULL, 0, 0, 0 },
 	{ CheatGodFunc, CheatGodSeq, NULL, 0, 0, 0 },
 	{ CheatNoClipFunc, CheatNoClipSeq, NULL, 0, 0, 0 },
 	{ CheatWeaponsFunc, CheatWeaponsSeq, NULL, 0, 0, 0 },
@@ -1017,7 +986,7 @@ void SB_Drawer(void)
 	{
 		if(SB_state == -1)
 		{
-			V_DrawPatch(0, 134, PatchH2BAR);
+			V_DrawPatch(0, 134 << hires, PatchH2BAR);
 			oldhealth = -1;
 		}
 		DrawCommonBar();
@@ -1028,11 +997,11 @@ void SB_Drawer(void)
 				// Main interface
 				if(!automapactive)
 				{
-					V_DrawPatch(38, 162, PatchSTATBAR);
+					V_DrawPatch(38, 162 << hires, PatchSTATBAR);
 				}
 				else
 				{
-					V_DrawPatch(38, 162, PatchKEYBAR);
+					V_DrawPatch(38, 162 << hires, PatchKEYBAR);
 				}
 				oldarti = 0;
 				oldmana1 = -1;
@@ -1240,7 +1209,7 @@ void DrawCommonBar(void)
 {
 	int healthPos;
 
-	V_DrawPatch(0, 134, PatchH2TOP);
+	V_DrawPatch(0, 134 << hires, PatchH2TOP);
 
 	if(oldhealth != HealthMarker)
 	{
@@ -1254,10 +1223,10 @@ void DrawCommonBar(void)
 		{
 			healthPos = 100;
 		}
-		V_DrawPatch(28+(((healthPos*196)/100)%9), 193, PatchCHAIN);
-		V_DrawPatch(7+((healthPos*11)/5), 193, PatchLIFEGEM);
-		V_DrawPatch(0, 193, PatchLFEDGE);
-		V_DrawPatch(277, 193, PatchRTEDGE);
+		V_DrawPatch(28+(((healthPos*196)/100)%9), 193 << hires, PatchCHAIN);
+		V_DrawPatch(7+((healthPos*11)/5), 193 << hires, PatchLIFEGEM);
+		V_DrawPatch(0, 193 << hires, PatchLFEDGE);
+		V_DrawPatch(277, 193 << hires, PatchRTEDGE);
 //		ShadeChain();
 		UpdateState |= I_STATBAR;
 	}
@@ -1284,8 +1253,8 @@ void DrawMainBar(void)
 	// Ready artifact
 	if(ArtifactFlash)
 	{
-		V_DrawPatch(144, 160, PatchARTICLEAR);
-		V_DrawPatch(148, 164, W_CacheLumpNum(W_GetNumForName("useartia")
+		V_DrawPatch(144, 160 << hires, PatchARTICLEAR);
+		V_DrawPatch(148, 164 << hires, W_CacheLumpNum(W_GetNumForName("useartia")
 			+ ArtifactFlash - 1, PU_CACHE));
 		ArtifactFlash--;
 		oldarti = -1; // so that the correct artifact fills in after the flash
@@ -1294,14 +1263,14 @@ void DrawMainBar(void)
 	else if(oldarti != CPlayer->readyArtifact
 		|| oldartiCount != CPlayer->inventory[inv_ptr].count)
 	{
-		V_DrawPatch(144, 160, PatchARTICLEAR);
+		V_DrawPatch(144, 160 << hires, PatchARTICLEAR);
 		if(CPlayer->readyArtifact > 0)
 		{
-			V_DrawPatch(143, 163, 
+			V_DrawPatch(143, 163 << hires, 
 				W_CacheLumpName(patcharti[CPlayer->readyArtifact], PU_CACHE));
 			if(CPlayer->inventory[inv_ptr].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 162, 184);
+				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 162, 184 << hires);
 			}
 		}
 		oldarti = CPlayer->readyArtifact;
@@ -1319,8 +1288,8 @@ void DrawMainBar(void)
 		}
 		if(temp != oldfrags)
 		{
-			V_DrawPatch(38, 162, PatchKILLS);
-			DrINumber(temp, 40, 176);
+			V_DrawPatch(38, 162 << hires, PatchKILLS);
+			DrINumber(temp, 40, 176 << hires);
 			oldfrags = temp;
 			UpdateState |= I_STATBAR;
 		}
@@ -1339,14 +1308,14 @@ void DrawMainBar(void)
 		if(oldlife != temp)
 		{
 			oldlife = temp;
-			V_DrawPatch(41, 178, PatchARMCLEAR);
+			V_DrawPatch(41, 178 << hires, PatchARMCLEAR);
 			if(temp >= 25)
 			{
-				DrINumber(temp, 40, 176);
+				DrINumber(temp, 40, 176 << hires);
 			}
 			else
 			{
-				DrRedINumber(temp, 40, 176);
+				DrRedINumber(temp, 40, 176 << hires);
 			}
 			UpdateState |= I_STATBAR;
 		}
@@ -1356,8 +1325,8 @@ void DrawMainBar(void)
 	temp = CPlayer->mana[0];
 	if(oldmana1 != temp)
 	{
-		V_DrawPatch(77, 178, PatchMANACLEAR);
-		DrSmallNumber(temp, 79, 181);
+		V_DrawPatch(77, 178 << hires, PatchMANACLEAR);
+		DrSmallNumber(temp, 79, 181 << hires);
 		manaVialPatch1 = (patch_t *)1; // force a vial update
 		if(temp == 0)
 		{ // Draw Dim Mana icon
@@ -1373,8 +1342,8 @@ void DrawMainBar(void)
 	temp = CPlayer->mana[1];
 	if(oldmana2 != temp)
 	{
-		V_DrawPatch(109, 178, PatchMANACLEAR);
-		DrSmallNumber(temp, 111, 181);
+		V_DrawPatch(109, 178 << hires, PatchMANACLEAR);
+		DrSmallNumber(temp, 111, 181 << hires);
 		manaVialPatch1 = (patch_t *)1; // force a vial update
 		if(temp == 0)
 		{ // Draw Dim Mana icon
@@ -1431,17 +1400,17 @@ void DrawMainBar(void)
 				manaPatch2 = PatchMANABRIGHT2;
 			}
 		}
-		V_DrawPatch(77, 164, manaPatch1);
-		V_DrawPatch(110, 164, manaPatch2);
-		V_DrawPatch(94, 164, manaVialPatch1);
-		for(i = 165; i < 187-(22*CPlayer->mana[0])/MAX_MANA; i++)
+		V_DrawPatch(77, 164 << hires, manaPatch1);
+		V_DrawPatch(110, 164 << hires, manaPatch2);
+		V_DrawPatch(94, 164 << hires, manaVialPatch1);
+		for(i = 165 << hires; i < (187-(22*CPlayer->mana[0])/MAX_MANA)  << hires; i++)
 		{
 			vscreen[i*SCREENWIDTH+95] = 0;
 			vscreen[i*SCREENWIDTH+96] = 0;
 			vscreen[i*SCREENWIDTH+97] = 0;
 		}
-		V_DrawPatch(102, 164, manaVialPatch2);
-		for(i = 165; i < 187-(22*CPlayer->mana[1])/MAX_MANA; i++)
+		V_DrawPatch(102, 164 << hires, manaVialPatch2);
+		for(i = 165 << hires; i < (187-(22*CPlayer->mana[1])/MAX_MANA)  << hires; i++)
 		{
 			vscreen[i*SCREENWIDTH+103] = 0;
 			vscreen[i*SCREENWIDTH+104] = 0;
@@ -1458,8 +1427,8 @@ void DrawMainBar(void)
 	if(oldarmor != temp)
 	{
 		oldarmor = temp;
-		V_DrawPatch(255, 178, PatchARMCLEAR);
-		DrINumber(FixedDiv(temp, 5*FRACUNIT)>>FRACBITS, 250, 176);
+		V_DrawPatch(255, 178 << hires, PatchARMCLEAR);
+		DrINumber(FixedDiv(temp, 5*FRACUNIT)>>FRACBITS, 250, 176 << hires);
 		UpdateState |= I_STATBAR;
 	}
 	// Weapon Pieces
@@ -1484,30 +1453,30 @@ void DrawInventoryBar(void)
 
 	x = inv_ptr-curpos;
 	UpdateState |= I_STATBAR;
-	V_DrawPatch(38, 162, PatchINVBAR);
+	V_DrawPatch(38, 162 << hires, PatchINVBAR);
 	for(i = 0; i < 7; i++)
 	{
 		//V_DrawPatch(50+i*31, 160, W_CacheLumpName("ARTIBOX", PU_CACHE));
 		if(CPlayer->inventorySlotNum > x+i
 			&& CPlayer->inventory[x+i].type != arti_none)
 		{
-			V_DrawPatch(50+i*31, 163, W_CacheLumpName(
+			V_DrawPatch(50+i*31, 163 << hires, W_CacheLumpName(
 				patcharti[CPlayer->inventory[x+i].type], PU_CACHE));
 			if(CPlayer->inventory[x+i].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[x+i].count, 68+i*31, 185);
+				DrSmallNumber(CPlayer->inventory[x+i].count, 68+i*31, 185 << hires);
 			}
 		}
 	}
-	V_DrawPatch(50+curpos*31, 163, PatchSELECTBOX);
+	V_DrawPatch(50+curpos*31, 163 << hires, PatchSELECTBOX);
 	if(x != 0)
 	{
-		V_DrawPatch(42, 163, !(leveltime&4) ? PatchINVLFGEM1 :
+		V_DrawPatch(42, 163 << hires, !(leveltime&4) ? PatchINVLFGEM1 :
 			PatchINVLFGEM2);
 	}
 	if(CPlayer->inventorySlotNum-x > 7)
 	{
-		V_DrawPatch(269, 163, !(leveltime&4) ? PatchINVRTGEM1 :
+		V_DrawPatch(269, 163 << hires, !(leveltime&4) ? PatchINVRTGEM1 :
 			PatchINVRTGEM2);
 	}
 }
@@ -1531,7 +1500,7 @@ void DrawKeyBar(void)
 		{
 			if(CPlayer->keys&(1<<i))
 			{
-				V_DrawPatch(xPosition, 164, 
+				V_DrawPatch(xPosition, 164 << hires, 
 					W_CacheLumpNum(W_GetNumForName("keyslot1")+i, PU_CACHE));
 				xPosition += 20;
 			}
@@ -1553,18 +1522,18 @@ void DrawKeyBar(void)
 			if(CPlayer->armorpoints[i] <= 
 				(ArmorIncrement[CPlayer->class][i]>>2))
 			{
-				V_DrawFuzzPatch(150+31*i, 164, 
+				V_DrawFuzzPatch(150+31*i, 164 << hires, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 			else if(CPlayer->armorpoints[i] <= 
 				(ArmorIncrement[CPlayer->class][i]>>1))
 			{
-				V_DrawAltFuzzPatch(150+31*i, 164, 
+				V_DrawAltFuzzPatch(150+31*i, 164 << hires, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 			else
 			{
-				V_DrawPatch(150+31*i, 164, 
+				V_DrawPatch(150+31*i, 164 << hires, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 		}
@@ -1591,21 +1560,21 @@ static void DrawWeaponPieces(void)
 {
 	if(CPlayer->pieces == 7)
 	{
-		V_DrawPatch(190, 162, PatchWEAPONFULL);
+		V_DrawPatch(190, 162 << hires, PatchWEAPONFULL);
 		return;
 	}
-	V_DrawPatch(190, 162, PatchWEAPONSLOT);
+	V_DrawPatch(190, 162 << hires, PatchWEAPONSLOT);
 	if(CPlayer->pieces&WPIECE1)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][0], 162, PatchPIECE1);
+		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][0], 162 << hires, PatchPIECE1);
 	}
 	if(CPlayer->pieces&WPIECE2)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][1], 162, PatchPIECE2);
+		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][1], 162 << hires, PatchPIECE2);
 	}
 	if(CPlayer->pieces&WPIECE3)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][2], 162, PatchPIECE3);
+		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][2], 162 << hires, PatchPIECE3);
 	}
 }
 
@@ -1624,11 +1593,11 @@ void DrawFullScreenStuff(void)
 	UpdateState |= I_FULLSCRN;
 	if(CPlayer->mo->health > 0)
 	{
-		DrBNumber(CPlayer->mo->health, 5, 180);
+		DrBNumber(CPlayer->mo->health, 5, 180 << hires);
 	}
 	else
 	{
-		DrBNumber(0, 5, 180);
+		DrBNumber(0, 5, 180 << hires);
 	}
 	if(deathmatch)
 	{
@@ -1640,19 +1609,19 @@ void DrawFullScreenStuff(void)
 				temp += CPlayer->frags[i];
 			}
 		}
-		DrINumber(temp, 45, 185);
+		DrINumber(temp, 45, 185 << hires);
 	}
 	if(!inventory)
 	{
 		if(CPlayer->readyArtifact > 0)
 		{
-			V_DrawFuzzPatch(286, 170, W_CacheLumpName("ARTIBOX",
+			V_DrawFuzzPatch(286, 170 << hires, W_CacheLumpName("ARTIBOX",
 				PU_CACHE));
-			V_DrawPatch(284, 169,
+			V_DrawPatch(284, 169 << hires,
 				W_CacheLumpName(patcharti[CPlayer->readyArtifact], PU_CACHE));
 			if(CPlayer->inventory[inv_ptr].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 302, 192);
+				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 302, 192 << hires);
 			}
 		}
 	}
@@ -1661,29 +1630,29 @@ void DrawFullScreenStuff(void)
 		x = inv_ptr-curpos;
 		for(i = 0; i < 7; i++)
 		{
-			V_DrawFuzzPatch(50+i*31, 168, W_CacheLumpName("ARTIBOX",
+			V_DrawFuzzPatch(50+i*31, 168 << hires, W_CacheLumpName("ARTIBOX",
 				PU_CACHE));
 			if(CPlayer->inventorySlotNum > x+i
 				&& CPlayer->inventory[x+i].type != arti_none)
 			{
-				V_DrawPatch(49+i*31, 167, W_CacheLumpName(
+				V_DrawPatch(49+i*31, 167 << hires, W_CacheLumpName(
 					patcharti[CPlayer->inventory[x+i].type], PU_CACHE));
 				if(CPlayer->inventory[x+i].count > 1)
 				{
 					DrSmallNumber(CPlayer->inventory[x+i].count, 66+i*31,
- 						188);
+ 						188 << hires) ;
 				}
 			}
 		}
-		V_DrawPatch(50+curpos*31, 167, PatchSELECTBOX);
+		V_DrawPatch(50+curpos*31, 167 << hires, PatchSELECTBOX);
 		if(x != 0)
 		{
-			V_DrawPatch(40, 167, !(leveltime&4) ? PatchINVLFGEM1 :
+			V_DrawPatch(40, 167 << hires, !(leveltime&4) ? PatchINVLFGEM1 :
 				PatchINVLFGEM2);
 		}
 		if(CPlayer->inventorySlotNum-x > 7)
 		{
-			V_DrawPatch(268, 167, !(leveltime&4) ?
+			V_DrawPatch(268, 167 << hires, !(leveltime&4) ?
 				PatchINVRTGEM1 : PatchINVRTGEM2);
 		}
 	}
@@ -1699,7 +1668,7 @@ void Draw_TeleportIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("teleicon"), PU_CACHE);
-	V_DrawPatch(100, 68, patch);
+	V_DrawPatch(100, 68 << hires, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
@@ -1714,7 +1683,7 @@ void Draw_SaveIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("saveicon"), PU_CACHE);
-	V_DrawPatch(100, 68, patch);
+	V_DrawPatch(100, 68 << hires, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
@@ -1729,7 +1698,7 @@ void Draw_LoadIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("loadicon"), PU_CACHE);
-	V_DrawPatch(100, 68, patch);
+	V_DrawPatch(100, 68 << hires, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
@@ -1775,19 +1744,6 @@ static boolean HandleCheats(byte key)
 	else if(netgame)
 	{ // change CD track is the only cheat available in deathmatch
 		eat = false;
-		if(i_CDMusic)
-		{
-			if(CheatAddKey(&Cheats[0], key, &eat))
-			{
-				Cheats[0].func(&players[consoleplayer], &Cheats[0]);
-				S_StartSound(NULL, SFX_PLATFORM_STOP);
-			}
-			if(CheatAddKey(&Cheats[1], key, &eat))
-			{
-				Cheats[1].func(&players[consoleplayer], &Cheats[1]);
-				S_StartSound(NULL, SFX_PLATFORM_STOP);
-			}
-		}
 		return eat;
 	}
 	if(players[consoleplayer].health <= 0)
@@ -2174,70 +2130,3 @@ static void CheatRevealFunc(player_t *player, Cheat_t *cheat)
 	cheating = (cheating+1) % 3;
 }
 
-//===========================================================================
-//
-// CheatTrackFunc1
-//
-//===========================================================================
-
-static void CheatTrackFunc1(player_t *player, Cheat_t *cheat)
-{
-#ifdef __WATCOMC__
-	char buffer[80];
-
-	if(!i_CDMusic)
-	{
-		return;
-	}
-	if(I_CDMusInit() == -1)
-	{
-		P_SetMessage(player, "ERROR INITIALIZING CD", true);
-	}
-	sprintf(buffer, "ENTER DESIRED CD TRACK (%.2d - %.2d):\n",
-		I_CDMusFirstTrack(), I_CDMusLastTrack());	
-	P_SetMessage(player, buffer, true);
-#endif
-}
-
-//===========================================================================
-//
-// CheatTrackFunc2
-//
-//===========================================================================
-
-static void CheatTrackFunc2(player_t *player, Cheat_t *cheat)
-{
-#ifdef __WATCOMC__
-	char buffer[80];
-	int track;
-
-	if(!i_CDMusic)
-	{
-		return;
-	}
-	track = (cheat->args[0]-'0')*10+(cheat->args[1]-'0');
-	if(track < I_CDMusFirstTrack() || track > I_CDMusLastTrack())
-	{
-		P_SetMessage(player, "INVALID TRACK NUMBER\n", true);
-		return;
-	} 
-	if(track == i_CDCurrentTrack)
-	{
-		return;
-	}
-	if(I_CDMusPlay(track))
-	{
-		sprintf(buffer, "ERROR WHILE TRYING TO PLAY CD TRACK: %.2d\n", track);
-		P_SetMessage(player, buffer, true);
-	}
-	else
-	{ // No error encountered while attempting to play the track
-		sprintf(buffer, "PLAYING TRACK: %.2d\n", track);
-		P_SetMessage(player, buffer, true);	
-		i_CDMusicLength = 35*I_CDMusTrackLength(track);
-		oldTic = gametic;
-		i_CDTrack = track;
-		i_CDCurrentTrack = track;
-	}
-#endif
-}
