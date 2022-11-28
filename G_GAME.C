@@ -664,8 +664,6 @@ boolean G_Responder(event_t *ev)
 		}
 	}
 
-  dmprintf("ev->type=%d, ev->data1=%d, %c\n", ev->type, ev->data1, ev->data1);
-
 	switch(ev->type)
 	{
 		case ev_keydown:
