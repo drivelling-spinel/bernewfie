@@ -429,22 +429,20 @@ void R_DrawPlanes(void)
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
 						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+(dc_yl-centery);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
 						source2 = R_GetColumn(skyTexture2, angle+offset2)
-							+SKYTEXTUREMIDSHIFTED+(dc_yl-centery);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
-							if(*source)
-							{
-								*dest = *source++;
-								source2++;
-							}
-							else
-							{
-								*dest = *source2++;
-								source++;
-							}
+							byte c = *source++;
+							if(!c) c = *source2;  
+							source2++;
+							*dest = c;
+							dest += SCREENWIDTH;
+							if(!hires) continue;
+							if(!count--) break;
+							*dest = c;
 							dest += SCREENWIDTH;
 						} while(count--);
 					}
@@ -477,11 +475,16 @@ void R_DrawPlanes(void)
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
 						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+(dc_yl-centery);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
-							*dest = *source++;
+							byte c = *source++;
+							*dest = c;
+							dest += SCREENWIDTH;
+							if(!hires) continue;
+							if(!count--) break;
+							*dest = c;
 							dest += SCREENWIDTH;
 						} while(count--);
 					}
