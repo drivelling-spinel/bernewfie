@@ -507,7 +507,20 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 	{
 		cmd->angleturn -= mousex*0x8;
 	}	
-	forward += mousey;
+	
+	if(mlook)
+	{
+    int s, m;
+    
+    s = mousey < 0 ? 1 : 0;
+    m = s ? -mousey : mousey;
+    look = ((m & 0xffffff80) ? 4 : 0) + ((m & 0x60) ? 2 : 0) + ((m & 0x1f) ? 1 : 0);
+    if(s) look = -look;
+  } 
+	else
+	{                
+		forward += mousey;
+	}	
 	mousex = mousey = 0;
 	
 	if (forward > MaxPlayerMove[pClass])
