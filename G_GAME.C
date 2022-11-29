@@ -357,8 +357,7 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 			}
 		}
 	}
-	if(gamekeydown[key_jump] || mousebuttons[mousebjump]
-		|| joybuttons[joybjump])
+	if(gamekeydown[key_jump] || joybuttons[joybjump])
 	{
 		cmd->arti |= AFLAG_JUMP;
 	}
@@ -514,12 +513,20 @@ void G_BuildTiccmd (ticcmd_t *cmd)
     
     s = mousey < 0 ? 1 : 0;
     m = s ? -mousey : mousey;
-    look = ((m & 0xffffff80) ? 4 : 0) + ((m & 0x60) ? 2 : 0) + ((m & 0x1f) ? 1 : 0);
-    if(s) look = -look;
+    
+    if(mousebuttons[mousebjump] && players[consoleplayer].powers[pw_flight]) {
+      flyheight = ((m & 0xffffff80) ? 4 : 0) + ((m & 0x60) ? 2 : 0) + ((m & 0x1f) ? 1 : 0);
+      if(s) flyheight = -flyheight;      
+    } else {
+      look = ((m & 0xffffff80) ? 4 : 0) + ((m & 0x60) ? 2 : 0) + ((m & 0x1f) ? 1 : 0);
+      if(s) look = -look;      
+      if(mousebuttons[mousebjump]) cmd->arti |= AFLAG_JUMP;
+    }
   } 
 	else
 	{                
 		forward += mousey;
+    if(mousebuttons[mousebjump]) cmd->arti |= AFLAG_JUMP;
 	}	
 	mousex = mousey = 0;
 	
@@ -751,7 +758,7 @@ boolean G_Responder(event_t *ev)
 			mousebuttons[1] = ev->data1&2;
 			mousebuttons[2] = ev->data1&4;
 			mousex = ev->data2*(mouseSensitivity+5)/10;
-			mousey = ev->data3*(mouseSensitivity+5)/10;
+			mousey = novert ? 0 : ev->data3*(mouseSensitivity+5)/10;
 			return(true); // eat events
 
 		case ev_joystick:

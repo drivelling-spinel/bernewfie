@@ -776,6 +776,7 @@ extern boolean cmdfrag; // true if a CMD_FRAG packet should be sent out every
 						// kill
 
 extern boolean mlook;
+extern boolean novert;
 
 extern boolean playeringame[MAXPLAYERS];
 extern pclass_t PlayerClass[MAXPLAYERS];

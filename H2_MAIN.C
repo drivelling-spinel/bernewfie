@@ -97,6 +97,7 @@ boolean cmdfrag;			// true if a CMD_FRAG packet should be sent out
 boolean singletics;			// debug flag to cancel adaptiveness
 boolean artiskip;			// whether shift-enter skips an artifact
 boolean mlook;
+boolean novert;
 skill_t startskill;
 int startepisode;
 int startmap;
@@ -327,6 +328,7 @@ static void HandleArgs(void)
 	cdrom = M_ParmExists("-cdrom");
 	cmdfrag = M_ParmExists("-cmdfrag");
 	mlook = M_ParmExists("-mlook");
+	novert = M_ParmExists("-novert");
 
 	// Process command line options
 	for(opt = ExecOptions; opt->name != NULL; opt++)
