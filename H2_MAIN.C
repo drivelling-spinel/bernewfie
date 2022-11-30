@@ -685,6 +685,8 @@ static void DrawAndBlit(void)
 static void DrawMessage(void)
 {
 	player_t *player;
+	
+	int offsx = 
 
 	player = &players[consoleplayer];
 	if(player->messageTics <= 0 || !player->message)
@@ -694,11 +696,11 @@ static void DrawMessage(void)
 	if(player->yellowMessage)
 	{
 		MN_DrTextAYellow(player->message, 
-			160-MN_TextAWidth(player->message)/2, 1);
+			(SCREENWIDTH - MN_TextAWidth(player->message))/2, 1);
 	}
 	else
 	{
-		MN_DrTextA(player->message, 160-MN_TextAWidth(player->message)/2, 1);
+		MN_DrTextA(player->message, (SCREENWIDTH - MN_TextAWidth(player->message))/2, 1);
 	}
 }
 
