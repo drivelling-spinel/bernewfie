@@ -1672,7 +1672,7 @@ void Draw_TeleportIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("teleicon"), PU_CACHE);
-	V_DrawPatch(100<< hires, 68 << hires, patch);
+	V_DrawPatch((SCREENWIDTH - LORESWIDTH) / 2 + 100, (SCREENHEIGHT - LORESHEIGHT) / 2 + 68, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
@@ -1687,7 +1687,7 @@ void Draw_SaveIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("saveicon"), PU_CACHE);
-	V_DrawPatch(100<< hires, 68 << hires, patch);
+	V_DrawPatch((SCREENWIDTH - LORESWIDTH) / 2 + 100, (SCREENHEIGHT - LORESHEIGHT) / 2 + 68, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
@@ -1702,7 +1702,7 @@ void Draw_LoadIcon(void)
 {
 	patch_t *patch;
 	patch = W_CacheLumpNum(W_GetNumForName("loadicon"), PU_CACHE);
-	V_DrawPatch(100<< hires, 68 << hires, patch);
+	V_DrawPatch((SCREENWIDTH - LORESWIDTH) / 2 + 100, (SCREENHEIGHT - LORESHEIGHT) / 2 + 68, patch);
 	UpdateState |= I_FULLSCRN;
 	I_FinishUpdate();
 	UpdateState |= I_FULLSCRN;
