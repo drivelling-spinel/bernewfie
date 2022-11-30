@@ -15,8 +15,6 @@
 #include "p_local.h"
 #include "soundst.h"
 
-#define AM_STARTKEY	9
-
 // External functions
 
 extern void R_InitSky(int map);
