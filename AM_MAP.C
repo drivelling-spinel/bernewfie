@@ -359,7 +359,7 @@ void AM_Start (void)
   static int lastlevel = -1, lastepisode = -1;
   
   finit_width = SCREENWIDTH;
-  finit_height = SCREENHEIGHT-SBARHEIGHT-3;
+  finit_height = SCREENHEIGHT-((SBARHEIGHT+3) << hires);
  
   if (!stopped) AM_Stop();
   stopped = false;
@@ -601,6 +601,7 @@ void AM_clearFB(int color)
 	int i, j;
 	int dmapx;
 	int dmapy;
+	int shx;
 
 	if(followplayer)
 	{
@@ -637,16 +638,16 @@ void AM_clearFB(int color)
 		mapystart += finit_height;
 	}
 
-  mapxstart >>=hires;
+  shx = mapxstart >> hires;
 	//blit the automap background to the screen.
 	j=(mapystart>>hires)*LORESWIDTH;
-	for(i = 0; i < SCREENHEIGHT - ((SBARHEIGHT + 3) << hires); i++)
+	for(i = 0; i < finit_height; i++)
 	{
 	  int k;
 	  char *dst = vscreen + i * finit_width;
 	  for(k = 0 ; k < (1<<hires) ; k ++, dst += LORESWIDTH) {
-      memcpy(dst, maplump + j + mapxstart, LORESWIDTH - mapxstart);
-      memcpy(dst + LORESWIDTH - mapxstart, maplump+j, mapxstart);
+      memcpy(dst, maplump + j + shx, LORESWIDTH - shx);
+      memcpy(dst + LORESWIDTH - shx, maplump+j, shx);
     }
 		j += LORESWIDTH;
 		if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
@@ -1384,7 +1385,7 @@ static void DrawWorldTimer(void)
 	seconds = worldTimer;
 
 	sprintf(timeBuffer, "%.2d : %.2d : %.2d", hours, minutes,seconds);
-	MN_DrTextA(timeBuffer, 240, 8);
+	MN_DrTextA(timeBuffer, 240 << hires, 8 << hires);
 
 	if (days)
 	{
