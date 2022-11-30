@@ -363,6 +363,7 @@ void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
 //==========================================================================
 
 #define SKYTEXTUREMIDSHIFTED (200)
+#undef SKY_DOUBLE_SCALE
 
 void R_DrawPlanes(void)
 {
@@ -402,8 +403,15 @@ void R_DrawPlanes(void)
 	}
 #endif
 
-  skyscale = hires + (mlook ? 1 : 0);
+  skyscale = 
+#if defined(SKY_DOUBLE_SCALE)
+  hires + (mlook ? 1 : 0)
+#else
+  (hires || mlook) ? 1 : 0
+#endif
 
+  ;
+  
 	for(pl = visplanes; pl < lastvisplane; pl++)
 	{
 		if(pl->minx > pl->maxx)
@@ -447,6 +455,7 @@ void R_DrawPlanes(void)
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#if defined(SKY_DOUBLE_SCALE)
 							if(!hires || !mlook) continue;
 							if(!count--) break;
 							*dest = c;
@@ -454,6 +463,7 @@ void R_DrawPlanes(void)
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#endif
 						} while(count--);
 					}
 				}
@@ -496,6 +506,7 @@ void R_DrawPlanes(void)
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#if defined(SKY_DOUBLE_SCALE)
 							if(!hires || !mlook) continue;
 							if(!count--) break;
 							*dest = c;
@@ -503,6 +514,7 @@ void R_DrawPlanes(void)
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#endif
 						} while(count--);
 					}
 				}
