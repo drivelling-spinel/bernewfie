@@ -57,6 +57,8 @@ static fixed_t *Palette;
 static fixed_t *PaletteDelta;
 static byte *RealPalette;
 
+static int goffsx, goffsy;
+
 // CODE --------------------------------------------------------------------
 
 //===========================================================================
@@ -161,17 +163,16 @@ static void TextWrite (void)
 	int		cx, cy;
 	patch_t *w;
 
-	memcpy(vscreen, W_CacheLumpNum(FinaleLumpNum, PU_CACHE), 
-		SCREENWIDTH*SCREENHEIGHT);
+	V_DrawRawScreen(W_CacheLumpNum(FinaleLumpNum, PU_CACHE));
 	if(FinaleStage == 5)
 	{ // Chess pic, draw the correct character graphic
 		if(netgame)
 		{
-			V_DrawPatch(20, 0, W_CacheLumpName("chessall", PU_CACHE));
+			V_DrawPatch(goffsx + 20, goffsy + 0, W_CacheLumpName("chessall", PU_CACHE));
 		}
 		else if(PlayerClass[consoleplayer])
 		{
-			V_DrawPatch(60, 0, W_CacheLumpNum(W_GetNumForName("chessc")
+			V_DrawPatch(goffsx + 60, goffsy + 0, W_CacheLumpNum(W_GetNumForName("chessc")
 				+PlayerClass[consoleplayer]-1, PU_CACHE));
 		}
 	}
@@ -219,7 +220,7 @@ static void TextWrite (void)
 		{
 			break;
 		}
-		V_DrawPatch(cx, cy, w);
+		V_DrawPatch(goffsx + cx, goffsy + cy, w);
 		cx += w->width;
 	}
 }
@@ -299,17 +300,17 @@ static void FadePic(void)
 
 static void DrawPic(void)
 {
-	memcpy(vscreen, W_CacheLumpNum(FinaleLumpNum, PU_CACHE), 
-		SCREENWIDTH*SCREENHEIGHT);
+ 
+	V_DrawRawScreen(W_CacheLumpNum(FinaleLumpNum, PU_CACHE));
 	if(FinaleStage == 4 || FinaleStage == 5)
 	{ // Chess pic, draw the correct character graphic
 		if(netgame)
 		{
-			V_DrawPatch(20, 0, W_CacheLumpName("chessall", PU_CACHE));
+			V_DrawPatch(goffsx + 20, goffsy +0, W_CacheLumpName("chessall", PU_CACHE));
 		}
 		else if(PlayerClass[consoleplayer])
 		{
-			V_DrawPatch(60, 0, W_CacheLumpNum(W_GetNumForName("chessc")
+			V_DrawPatch(goffsx + 60, goffsy +0, W_CacheLumpNum(W_GetNumForName("chessc")
 				+PlayerClass[consoleplayer]-1, PU_CACHE));
 		}
 	}
@@ -323,6 +324,9 @@ static void DrawPic(void)
 
 void F_Drawer(void)
 {
+  goffsx = (SCREENWIDTH - LORESWIDTH) / 2;
+  goffsy = (SCREENHEIGHT- LORESHEIGHT) / 2;
+
 	switch(FinaleStage)
 	{
 		case 0: // Fade in initial finale screen
