@@ -380,6 +380,7 @@ void R_DrawPlanes(void)
 	int offset2;
 	int skyTexture2;
 	int scrollOffset;
+	int skyscale;
 
 	extern byte *ylookup[MAXHEIGHT];
 	extern int columnofs[MAXWIDTH];
@@ -400,6 +401,8 @@ void R_DrawPlanes(void)
 			lastopening-openings);
 	}
 #endif
+
+  skyscale = hires + (mlook ? 1 : 0);
 
 	for(pl = visplanes; pl < lastvisplane; pl++)
 	{
@@ -429,9 +432,9 @@ void R_DrawPlanes(void)
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
 						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
 						source2 = R_GetColumn(skyTexture2, angle+offset2)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
@@ -440,7 +443,14 @@ void R_DrawPlanes(void)
 							source2++;
 							*dest = c;
 							dest += SCREENWIDTH;
-							if(!hires) continue;
+							if(!hires && !mlook) continue;
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+							if(!hires || !mlook) continue;
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
@@ -475,14 +485,21 @@ void R_DrawPlanes(void)
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
 						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> hires);
+							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
 							byte c = *source++;
 							*dest = c;
 							dest += SCREENWIDTH;
-							if(!hires) continue;
+							if(!hires && !mlook) continue;
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+							if(!hires || !mlook) continue;
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
