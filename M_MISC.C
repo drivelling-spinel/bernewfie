@@ -432,8 +432,6 @@ extern  int     viewwidth, viewheight;
 
 int mouseSensitivity;
 
-extern  int screenblocks;
-
 extern char *chat_macros[10];
 
 typedef struct

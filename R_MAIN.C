@@ -579,10 +579,12 @@ void R_ExecuteSetViewSize (void)
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	}
-	else
-	{
+	else if (setblocks == 10 && hires) {
+		scaledviewwidth = SCREENWIDTH;
+		viewheight = SCREENHEIGHT;
+	} else 	{
 		scaledviewwidth = (setblocks*32) << hires;
-		viewheight = (setblocks*161/10) << hires;
+		viewheight = (setblocks*(LORESHEIGHT - SBARHEIGHT)/10) << hires;
 	}
 
 	detailshift = setdetail;
@@ -662,6 +664,7 @@ void R_ExecuteSetViewSize (void)
 // draw the border
 //
 	R_DrawViewBorder ();    // erase old menu stuff
+	SB_state = -1;
 }
 
 
