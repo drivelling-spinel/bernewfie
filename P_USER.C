@@ -431,6 +431,12 @@ void P_DeathThink(player_t *player)
 
 	if(player->cmd.buttons&BT_USE)
 	{
+		if(quickparm == Q_DONT_ASK && !netgame)
+		{
+			SCQuickLoad();
+			return;
+		}
+	
 		if(player == &players[consoleplayer])
 		{
 			I_SetPalette((byte *)W_CacheLumpName("PLAYPAL", PU_CACHE));
