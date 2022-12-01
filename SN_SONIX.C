@@ -57,6 +57,7 @@ typedef enum
 
 static void VerifySequencePtr(int *base, int *ptr);
 static int GetSoundOffset(char *name);
+static seqnode_t * StopSequenceInternal(seqnode_t * node);
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
@@ -380,15 +381,16 @@ void SN_StopSequence(mobj_t *mobj)
 
 void SN_UpdateActiveSequences(void)
 {
-	seqnode_t *node;
+	seqnode_t *node, *next;
 	boolean sndPlaying;
 
 	if(!ActiveSequences || paused)
 	{ // No sequences currently playing/game is paused
 		return;
 	}
-	for(node = SequenceListHead; node; node = node->next)
+	for(node = SequenceListHead; node; node = next)
 	{
+		next = node->next;
 		if(node->delayTics)
 		{
 			node->delayTics--;
@@ -440,7 +442,7 @@ void SN_UpdateActiveSequences(void)
 				// Wait until something else stops the sequence
 				break;
 			case SS_CMD_END:
-				SN_StopSequence(node->mobj);
+				next = StopSequenceInternal(node);
 				break;
 			default:	
 				break;
@@ -456,12 +458,12 @@ void SN_UpdateActiveSequences(void)
 
 void SN_StopAllSequences(void)
 {
-	seqnode_t *node;
+	seqnode_t *node, *next;
 
-	for(node = SequenceListHead; node; node = node->next)
+	for(node = SequenceListHead; node; node = next)
 	{
 		node->stopSound = 0; // don't play any stop sounds
-		SN_StopSequence(node->mobj);
+		next = StopSequenceInternal(node);
 	}
 }
 	
@@ -504,4 +506,37 @@ void SN_ChangeNodeData(int nodeNum, int seqOffset, int delayTics, int volume,
 	node->volume = volume;
 	node->sequencePtr += seqOffset;
 	node->currentSoundID = currentSoundID;
+}
+
+
+static seqnode_t * StopSequenceInternal(seqnode_t * node)
+{
+	seqnode_t * next = 0;
+	if(node)
+	{
+		next = node->next; 
+		if(node->mobj)
+		{
+			S_StopSound(node->mobj);
+			if(node->stopSound)
+			{
+				S_StartSoundAtVolume(node->mobj, node->stopSound, node->volume);
+			}
+		}
+		if(SequenceListHead == node)
+		{
+			SequenceListHead = node->next;
+		}
+		if(node->prev)
+		{
+			node->prev->next = node->next;
+		}
+		if(node->next)
+		{
+			node->next->prev = node->prev;
+		}
+		Z_Free(node);
+		ActiveSequences--;
+	}
+	return next;
 }
