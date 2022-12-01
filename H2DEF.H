@@ -777,7 +777,7 @@ extern boolean cmdfrag; // true if a CMD_FRAG packet should be sent out every
 
 extern boolean mlook;
 extern boolean novert;
-extern boolean quickparm;
+extern int quickparm;
 
 #define Q_ASK (1)
 #define Q_DONT_ASK (2)

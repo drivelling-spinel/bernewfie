@@ -1360,7 +1360,7 @@ boolean MN_Responder(event_t *event)
 						P_SetMessage(&players[consoleplayer],
 							"CHOOSE A QUICKSAVE SLOT", true);
 					}
-					else if(quickparm > 1) 
+					else if(quickparm == Q_DONT_ASK) 
 					{
 						SCQuickSave();
 						return true;
