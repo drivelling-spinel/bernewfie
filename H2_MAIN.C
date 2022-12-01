@@ -508,16 +508,6 @@ long superatol(char *s)
 }
 
 
-static void ExecOptionMAXZONE(char **args, int tag)
-{
-	int size;
-	
-	size = superatol(args[1]);
-	if (size < MINIMUM_HEAP_SIZE) size = MINIMUM_HEAP_SIZE;
-	if (size > MAXIMUM_HEAP_SIZE) size = MAXIMUM_HEAP_SIZE;
-	maxzone = size;
-}
-
 //==========================================================================
 //
 // H2_GameLoop
@@ -688,8 +678,6 @@ static void DrawMessage(void)
 {
 	player_t *player;
 	
-	int offsx = 
-
 	player = &players[consoleplayer];
 	if(player->messageTics <= 0 || !player->message)
 	{ // No message
