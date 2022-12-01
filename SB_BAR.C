@@ -1593,15 +1593,19 @@ void DrawFullScreenStuff(void)
 	int i;
 	int x;
 	int temp;
+	
+	int foffsx = SCREENWIDTH - LORESWIDTH;
+	int coffsx = foffsx / 2;
+	int foffsy = SCREENHEIGHT - LORESHEIGHT; 
 
 	UpdateState |= I_FULLSCRN;
 	if(CPlayer->mo->health > 0)
 	{
-		DrBNumber(CPlayer->mo->health, 5 << hires, 180 << hires);
+		DrBNumber(CPlayer->mo->health, 5, foffsy + 180);
 	}
 	else
 	{
-		DrBNumber(0, 5<< hires, 180 << hires);
+		DrBNumber(0, 5, foffsy + 180);
 	}
 	if(deathmatch)
 	{
@@ -1613,19 +1617,19 @@ void DrawFullScreenStuff(void)
 				temp += CPlayer->frags[i];
 			}
 		}
-		DrINumber(temp, 45<< hires, 185 << hires);
+		DrINumber(temp, 45, foffsy + 185);
 	}
 	if(!inventory)
 	{
 		if(CPlayer->readyArtifact > 0)
 		{
-			V_DrawFuzzPatch(286<< hires, 170 << hires, W_CacheLumpName("ARTIBOX",
+			V_DrawFuzzPatch(foffsx + 286, foffsy + 170, W_CacheLumpName("ARTIBOX",
 				PU_CACHE));
-			V_DrawPatch(284<< hires, 169 << hires,
+			V_DrawPatch(foffsx + 284, foffsy + 169,
 				W_CacheLumpName(patcharti[CPlayer->readyArtifact], PU_CACHE));
 			if(CPlayer->inventory[inv_ptr].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 302<< hires, 192 << hires);
+				DrSmallNumber(CPlayer->inventory[inv_ptr].count, foffsx + 302, foffsy + 192);
 			}
 		}
 	}
@@ -1634,29 +1638,29 @@ void DrawFullScreenStuff(void)
 		x = inv_ptr-curpos;
 		for(i = 0; i < 7; i++)
 		{
-			V_DrawFuzzPatch((50<< hires)+i*31, 168 << hires, W_CacheLumpName("ARTIBOX",
+			V_DrawFuzzPatch(coffsx + 50+i*31, foffsy + 168, W_CacheLumpName("ARTIBOX",
 				PU_CACHE));
 			if(CPlayer->inventorySlotNum > x+i
 				&& CPlayer->inventory[x+i].type != arti_none)
 			{
-				V_DrawPatch((49<< hires)+i*31, 167 << hires, W_CacheLumpName(
+				V_DrawPatch(coffsx + 49+i*31, foffsy + 167, W_CacheLumpName(
 					patcharti[CPlayer->inventory[x+i].type], PU_CACHE));
 				if(CPlayer->inventory[x+i].count > 1)
 				{
-					DrSmallNumber(CPlayer->inventory[x+i].count, (66<< hires)+i*31,
- 						188 << hires) ;
+					DrSmallNumber(CPlayer->inventory[x+i].count, coffsx + 66 +i*31,
+ 						foffsy + 188) ;
 				}
 			}
 		}
-		V_DrawPatch((50<< hires)+curpos*31, 167 << hires, PatchSELECTBOX);
+		V_DrawPatch(coffsx + 50+curpos*31, foffsy + 167, PatchSELECTBOX);
 		if(x != 0)
 		{
-			V_DrawPatch(40<< hires, 167 << hires, !(leveltime&4) ? PatchINVLFGEM1 :
+			V_DrawPatch(coffsx + 40, foffsy + 167, !(leveltime&4) ? PatchINVLFGEM1 :
 				PatchINVLFGEM2);
 		}
 		if(CPlayer->inventorySlotNum-x > 7)
 		{
-			V_DrawPatch(268<< hires, 167 << hires, !(leveltime&4) ?
+			V_DrawPatch(foffsx + 268, foffsy + 167, !(leveltime&4) ?
 				PatchINVRTGEM1 : PatchINVRTGEM2);
 		}
 	}
