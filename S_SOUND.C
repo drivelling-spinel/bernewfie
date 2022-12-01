@@ -350,6 +350,7 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 		{
 			char name[128];
 			sprintf(name, "%s%s.lmp", ArchivePath, S_sfx[sound_id].lumpname);
+			I_Error("Tried reading script sound lump %s, but this is not supported", name);
 			M_ReadFile(name, (byte **)&S_sfx[sound_id].snd_ptr);
 		}
 	}
