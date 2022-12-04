@@ -317,16 +317,19 @@ boolean P_TryWalk(mobj_t *actor)
 ================
 */
 
-dirtype_t opposite[] =
-{DI_WEST, DI_SOUTHWEST, DI_SOUTH, DI_SOUTHEAST, DI_EAST, DI_NORTHEAST,
-DI_NORTH, DI_NORTHWEST, DI_NODIR};
+static dirtype_t _opposite[] = {DI_NODIR, DI_WEST, DI_SOUTHWEST, DI_SOUTH, DI_SOUTHEAST, DI_EAST, DI_NORTHEAST,
+DI_NORTH, DI_NORTHWEST, DI_NODIR, DI_NODIR};
 
-dirtype_t diags[] = {DI_NORTHWEST,DI_NORTHEAST,DI_SOUTHWEST,DI_SOUTHEAST};
+dirtype_t *opposite = &_opposite[1];
+
+static dirtype_t _diags[] = {DI_NODIR, DI_NORTHWEST,DI_NORTHEAST,DI_SOUTHWEST,DI_SOUTHEAST, DI_NODIR};
+
+dirtype_t *diags = &_diags[1]; 
 
 void P_NewChaseDir (mobj_t *actor)
 {
 	fixed_t         deltax,deltay;
-	dirtype_t       d[3];
+	dirtype_t       d[3] = {DI_NODIR, DI_NODIR, DI_NODIR};
 	dirtype_t       tdir, olddir, turnaround;
 
 	if (!actor->target)
@@ -408,7 +411,7 @@ void P_NewChaseDir (mobj_t *actor)
 	}
 	else
 	{
-		for (tdir=DI_SOUTHEAST ; tdir >= DI_EAST;tdir--)
+		for (tdir=DI_SOUTHEAST ; tdir >= DI_EAST && tdir <=DI_SOUTHEAST ;tdir--)
 		{
 			if (tdir!=turnaround)
 			{
