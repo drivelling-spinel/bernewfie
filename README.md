@@ -36,7 +36,6 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
   If you run into any, and are on a board I frequent, please let me know.
 - Finale screen has not been tested
 - Demos go out of sync
-- Savegames are not vanilla-compatible and vanilla savgames would not loaded 
 - No idea if multiplayer works
 - Patch scaling is not implemented and full screen HUD geometry is not correct
 
