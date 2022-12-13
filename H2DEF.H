@@ -207,7 +207,11 @@ typedef struct
 	byte		buttons;
 	byte		lookfly;			// look/fly up/down/centering
 	byte		arti;				// artitype_t to use
-} ticcmd_t;
+} 
+#ifdef __GNUC__
+__attribute__ ((packed))
+#endif
+ticcmd_t;
 
 #define	BT_ATTACK		1
 #define	BT_USE			2
@@ -627,7 +631,7 @@ typedef struct player_s
 	int			health;					// only used between levels, mo->health
 										// is used during levels
 	int	armorpoints[NUMARMOR];
-
+  
 	inventory_t	inventory[NUMINVENTORYSLOTS];
 	artitype_t	readyArtifact;
 	int			artifactCount;
@@ -661,7 +665,11 @@ typedef struct player_s
 	int			morphTics;				// player is a pig if > 0
 	uint		jumpTics;				// delay the next jump for a moment
 	unsigned int worldTimer;			// total time the player's been playing
-} player_t;
+} 
+#ifdef __GNUC__
+__attribute__ ((packed))
+#endif
+player_t;
 
 #define CF_NOCLIP		1
 #define	CF_GODMODE		2
@@ -677,7 +685,11 @@ typedef struct
 	byte		starttic;
 	byte		player, numtics;
 	ticcmd_t	cmds[BACKUPTICS];
-} doomdata_t;
+} 
+#ifdef __GNUC__
+__attribute__ ((packed))
+#endif
+doomdata_t;
 
 typedef struct
 {
@@ -707,7 +719,11 @@ typedef struct
 
 // packet data to be sent
 	doomdata_t	data;
-} doomcom_t;
+} 
+#ifdef __GNUC__
+__attribute__ ((packed))
+#endif
+doomcom_t;
 
 #define	DOOMCOM_ID		0x12345678l
 
