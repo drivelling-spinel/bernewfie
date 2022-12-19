@@ -809,7 +809,7 @@ void P_ZMovement(mobj_t *mo)
 					{
 						S_StartSound(mo, SFX_PLAYER_LAND);
 					}
-					if(!mlook)
+					if(!mlook || demoplayback)
 					{
 						mo->player->centering = true;
 					}
@@ -1033,7 +1033,7 @@ static void PlayerLandedOnThing(mobj_t *mo, mobj_t *onmobj)
 	{
 		S_StartSound(mo, SFX_PLAYER_LAND);
 	}
-	if(!mlook)
+	if(!mlook || demoplayback)
 	{
 		mo->player->centering = true;
 	}

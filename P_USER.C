@@ -245,7 +245,7 @@ void P_MovePlayer(player_t *player)
 		}
 		else
 		{
-			if(mlook) {
+			if(mlook && !demoplayback) {
 			  int s = look < 0 ? 1 : 0, m;
 			  m = s ? -look : look;
 			  m = ((m & 1) << 1) | ((m & 6) << 2) | ((m && 4) << 1);

@@ -505,7 +505,7 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 		cmd->angleturn -= mousex*0x8;
 	}	
 	
-	if(mlook)
+	if(mlook && !demoplayback)
 	{
     int s, m;
     
