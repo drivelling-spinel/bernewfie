@@ -11,11 +11,13 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 - mouse look and alternative flight controls activated with `-mlook` command line argument
   (when flying hold mouse jump button and move mouse vertically to fly up and down)
 - `-novert` command line argument
-- up to 128 sound channels
-  (SETUP.EXE limits this to 8, so HEXEN.CFG needs to be edited by hand)
-- more visplanes 
+- up to 128 sound channels activated with `-maxsound` command line argument
+  (SETUP.EXE limits this to 8, so HEXEN.CFG needs to be edited by hand for values between 8 and 128)
+- twice more visplanes 
 - more fluid experience with quicksave/quickload with `-quick` command line argument:
   quickloading instead of respawning, less prompts and end game/suicide buttons switched off
+- 10 more savegame slots available with `-hires` command line argument
+  (new slots have filenames like hexa*.*, hexb*.* etc in HEXNDATA)
 - additional command line arguments to fine-tune Gerwin's VESA code
   (see [readme](DOC/MBFUP204.TXT) for details):
   `-show_fps` 
@@ -29,13 +31,12 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 ### What's removed
 - Graphical startup
 - CD Audio support (including track changing cheat code)
-- External driver support for "exotic" input devices
+- External driver support for "exotic" input devices 
 
 ### What does not work
 - Hard to tell at the moment as lots of bugs are to be expected.
   If you run into any, and are on a board I frequent, please let me know.
 - Finale screen has not been tested
-- Demos go out of sync
 - No idea if multiplayer works
 - Patch scaling is not implemented and full screen HUD geometry is not correct
 
