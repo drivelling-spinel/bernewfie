@@ -116,6 +116,12 @@ static int SpinDefenseLump;
 static int FontBNumBase;
 static int PlayPalette;
 
+static patch_t *PatchH2BARR=0;
+static patch_t *PatchH2BARL=0;
+static patch_t *PatchH2TOPR=0;
+static patch_t *PatchH2TOPL=0;
+
+
 static patch_t *PatchH2BAR;
 static patch_t *PatchH2TOP;
 static patch_t *PatchLFEDGE;
@@ -535,6 +541,14 @@ void SB_Init(void)
 	PatchINVLFGEM2 = W_CacheLumpName("invgeml2", PU_STATIC);
 	PatchINVRTGEM1 = W_CacheLumpName("invgemr1", PU_STATIC);
 	PatchINVRTGEM2 = W_CacheLumpName("invgemr2", PU_STATIC);
+	
+	if(hires)
+	{
+		if(W_CheckNumForName("H2BARR") >= 0) PatchH2BARR = W_CacheLumpName("H2BARR", PU_STATIC);
+		if(W_CheckNumForName("H2BARL") >= 0) PatchH2BARL = W_CacheLumpName("H2BARL", PU_STATIC);
+		if(W_CheckNumForName("H2TOPR") >= 0) PatchH2TOPR = W_CacheLumpName("H2TOPR", PU_STATIC);
+		if(W_CheckNumForName("H2TOPL") >= 0) PatchH2TOPL = W_CacheLumpName("H2TOPL", PU_STATIC);
+	}
 
 //	PatchCHAINBACK = W_CacheLumpName("CHAINBACK", PU_STATIC);
 	startLump = W_GetNumForName("IN0");
@@ -991,6 +1005,11 @@ void SB_Drawer(void)
 		if(SB_state == -1)
 		{
 			V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2BAR);
+			if(hires)
+			{
+				if(PatchH2BARR) V_DrawPatch(goffsx + LORESWIDTH, goffsy + 134, PatchH2BARR);
+				if(PatchH2BARL) V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2BARL);
+			}
 			oldhealth = -1;
 		}
 		DrawCommonBar();
@@ -1214,6 +1233,11 @@ void DrawCommonBar(void)
 	int healthPos;
 
 	V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2TOP);
+	if(hires)
+	{
+//		if(PatchH2TOPR) V_DrawPatch(goffsx + LORESWIDTH, goffsy + 134, PatchH2TOPR);
+		if(PatchH2TOPL) V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2TOPL);
+	}
 
 	if(oldhealth != HealthMarker)
 	{
