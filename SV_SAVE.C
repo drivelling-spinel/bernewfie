@@ -478,6 +478,7 @@ void SV_MapTeleport(int map, int position)
 		else
 		{ // Entering new cluster - clear base slot
 			ClearSaveSlot(BASE_SLOT);
+			BackOffQuickParm();
 		}
 	}
 
