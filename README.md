@@ -60,9 +60,8 @@ Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=tr
 ### What does not work
 - Hard to tell at the moment as lots of bugs are to be expected.
   If you run into any, and are on a board I frequent, please let me know.
-- Finale screen has not been tested
 - No idea if multiplayer works
-- Patch scaling is not implemented and full screen HUD geometry is not correct
+- Sky scaling is buggy and produces a jittey effect from time to time
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
