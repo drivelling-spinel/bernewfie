@@ -34,7 +34,10 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
   that is explicitly loaded with either `-file BERNEW.WAD` _or_
 - `-extra` command line argument for a second way to provide PWADs to be loaded to the engine   
   (e.g. to `HEXENDK.EXE -extra PWADS\BERNEW.WAD`)   
-  The assets WAD uses graphics created by Nash Muhandes and contributors for [WidePix GZDoom mod](https://doomwiki.org/wiki/WidePix) 
+  The assets WAD uses graphics created by Nash Muhandes and contributors for 
+  [WidePix GZDoom mod](https://doomwiki.org/wiki/WidePix) 
+- `-noorb` command line to spend as few time as possible in the start screen 
+  and jump to the title screen instead
 
 ### BERNEWFIE in action
 
@@ -53,7 +56,8 @@ _Additional savegame slots_
 Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=trRCKFNDD6Q>
 
 ### What's removed
-- Graphical startup
+- Graphical startup (although Bernewfie tries to mimic it a little bit, 
+  if you find that too awkward, use `-noorb` command line argument to skip)
 - CD Audio support (including track changing cheat code)
 - External driver support for "exotic" input devices 
 
@@ -62,7 +66,6 @@ Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=tr
   If you run into any, and are on a board I frequent, please let me know.
 - No idea if multiplayer works
 - Sky scaling is buggy in hires or with mlook and produces a jittery effect from time to time
-- Intermission screens in hires show gibberish
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
