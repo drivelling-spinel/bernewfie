@@ -363,7 +363,6 @@ void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
 //==========================================================================
 
 #define SKYTEXTUREMIDSHIFTED (200)
-#undef SKY_DOUBLE_SCALE
 
 void R_DrawPlanes(void)
 {
@@ -403,14 +402,7 @@ void R_DrawPlanes(void)
 	}
 #endif
 
-  skyscale = 
-#if defined(SKY_DOUBLE_SCALE)
-  hires + (mlook ? 1 : 0)
-#else
-  (hires || mlook) ? 1 : 0
-#endif
-
-  ;
+  skyscale = (hires || mlook) ? 1 : 0;
   
 	for(pl = visplanes; pl < lastvisplane; pl++)
 	{
@@ -432,6 +424,7 @@ void R_DrawPlanes(void)
 					dc_yh = pl->bottom[x];
 					if(dc_yl <= dc_yh)
 					{
+                                                int scaled_offset;
 						count = dc_yh-dc_yl;
 						if(count < 0)
 						{
@@ -439,10 +432,12 @@ void R_DrawPlanes(void)
 						}
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
-						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
-						source2 = R_GetColumn(skyTexture2, angle+offset2)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
+                                                source = R_GetColumn(skyTexture, angle+offset);
+                                                source2 = R_GetColumn(skyTexture2, angle+offset2);
+                                                scaled_offset = (SKYTEXTUREMIDSHIFTED << skyscale)
+                                                  - centery + dc_yl;
+                                                source += (scaled_offset >> skyscale);
+                                                source2 += (scaled_offset >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
@@ -451,19 +446,15 @@ void R_DrawPlanes(void)
 							source2++;
 							*dest = c;
 							dest += SCREENWIDTH;
-							if(!hires && !mlook) continue;
+                                                        if(!skyscale) continue;
+                                                        if(scaled_offset & 1)
+                                                          {
+                                                            scaled_offset = 0;
+                                                            continue;
+                                                          }
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
-#if defined(SKY_DOUBLE_SCALE)
-							if(!hires || !mlook) continue;
-							if(!count--) break;
-							*dest = c;
-							dest += SCREENWIDTH;
-							if(!count--) break;
-							*dest = c;
-							dest += SCREENWIDTH;
-#endif
 						} while(count--);
 					}
 				}
@@ -487,34 +478,33 @@ void R_DrawPlanes(void)
 					dc_yh = pl->bottom[x];
 					if(dc_yl <= dc_yh)
 					{
-						count = dc_yh-dc_yl;
+                                                size_t scaled_offset;
+                                                count = dc_yh-dc_yl;
 						if(count < 0)
 						{
 							return;
 						}
 						angle = (viewangle+xtoviewangle[x])
 							>>ANGLETOSKYSHIFT;
-						source = R_GetColumn(skyTexture, angle+offset)
-							+SKYTEXTUREMIDSHIFTED+((dc_yl-centery) >> skyscale);
+                                                source = R_GetColumn(skyTexture, angle+offset);
+                                                scaled_offset = (SKYTEXTUREMIDSHIFTED << skyscale)
+                                                  - centery + dc_yl;
+                                                source += (scaled_offset >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
 						{
 							byte c = *source++;
 							*dest = c;
 							dest += SCREENWIDTH;
-							if(!hires && !mlook) continue;
+                                                        if(!skyscale) continue;
+                                                        if(scaled_offset & 1)
+                                                          {
+                                                            scaled_offset = 0;
+                                                            continue;
+                                                          }
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
-#if defined(SKY_DOUBLE_SCALE)
-							if(!hires || !mlook) continue;
-							if(!count--) break;
-							*dest = c;
-							dest += SCREENWIDTH;
-							if(!count--) break;
-							*dest = c;
-							dest += SCREENWIDTH;
-#endif
 						} while(count--);
 					}
 				}
