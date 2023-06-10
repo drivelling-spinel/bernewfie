@@ -76,6 +76,8 @@ static signed int totalFrags[MAXPLAYERS];
 
 static int HubCount;
 static char *HubText;
+static int goffsx, goffsy;
+
 
 // CODE --------------------------------------------------------------------
 
@@ -384,6 +386,9 @@ static void CheckForSkip(void)
 
 void IN_Drawer(void)
 {
+        goffsx = (SCREENWIDTH - LORESWIDTH) / 2;
+        goffsy = (SCREENHEIGHT- LORESHEIGHT) / 2;
+
 	if(!intermission)
 	{
 		return;
@@ -393,7 +398,7 @@ void IN_Drawer(void)
 		return;
 	}
 	UpdateState |= I_FULLSCRN;
-	memcpy(vscreen, (byte *)patchINTERPIC, SCREENWIDTH*SCREENHEIGHT);
+        V_DrawRawScreen(patchINTERPIC);
 
 	if(gametype == SINGLE)
 	{
@@ -438,9 +443,9 @@ static void DrDeathTally(void)
 	static boolean showTotals;
 	int temp;
 
-	V_DrawPatch(TALLY_TOP_X, TALLY_TOP_Y,
+        V_DrawPatch(goffsx + TALLY_TOP_X, goffsy + TALLY_TOP_Y,
 		W_CacheLumpName("tallytop", PU_CACHE));
-	V_DrawPatch(TALLY_LEFT_X, TALLY_LEFT_Y,
+        V_DrawPatch(goffsx + TALLY_LEFT_X, goffsy + TALLY_LEFT_Y,
 		W_CacheLumpName("tallylft", PU_CACHE));
 	if(intertime < TALLY_EFFECT_TICKS)
 	{
@@ -477,11 +482,11 @@ static void DrDeathTally(void)
 			{
 				if(bold)
 				{
-					DrNumberBold(players[i].frags[j], x, y, 100);
+                                        DrNumberBold(players[i].frags[j], goffsx + x, goffsy + y, 100);
 				}
 				else
 				{
-					DrNumber(players[i].frags[j], x, y, 100);
+                                        DrNumber(players[i].frags[j], goffsx + x, goffsy + y, 100);
 				}
 			}
 			else
@@ -489,18 +494,18 @@ static void DrDeathTally(void)
 				temp = MN_TextAWidth("--")/2;
 				if(bold)
 				{
-					MN_DrTextAYellow("--", x-temp, y);
+                                        MN_DrTextAYellow("--", goffsx + x-temp, goffsy + y);
 				}
 				else
 				{
-					MN_DrTextA("--", x-temp, y);
+                                        MN_DrTextA("--", goffsx + x-temp, goffsy + y);
 				}
 			}
 		}
 		if(showTotals && playeringame[i]
 			&& !((slaughterboy&(1<<i)) && !(intertime&16)))
 		{
-			DrNumber(totalFrags[i], TALLY_TOTALS_X, y, 1000);
+                        DrNumber(totalFrags[i], goffsx + TALLY_TOTALS_X, goffsy + y, 1000);
 		}
 		yPos += yDelta;
 		y = yPos>>FRACBITS;
@@ -591,7 +596,7 @@ static void DrawHubText(void)
 		{
 			break;
 		}
-		V_DrawPatch(cx, cy, w);
+                V_DrawPatch(goffsx + cx, goffsy + cy, w);
 		cx += w->width;
 	}
 }

@@ -56,6 +56,7 @@ static char *FinaleText;
 static fixed_t *Palette;
 static fixed_t *PaletteDelta;
 static byte *RealPalette;
+static byte *MonochromePalette;
 
 static int goffsx, goffsy;
 
@@ -231,13 +232,15 @@ static void TextWrite (void)
 //
 //===========================================================================
 
-static void InitializeFade(boolean fadeIn)
+static void InitializeFadeInternal(boolean fadeIn, char * pal)
 {
+
 	unsigned i;
 
 	Palette = Z_Malloc(768*sizeof(fixed_t), PU_STATIC, 0);
 	PaletteDelta = Z_Malloc(768*sizeof(fixed_t), PU_STATIC, 0);
 	RealPalette = Z_Malloc(768*sizeof(byte), PU_STATIC, 0);
+        MonochromePalette = Z_Malloc(768*sizeof(byte), PU_STATIC, 0);
 
 	if(fadeIn)
 	{
@@ -245,20 +248,37 @@ static void InitializeFade(boolean fadeIn)
 		for(i = 0; i < 768; i++)
 		{
 			Palette[i] = 0;
-			PaletteDelta[i] = FixedDiv((*((byte *)W_CacheLumpName("playpal", 
-				PU_CACHE)+i))<<FRACBITS, 70*FRACUNIT);
+                        PaletteDelta[i] = FixedDiv((*(pal+i))<<FRACBITS, 70*FRACUNIT);
 		}
 	}
 	else
 	{
 		for(i = 0; i < 768; i++)
 		{
-			RealPalette[i] = *((byte *)W_CacheLumpName("playpal", PU_CACHE)+i);
+                        RealPalette[i] = *(pal+i);
 			Palette[i] = RealPalette[i]<<FRACBITS;
 			PaletteDelta[i] = FixedDiv(Palette[i], -70*FRACUNIT);
 		}
 	}
 	I_SetPalette(RealPalette);
+}
+
+static void InitializeMonochromeFade(boolean fadeIn, int color)
+{
+  int i = 0;
+  memset(MonochromePalette, 0, 768*sizeof(byte));
+  for(i = 3 ; i < 768 ; i += 3)
+    {
+      MonochromePalette[i] = color >> 16;
+      MonochromePalette[i+1] = color >> 8;
+      MonochromePalette[i+2] = color;
+    }
+  InitializeFadeInternal(fadeIn, MonochromePalette);
+}
+
+static void InitializeFade(boolean fadeIn)
+{
+  InitializeFadeInternal(fadeIn, (byte *)W_CacheLumpName("playpal", PU_CACHE));
 }
 
 //===========================================================================
@@ -378,3 +398,25 @@ static char *GetFinaleText(int sequence)
 	ClusterMessage[msgSize] = 0; // Append terminator
 	return ClusterMessage;
 }
+
+void F_FadeToBlack(int color)
+{
+  int fade=70;
+
+  DeInitializeFade();
+  InitializeMonochromeFade(0, color);
+  rest(1000);
+  S_StartSound(NULL, SFX_STARTUP_TICK);
+  rest(1000);
+  S_StartSound(NULL, SFX_STARTUP_TICK);
+  rest(1000);
+  S_StartSound(NULL, SFX_STARTUP_TICK);
+
+  while(fade-->0)
+    {
+      FadePic();
+      rest(1000/35);
+      if(fade % 16 == 0) S_StartSound(NULL, SFX_STARTUP_TICK);
+    }
+}
+
