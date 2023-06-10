@@ -1428,7 +1428,8 @@ extern boolean chatmodeon;
 void F_Drawer(void);
 void F_Ticker(void);
 void F_StartFinale(void);
-void F_FadeToBlack(int);
+void F_FadeToBlackInit(int);
+void F_DoFadeToBlack();
 
 //----------------------
 // STATUS BAR (SB_bar.c)

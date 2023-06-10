@@ -199,6 +199,9 @@ void H2_Main(void)
 
 	MN_Init();
 	I_InitGraphics();
+        if(!M_CheckParm("-noorb"))
+           F_FadeToBlackInit(0xe04400);
+        
 	
 	ST_Message("V_Init: allocate screens.\n");
 	ST_Message("M_LoadDefaults: Load system defaults.\n");
@@ -539,7 +542,7 @@ long superatol(char *s)
 void H2_GameLoop(void)
 {
   if(!M_CheckParm("-noorb"))
-    F_FadeToBlack(0xe04400);
+    F_DoFadeToBlack();
 
   I_ResetScreen();
   I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
