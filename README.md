@@ -60,12 +60,7 @@ Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=tr
   if you find that too awkward, use `-noorb` command line argument to skip)
 - CD Audio support (including track changing cheat code)
 - External driver support for "exotic" input devices 
-
-### What does not work
-- Hard to tell at the moment as lots of bugs are to be expected.
-  If you run into any, and are on a board I frequent, please let me know.
 - No idea if multiplayer works
-- Sky scaling is buggy in hires or with mlook and produces a jittery effect from time to time
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
@@ -77,8 +72,8 @@ Also changes were made to:
 - game startup to incorporate allegedly more Windows NT friendly MBF 2.04 code 
 - sound handing to avoid crashes in main menu and to accomodate for MBF sound caching
 - fullscreen HUD drawing to "scale" to higher resolutions
-- menu, status bar and  finale layout and messages to center in higher resolutions
-- info, title and finale drawing procs to show correctly in higher resolutions
+- menu, status bar, intermission and finale layout and messages to center in higher resolutions
+- info, title, intermission and finale drawing procs to show correctly in higher resolutions
 - automap to work correctly in higher resolutions
 - screen refresh and screen border logic to accomodate for status bar only taking  
   a portion of the lower screen part in higher resolution
