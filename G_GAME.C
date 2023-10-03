@@ -605,7 +605,10 @@ void G_DoLoadLevel (void)
 		memset (players[i].frags,0,sizeof(players[i].frags));
 	}
 
-	SN_StopAllSequences();	
+	SN_StopAllSequences();
+#ifdef PATCH12
+        AM_ClearMapMarkers();
+#endif
 	P_SetupLevel (gameepisode, gamemap, 0, gameskill);   
 	displayplayer = consoleplayer;      // view the guy you are playing   
 	starttime = I_GetTime ();

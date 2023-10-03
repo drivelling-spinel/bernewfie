@@ -474,6 +474,10 @@ void P_LoadLineDefs(int lump)
 			ld->backsector = sides[ld->sidenum[1]].sector;
 		else
 			ld->backsector = 0;
+
+#ifdef PATCH12   
+                P_CheckLineLoaded(ld);
+#endif
 	}
 
 	Z_Free (data);

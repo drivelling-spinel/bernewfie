@@ -1307,6 +1307,12 @@ void P_KillMobj(mobj_t *source, mobj_t *target)
 	target->flags |= MF_CORPSE|MF_DROPOFF;
 	target->flags2 &= ~MF2_PASSMOBJ;
 	target->height >>= 2;
+#ifdef PATCH12
+        if(target->type == MT_CENTAUR || target->type == MT_CENTAURLEADER)
+        {
+                target->flags2 &= ~MF2_REFLECTIVE;
+        }
+#endif
 	if((target->flags&MF_COUNTKILL || target->type == MT_ZBELL) 
 		 && target->special)
 	{ // Initiate monster death actions
@@ -1500,12 +1506,14 @@ void P_KillMobj(mobj_t *source, mobj_t *target)
 	{
 		target->height = 24*FRACUNIT;
 	}
+#ifdef GORE
 	if(target->health < -(target->info->spawnhealth>>1)
 		&& target->info->xdeathstate)
 	{ // Extreme death
 		P_SetMobjState(target, target->info->xdeathstate);
 	}
 	else
+#endif
 	{ // Normal death
 		if ((target->type==MT_FIREDEMON) &&
 			(target->z <= target->floorz + 2*FRACUNIT) &&
@@ -1748,6 +1756,21 @@ void P_AutoUseHealth(player_t *player, int saveHealth)
 ==================
 */
 
+#ifdef PATCH12
+static void P_DamageMobjInternal
+(
+	mobj_t *target,
+	mobj_t *inflictor,
+	mobj_t *source,
+        int     damage,
+        boolean explosion
+);
+
+void P_DamageMobjExplode(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage)
+{
+        return P_DamageMobjInternal(target, inflictor, source, damage, true);
+}
+
 void P_DamageMobj
 (
 	mobj_t *target,
@@ -1755,6 +1778,27 @@ void P_DamageMobj
 	mobj_t *source,
 	int	damage
 )
+{
+        P_DamageMobjInternal(target, inflictor, source, damage, false);
+}
+
+static void P_DamageMobjInternal
+(
+	mobj_t *target,
+	mobj_t *inflictor,
+	mobj_t *source,
+        int     damage,
+        boolean explosion
+)
+#else
+void P_DamageMobj
+(
+	mobj_t *target,
+	mobj_t *inflictor,
+	mobj_t *source,
+	int	damage
+)
+#endif
 {
 	unsigned ang;
 	int saved;
@@ -1764,6 +1808,9 @@ void P_DamageMobj
 	fixed_t thrust;
 	int temp;
 	int i;
+#ifdef PATCH12
+        int cap, di;
+#endif
 
 	if(!(target->flags&MF_SHOOTABLE))
 	{
@@ -1772,7 +1819,11 @@ void P_DamageMobj
 	}
 	if(target->health <= 0)
 	{
+#ifdef PATCH12
+                if (inflictor && inflictor->flags2&MF2_ICEDAMAGE && inflictor->type != MT_SHARDFX1)
+#else
 		if (inflictor && inflictor->flags2&MF2_ICEDAMAGE)
+#endif
 		{
 			return;
 		}
@@ -1786,6 +1837,20 @@ void P_DamageMobj
 	if ((target->flags2&MF2_INVULNERABLE) && damage < 10000)
 	{ // mobj is invulnerable
 		if(target->player) return;	// for player, no exceptions
+#if defined(PATCH12)
+                if(target->type == MT_CENTAUR || target->type == MT_CENTAURLEADER)
+                {
+                        if(explosion)
+                                goto Centaur_inflict;
+                        if(source && source != target)
+                        {
+                                ang = R_PointToAngle2(target->x, target->y,
+                                        source->x, source->y);
+                                if ( abs(ang-target->angle)>>24 > 45)
+                                        goto Centaur_inflict;
+                        }
+                }
+#endif
 		if(inflictor)
 		{
 			switch(inflictor->type)
@@ -1804,6 +1869,9 @@ void P_DamageMobj
 			return;
 		}
 	}
+#ifdef PATCH12
+Centaur_inflict:
+#endif
 	if(target->player)
 	{
 		if(damage < 1000 && ((target->player->cheats&CF_GODMODE)
@@ -1867,6 +1935,13 @@ void P_DamageMobj
 				damage >>= 1;
 				break;
 			case MT_SHARDFX1:
+#ifdef PATCH12
+                                cap = 2;
+                                for(di = 1 ; di < inflictor->special2 ; di += 1)
+                                        cap *= cap;
+                                for(di = 0 ; di < cap ; di += 1)
+                                        damage += (P_Random()%3 + 1)*3;
+#else
 				switch(inflictor->special2)
 				{
 					case 3:
@@ -1881,6 +1956,7 @@ void P_DamageMobj
 					default:
 						break;
 				}
+#endif
 				break;
 			case MT_CSTAFF_MISSILE:
 				// Cleric Serpent Staff does poison damage
@@ -2007,7 +2083,29 @@ void P_DamageMobj
 			SB_PaletteFlash(false);
 		}
 	}
-
+#ifdef PATCH12
+        if(target->type == MT_SORCBOSS && (target->health - damage) >= 0)
+        {
+                int mh = target->info->spawnhealth;
+                if(((target->health > mh * 2 / 3) && ((target->health - damage) <= mh * 2 / 3)) ||
+                   ((target->health > mh / 3) && ((target->health - damage) <= mh / 3)))
+                {
+                        target->damage = 0;
+                }
+        }
+        switch(inflictor->type)
+        {
+        case MT_CFLAME_MISSILE:
+                inflictor->args[0] = true;
+                break;
+        case MT_MWAND_MISSILE:
+        case MT_MSTAFF_FX2: //?????
+                if(inflictor->special2 == target)
+                        return;
+                inflictor->special2 = target;
+                break;
+        }
+#endif
 	//
 	// do the damage
 	//

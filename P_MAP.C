@@ -355,6 +355,7 @@ boolean PIT_CheckThing(mobj_t *thing)
 		return(true);
 	}
 	BlockingMobj = thing;
+
  	if(tmthing->flags2&MF2_PASSMOBJ)
 	{ // check if a mobj passed over/under another object
 		if(tmthing->type == MT_BISHOP && thing->type == MT_BISHOP)
@@ -576,7 +577,7 @@ boolean PIT_CheckThing(mobj_t *thing)
 				}
 			}
 		}
-		else if(tmthing->type == MT_MSTAFF_FX2 && thing != tmthing->target)
+                else if(tmthing->type == MT_MSTAFF_FX2 && thing != tmthing->target)
 		{
 			if(!thing->player && !(thing->flags2&MF2_BOSS))
 			{
@@ -587,7 +588,11 @@ boolean PIT_CheckThing(mobj_t *thing)
 					case MT_MAGE_BOSS:
 						break;
 					default:
+#ifdef PATCH12
+                                                P_DamageMobj(thing, tmthing, tmthing->target, 50);
+#else
 						P_DamageMobj(thing, tmthing, tmthing->target, 10);
+#endif
 						return true;
 						break;
 				}
@@ -610,13 +615,22 @@ boolean PIT_CheckThing(mobj_t *thing)
 		}
 		if(tmthing->flags2&MF2_RIP)
 		{
+#ifdef GORE
 			if (!(thing->flags&MF_NOBLOOD) &&
 				!(thing->flags2&MF2_REFLECTIVE) &&
 				!(thing->flags2&MF2_INVULNERABLE))
 			{ // Ok to spawn some blood
 				P_RipperBlood(tmthing);
 			}
+#endif
 			//S_StartSound(tmthing, sfx_ripslop);
+#ifdef PATCH12
+                        if(tmthing->type == MT_MWAND_MISSILE)
+                        {
+                                damage = 23 + (P_Random()%9);
+                        }
+                        else
+#endif
 			damage = ((P_Random()&3)+2)*tmthing->damage;
 			P_DamageMobj(thing, tmthing, tmthing->target, damage);
 			if(thing->flags2&MF2_PUSHABLE
@@ -629,10 +643,18 @@ boolean PIT_CheckThing(mobj_t *thing)
 			return(true);
 		}
 		// Do damage
+#ifdef PATCH12
+                if(tmthing->type == MT_SHARDFX1)
+                {
+                        damage = (P_Random()%3 + 1)*3;
+                }
+                else
+#endif
 		damage = ((P_Random()%8)+1)*tmthing->damage;
 		if(damage)
 		{
-			if (!(thing->flags&MF_NOBLOOD) && 
+#ifdef GORE
+			if (!(thing->flags&MF_NOBLOOD) &&
 				!(thing->flags2&MF2_REFLECTIVE) &&
 				!(thing->flags2&MF2_INVULNERABLE) &&
 				!(tmthing->type == MT_TELOTHER_FX1) &&
@@ -644,11 +666,12 @@ boolean PIT_CheckThing(mobj_t *thing)
 			{
 				P_BloodSplatter(tmthing->x, tmthing->y, tmthing->z, thing);
 			}
+#endif
 			P_DamageMobj(thing, tmthing, tmthing->target, damage);
 		}
 		return(false);
 	}
-	if(thing->flags2&MF2_PUSHABLE && !(tmthing->flags2&MF2_CANNOTPUSH))
+        if(thing->flags2&MF2_PUSHABLE && !(tmthing->flags2&MF2_CANNOTPUSH))
 	{ // Push thing
 		thing->momx += tmthing->momx>>2;
 		thing->momy += tmthing->momy>>2;
@@ -819,7 +842,14 @@ boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y)
 	for (bx=xl ; bx<=xh ; bx++)
 		for (by=yl ; by<=yh ; by++)
 			if (!P_BlockThingsIterator(bx,by,PIT_CheckThing))
-				return false;
+                                return false;
+#ifdef PATCH12
+        if(tmthing->type == MT_MWAND_MISSILE || tmthing->type == MT_MSTAFF_FX2)
+        {
+                tmthing->special2 = 0;
+        }
+#endif
+
 //
 // check lines
 //
@@ -1770,6 +1800,7 @@ hitline:
 	P_SpawnPuff(x, y, z);
 	if(la_damage)
 	{
+#ifdef GORE
 		if (!(in->d.thing->flags&MF_NOBLOOD) &&
 			!(in->d.thing->flags2&MF2_INVULNERABLE))
 		{
@@ -1782,6 +1813,7 @@ hitline:
 				P_BloodSplatter(x, y, z, in->d.thing);
 			}
 		}
+#endif
 		if(PuffType == MT_FLAMEPUFF2)
 		{ // Cleric FlameStrike does fire damage
 			P_DamageMobj(th, &LavaInflictor, shootthing, la_damage);
@@ -2148,7 +2180,11 @@ boolean PIT_RadiusAttack (mobj_t *thing)
 		{
 			damage >>= 2;
 		}
+#ifdef PATCH12
+                P_DamageMobjExplode(thing, bombspot, bombsource, damage);
+#else
 		P_DamageMobj(thing, bombspot, bombsource, damage);
+#endif
 	}
 	return(true);
 }
@@ -2224,9 +2260,12 @@ boolean PIT_ChangeSector (mobj_t *thing)
 	// crunch bodies to giblets
 	if ((thing->flags&MF_CORPSE) && (thing->health <= 0))
 	{
+#ifdef GORE
 		if (thing->flags&MF_NOBLOOD)
 		{
+#endif
 			P_RemoveMobj (thing);
+#ifdef GORE
 		}
 		else
 		{
@@ -2238,6 +2277,7 @@ boolean PIT_ChangeSector (mobj_t *thing)
 				S_StartSound(thing, SFX_PLAYER_FALLING_SPLAT);
 			}
 		}
+#endif
 		return true;            // keep checking
 	}
 
@@ -2255,6 +2295,7 @@ boolean PIT_ChangeSector (mobj_t *thing)
 	if (crushchange && !(leveltime&3))
 	{
 		P_DamageMobj(thing, NULL, NULL, crushchange);
+#ifdef GORE
 		// spray blood in a random direction
 		if ((!(thing->flags&MF_NOBLOOD)) &&
 			(!(thing->flags2&MF2_INVULNERABLE)))
@@ -2264,6 +2305,7 @@ boolean PIT_ChangeSector (mobj_t *thing)
 			mo->momx = (P_Random() - P_Random ())<<12;
 			mo->momy = (P_Random() - P_Random ())<<12;
 		}
+#endif
 	}
 
 	return true;            // keep checking (crush other things)

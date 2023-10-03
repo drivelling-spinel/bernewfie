@@ -2156,8 +2156,13 @@ mobj_t *P_SpawnMissileAngle(mobj_t *source, mobjtype_t type,
 //
 //---------------------------------------------------------------------------
 
+#ifdef PATCH12
+mobj_t *P_SpawnMissileAngleSpeedNoCheck(mobj_t *source, mobjtype_t type,
+	angle_t angle, fixed_t momz, fixed_t speed)
+#else
 mobj_t *P_SpawnMissileAngleSpeed(mobj_t *source, mobjtype_t type,
 	angle_t angle, fixed_t momz, fixed_t speed)
+#endif
 {
 	fixed_t z;
 	mobj_t *mo;
@@ -2175,9 +2180,18 @@ mobj_t *P_SpawnMissileAngleSpeed(mobj_t *source, mobjtype_t type,
 	mo->momx = FixedMul(speed, finecosine[angle]);
 	mo->momy = FixedMul(speed, finesine[angle]);
 	mo->momz = momz;
-	return(P_CheckMissileSpawn(mo) ? mo : NULL);
+#ifdef PATCH12
+        return mo;
 }
 
+mobj_t *P_SpawnMissileAngleSpeed(mobj_t *source, mobjtype_t type,
+	angle_t angle, fixed_t momz, fixed_t speed)
+{
+        mobj_t * mo = P_SpawnMissileAngleSpeedNoCheck(source, type,
+                                                      angle, momz, speed);
+#endif
+	return(P_CheckMissileSpawn(mo) ? mo : NULL);
+}
 
 
 /*
@@ -2189,7 +2203,11 @@ mobj_t *P_SpawnMissileAngleSpeed(mobj_t *source, mobjtype_t type,
 ================
 */
 
+#ifdef PATCH12
+boolean P_SpawnPlayerMissileExplodeLater(mobj_t *source, mobjtype_t type, mobj_t **mo)
+#else
 mobj_t *P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type)
+#endif
 {
 	angle_t an;
 	fixed_t x, y, z, slope;
@@ -2229,6 +2247,9 @@ mobj_t *P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type)
 		z = source->z + 4*8*FRACUNIT+((source->player->lookdir)<<FRACBITS)/173;
 		z -= source->floorclip;
 	}
+#ifdef PATCH12
+        *mo =
+#endif
 	MissileMobj = P_SpawnMobj(x, y, z, type);
 	if(MissileMobj->info->seesound)
 	{
@@ -2255,6 +2276,17 @@ mobj_t *P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type)
 		MissileMobj->z += (MissileMobj->momz>>1);
 	}
 	if(!P_TryMove(MissileMobj, MissileMobj->x, MissileMobj->y))
+#ifdef PATCH12
+                return false;
+        else
+                return true;
+}
+
+mobj_t *P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type)
+{
+        boolean moved = P_SpawnPlayerMissileExplodeLater(source, type, &MissileMobj);
+        if (!moved)
+#endif
 	{ // Exploded immediately
 		P_ExplodeMissile(MissileMobj);
 		return(NULL);

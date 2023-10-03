@@ -63,15 +63,25 @@ static fixed_t scale_ftom;
 static player_t *plr; // the player represented by an arrow
 static vertex_t oldplr;
 
-//static patch_t *marknums[10]; // numbers used for marking by the automap
-//static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
-//static int markpointnum = 0; // next point to be assigned
+#ifdef PATCH12
+static patch_t *marknums[10]; // numbers used for marking by the automap
+static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+static int markpointnum = 0; // next point to be assigned
+
+static void AM_RefreshMapMarkers();
+static void AM_DrawMapMarkers();
+#define NUMLOCKS 11
+static patch_t *locks[NUMLOCKS];
+#endif
 
 static int followplayer = 1; // specifies whether to follow the player around
 
 static char cheat_kills[] = { 'k', 'i', 'l', 'l', 's' };
 static boolean ShowKills = 0;
 static unsigned ShowKillsCount = 0;
+#ifdef PATCH12
+static boolean ShowMarkers = 0;
+#endif
 
 extern boolean viewactive;
 
@@ -165,7 +175,7 @@ void AM_restoreScaleAndLoc(void)
 
 // adds a marker at the current location
 
-/*
+#ifdef PATCH12
 void AM_addMark(void)
 {
   markpoints[markpointnum].x = m_x + m_w/2;
@@ -173,7 +183,7 @@ void AM_addMark(void)
   markpointnum = (markpointnum + 1) % AM_NUMMARKPOINTS;
 
 }
-*/
+#endif
 void AM_findMinMaxBoundaries(void)
 {
   int i;
@@ -307,18 +317,27 @@ void AM_initVariables(void)
 
 void AM_loadPics(void)
 {
+#ifdef PATCH12
+  int i;
+  static char nm[] = "KEY0A0";
+  for(i = 1 ; i <= NUMLOCKS ; i += 1)
+    {
+      nm[3] = (i >= 10 ? 'a' - 10 : '0') + i;
+      locks[i] = W_CacheLumpName(nm, PU_STATIC);
+    }
+#endif
   maplump = W_CacheLumpName("AUTOPAGE", PU_STATIC);
 }
 
 
-/*
+#ifdef PATCH12
 void AM_clearMarks(void)
 {
   int i;
   for (i=0;i<AM_NUMMARKPOINTS;i++) markpoints[i].x = -1; // means empty
   markpointnum = 0;
 }
-*/
+#endif
 
 // should be called at the start of every level
 // right now, i figure it out myself
@@ -332,9 +351,9 @@ void AM_LevelInit(void)
   f_h = finit_height;
 	mapxstart = mapystart = 0;
 
-
-//  AM_clearMarks();
-
+#ifdef PATCH12
+  AM_clearMarks();
+#endif
   AM_findMinMaxBoundaries();
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
   if (scale_mtof > max_scale_mtof) scale_mtof = min_scale_mtof;
@@ -504,6 +523,11 @@ boolean AM_Responder (event_t *ev)
 				mtof_zoommul = FRACUNIT;
 				ftom_zoommul = FRACUNIT;
 				break;
+#ifdef PATCH12
+                        case AM_MARKERS:
+                                ShowMarkers = !ShowMarkers;
+				break;
+#endif
 		}
 	}
 	return rc;
@@ -593,7 +617,9 @@ void AM_Ticker (void)
   if (m_paninc.x || m_paninc.y) AM_changeWindowLoc();
   // Update light level
 // AM_updateLightLev();
-
+#ifdef PATCH12
+  AM_RefreshMapMarkers();
+#endif
 }
 
 void AM_clearFB(int color)
@@ -1205,7 +1231,7 @@ void AM_drawThings(int colors, int colorrange)
   }
 }
 
-/*
+#ifdef PATCH12
 void AM_drawMarks(void)
 {
   int i, fx, fy, w, h;
@@ -1223,7 +1249,7 @@ void AM_drawMarks(void)
     }
   }
 }
-*/
+#endif
 /*
 void AM_drawkeys(void)
 {
@@ -1266,7 +1292,10 @@ void AM_Drawer (void)
   if (cheating==2) AM_drawThings(THINGCOLORS, THINGRANGE);
 
 //  AM_drawCrosshair(XHAIRCOLORS);
-//  AM_drawMarks();
+#ifdef PATCH12
+  AM_drawMarks();
+  AM_DrawMapMarkers();
+#endif
 //	if(gameskill == sk_baby) AM_drawkeys();
 
 	MN_DrTextA(P_GetMapName(gamemap), 38, SCREENHEIGHT - LORESHEIGHT + 144);
@@ -1411,3 +1440,144 @@ static void DrawWorldTimer(void)
 		}
 	}
 }
+
+
+#ifdef PATCH12
+
+static mapmarker_t * map_markers = 0;
+
+void AM_AddMapMarker(line_t * line, byte lock)
+{
+  mapmarker_t * mi;
+  if(!map_markers)
+    {
+      map_markers = calloc(sizeof(mapmarker_t), 8);
+      map_markers[7].next = map_markers;
+    }
+
+  for(mi = map_markers ; mi->line && mi->next > mi ; mi = mi->next);
+
+  if(mi->next == map_markers && mi->line)
+    {
+      size_t offs = (mi - map_markers) + 1;
+      mapmarker_t * new_markers = calloc(sizeof(mapmarker_t), offs * 2);
+      memcpy(new_markers, map_markers, offs * sizeof(mapmarker_t));
+      free(map_markers);
+      new_markers[offs * 2 - 1].next = new_markers;
+      mi = new_markers[offs - 1].next = &new_markers[offs];
+      for(offs -= 2 ; offs >= 0 ; offs -= 1)
+        new_markers[offs].next = &new_markers[new_markers[offs].next - map_markers];
+      map_markers = new_markers;
+    }
+
+  mi->line = line;
+  mi->o.x = (line->v1->x + line->v2->x) / 2;
+  mi->o.y = (line->v1->y + line->v2->y) / 2;
+  mi->lock = lock + 1;
+
+  if(!mi->next)
+    mi->next = &(mi[1]);
+}
+
+
+void AM_ClearMapMarkers()
+{
+  free(map_markers);
+  map_markers = calloc(sizeof(mapmarker_t), 8);
+  map_markers[7].next = map_markers;
+}
+
+static void AM_RefreshMapMarkers()
+{
+  mapmarker_t * mi = map_markers;
+  byte compact = 0;
+ 
+
+  while(mi->line)
+    {
+      if (!mi->show && (mi->line->flags & ML_MAPPED) &&
+        !(mi->line->flags & (LINE_NEVERSEE || ML_SECRET)))
+        {
+          compact = mi->show = 1;
+        }
+      
+      if(mi->next <= mi)
+        break;
+      mi = mi->next;
+    }
+
+  if(!compact)
+    return;
+
+  mi = map_markers;
+  while(mi->line && mi->next > mi)
+    {
+      if (mi->show)
+        {
+          mapmarker_t *ji = mi->next, *li = mi;
+          while(ji->line)
+            {
+              fixed_t dist = MAXLONG;
+              mapmarker_t * n = ji->next;
+
+              if(ji->show && mi->lock == ji->lock)
+                dist = P_AproxDistance(mi->o.x-ji->o.x, mi->o.y-ji->o.y);
+              if(dist <= 512 * FRACUNIT)
+                {
+                  mi->o.x = (mi->o.x + ji->o.x) / 2;
+                  mi->o.y = (mi->o.y + ji->o.y) / 2;
+                  ji->line = 0;
+                  if(ji->next > ji)
+                    {
+                      li->next = ji->next;
+                      ji->next = 0;
+                    }
+                  else
+                    {
+                      li->next = 0;
+                      break;
+                    }
+                }
+              else
+                li = ji;
+              ji = n;
+            } 
+        }
+      if (mi->next > mi)
+        mi = mi->next;
+    }
+
+}
+
+static void AM_DrawMapMarkers()
+{
+  int fx, fy, w, h;
+  mapmarker_t * mi = map_markers;
+
+  if(!ShowMarkers)
+    return;
+
+  while(mi->line)
+    {
+      if (mi->show || cheating)
+        {
+          assert(mi->lock < NUMLOCKS);
+
+          w = SHORT(locks[mi->lock]->width);
+          h = SHORT(locks[mi->lock]->height);
+          fx = CXMTOF(mi->o.x) - w/2;
+          fy = CYMTOF(mi->o.y) - h/2;
+          if (fx >= f_x && fx <= f_w - w && fy >= f_y && fy <= f_h - h)
+                        V_DrawPatch(fx + SHORT(locks[mi->lock]->leftoffset),
+                                    fy + SHORT(locks[mi->lock]->topoffset),
+                                    locks[mi->lock]);
+        }
+      
+      if(mi->next <= mi)
+        break;
+      mi = mi->next;
+    }
+}
+
+
+#endif

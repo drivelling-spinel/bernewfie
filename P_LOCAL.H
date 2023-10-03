@@ -155,7 +155,14 @@ mobj_t *P_SpawnMissileAngle(mobj_t *source, mobjtype_t type,
 	angle_t angle, fixed_t momz);
 mobj_t *P_SpawnMissileAngleSpeed(mobj_t *source, mobjtype_t type,
 	angle_t angle, fixed_t momz, fixed_t speed);
+#ifdef PATCH12
+mobj_t *P_SpawnMissileAngleSpeedNoCheck(mobj_t *source, mobjtype_t type,
+        angle_t angle, fixed_t momz, fixed_t speed);
+#endif
 mobj_t *P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);
+#ifdef PATCH12
+boolean P_SpawnPlayerMissileExplodeLater(mobj_t *source, mobjtype_t type, mobj_t **mo);
+#endif
 mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle);
 mobj_t *P_SPMAngleXYZ(mobj_t *source, fixed_t x, fixed_t y, 
 	fixed_t z, mobjtype_t type, angle_t angle);
@@ -277,6 +284,10 @@ void P_ClearMessage(player_t *player);
 void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher);
 void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
 	int damage);
+#ifdef PATCH12
+void P_DamageMobjExplode(mobj_t *target, mobj_t *inflictor, mobj_t *source,
+	int damage);
+#endif
 void P_FallingDamage(player_t *player);
 void P_PoisonPlayer(player_t *player, mobj_t *poisoner, int poison);
 void P_PoisonDamage(player_t *player, mobj_t *source, int damage,
@@ -425,5 +436,23 @@ void PO_Init(int lump);
 boolean PO_Busy(int polyobj);
 
 #include "p_spec.h"
+
+#ifdef PATCH12
+
+typedef struct mapmarker_s
+{
+  line_t * line;
+  byte show;
+  byte lock;
+  vertex_t o;
+  struct mapmarker_s * next;
+} mapmarker_t;
+
+void AM_AddMapMarker(line_t * line, byte lock);
+void AM_ClearMapMarkers();
+
+void P_CheckLineLoaded(line_t * line);
+
+#endif
 
 #endif // __P_LOCAL__

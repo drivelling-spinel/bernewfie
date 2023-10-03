@@ -1150,3 +1150,22 @@ line_t *P_FindLine(int lineTag, int *searchPosition)
 	*searchPosition = -1;
 	return NULL;
 }
+
+
+#ifdef PATCH12
+void P_CheckLineLoaded(line_t * ld)
+{
+  if(ld->special == 13)
+    {
+      byte lock = (&ld->arg1)[3];
+      if(lock)
+        AM_AddMapMarker(ld, lock - 1);
+    }
+  else if(ld->special == 83)
+    {
+      byte lock = (&ld->arg1)[4];
+      if(lock)
+        AM_AddMapMarker(ld, lock - 1);
+    }    
+}
+#endif

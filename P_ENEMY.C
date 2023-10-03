@@ -869,6 +869,15 @@ void A_UnSetReflective(mobj_t *actor)
 }
 
 
+#ifdef PATCH12
+void A_CentaurPain(mobj_t *actor)
+{
+        A_UnSetReflective(actor);
+        A_Pain(actor); 
+}
+#endif
+
+
 //----------------------------------------------------------------------------
 //
 // FUNC P_UpdateMorphedMonster
@@ -1718,6 +1727,7 @@ void A_SkullPop(mobj_t *actor)
 		return;
 	}
 	actor->flags &= ~MF_SOLID;
+#ifdef GORE
 	mo = P_SpawnMobj(actor->x, actor->y, actor->z+48*FRACUNIT,
 		MT_BLOODYSKULL);
 	//mo->target = actor;
@@ -1725,15 +1735,20 @@ void A_SkullPop(mobj_t *actor)
 	mo->momy = (P_Random()-P_Random())<<9;
 	mo->momz = FRACUNIT*2+(P_Random()<<6);
 	// Attach player mobj to bloody skull
+#endif
 	player = actor->player;
 	actor->player = NULL;
 	actor->special1 = player->class;
+#ifdef GORE
 	mo->player = player;
 	mo->health = actor->health;
 	mo->angle = actor->angle;
 	player->mo = mo;
 	player->lookdir = 0;
 	player->damagecount = 32;
+#else
+        player->mo = NULL;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -2083,17 +2098,29 @@ void A_SerpentLowerHump(mobj_t *actor)
 
 void A_SerpentHumpDecide(mobj_t *actor)
 {
+        byte r;
 	if(actor->type == MT_SERPENTLEADER)
 	{
 		if(P_Random() > 30)
 		{
 			return;
 		}
-		else if(P_Random() < 40)
+#ifdef PATCH12
+                else {
+                  r = P_Random();
+                  if(r < 40 && actor->target && actor->target->health > 0 &&
+                  P_CheckSight(actor, actor->target))
+
+#else
+                else if(P_Random() < 40)
+#endif
 		{ // Missile attack
 			P_SetMobjState(actor, S_SERPENT_SURFACE1);
 			return;
 		}
+#ifdef PATCH12
+                }
+#endif
 	}
 	else if(P_Random() > 3)
 	{
@@ -2101,10 +2128,27 @@ void A_SerpentHumpDecide(mobj_t *actor)
 	}
 	if(!P_CheckMeleeRange(actor))
 	{ // The hump shouldn't occur when within melee range
+#ifdef PATCH12
+                if(actor->type == MT_SERPENTLEADER)
+                {
+                        byte r = P_Random();
+                        if(r < 128 && actor->target && actor->target->health > 0 &&
+                        P_CheckSight(actor, actor->target))
+                        {
+                                P_SetMobjState(actor, S_SERPENT_SURFACE1);
+                        }
+                        else
+                        {
+                                P_SetMobjState(actor, S_SERPENT_HUMP1);
+                                S_StartSound(actor, SFX_SERPENT_ACTIVE);
+                        }
+                }
+#else
 		if(actor->type == MT_SERPENTLEADER && P_Random() < 128)
 		{
 			P_SetMobjState(actor, S_SERPENT_SURFACE1);
 		}
+#endif
 		else
 		{	
 			P_SetMobjState(actor, S_SERPENT_HUMP1);
@@ -2246,7 +2290,12 @@ void A_SerpentCheckForAttack(mobj_t *actor)
 	{
 		return;
 	}
+#ifdef PATCH12
+        if(actor->type == MT_SERPENTLEADER && actor->target && actor->target->health > 0 &&
+        P_CheckSight(actor, actor->target))
+#else
 	if(actor->type == MT_SERPENTLEADER)
+#endif
 	{
 		if(!P_CheckMeleeRange(actor))
 		{
@@ -2322,6 +2371,11 @@ void A_SerpentMissileAttack(mobj_t *actor)
 {
 	mobj_t *mo;
 
+#ifdef PATCH12
+        // Hexen actually seems to make the check here,
+        // unlike GZDoom, so not clear if Serpent Leader
+        // should be touched at all - LP
+#endif
 	if(!actor->target)
 	{
 		return;
@@ -2664,9 +2718,17 @@ void A_BishopSpawnBlur(mobj_t *actor)
 
 	if(!--actor->special1)
 	{
+#ifdef PATCH12
+                byte r = P_Random();
+#endif
 		actor->momx = 0;
 		actor->momy = 0;
+#ifdef PATCH12
+                if(r > 96 || !actor->target || actor->target->health <= 0 ||
+                  !P_CheckSight(actor, actor->target))
+#else
 		if(P_Random() > 96)
+#endif
 		{
 			P_SetMobjState(actor, S_BISHOP_WALK1);
 		}
@@ -2756,6 +2818,9 @@ static void DragonSeek(mobj_t *actor, angle_t thresh, angle_t turnMax)
 	angle_t bestAngle;
 	angle_t angleToSpot, angleToTarget;
 	mobj_t *mo;
+#ifdef PATCH12
+        byte r;
+#endif
 
 	target = (mobj_t *)actor->special1;
 	if(target == NULL)
@@ -2798,7 +2863,12 @@ static void DragonSeek(mobj_t *actor, angle_t thresh, angle_t turnMax)
 		dist = P_AproxDistance(target->x-actor->x, target->y-actor->y);
 		dist = dist/actor->info->speed;
 	}
+#ifdef PATCH12
+        r = P_Random();
+        if(target->flags&MF_SHOOTABLE && r < 64 && P_CheckSight(actor, actor->target))
+#else
 	if(target->flags&MF_SHOOTABLE && P_Random() < 64)
+#endif
 	{ // attack the destination mobj if it's attackable
 		mobj_t *oldTarget;
 	
@@ -2904,6 +2974,10 @@ void A_DragonFlight(mobj_t *actor)
 			actor->target = NULL;
 			return;
 		}
+#ifdef PATCH12
+                if(P_CheckSight(actor, actor->target))
+                {                
+#endif
 		angle = R_PointToAngle2(actor->x, actor->y, actor->target->x,
 			actor->target->y);
 		if(abs(actor->angle-angle) < ANGLE_45/2 && P_CheckMeleeRange(actor))
@@ -2916,6 +2990,9 @@ void A_DragonFlight(mobj_t *actor)
 			P_SetMobjState(actor, actor->info->missilestate);
 			S_StartSound(actor, SFX_DRAGON_ATTACK);
 		}
+#ifdef PATCH12
+                }
+#endif
 	}
 	else
 	{
@@ -3826,7 +3903,11 @@ void A_IceGuyMissileExplode(mobj_t *actor)
 #define SORCBALL_INITIAL_SPEED 		7
 #define SORCBALL_TERMINAL_SPEED		25
 #define SORCBALL_SPEED_ROTATIONS 	5
+#ifdef PATCH12
+#define SORC_DEFENSE_TIME                       175
+#else
 #define SORC_DEFENSE_TIME			255
+#endif
 #define SORC_DEFENSE_HEIGHT			45
 #define BOUNCE_TIME_UNIT			(35/2)
 #define SORCFX4_RAPIDFIRE_TIME		(6*3)		// 3 seconds
@@ -4056,10 +4137,32 @@ void A_StopBalls(mobj_t *actor)
 	actor->args[3] = SORC_STOPPING;				// stopping mode
 	actor->args[1] = 0;							// Reset rotation counter
 
-	if ((actor->args[0] <= 0) && (chance < 200))
+#ifdef PATCH12
+        if (!actor->damage)
+        {
+                if(actor->args[0] >= 0)
+                {
+                        actor->damage = actor->info->damage;
+                        if((actor->health < (actor->info->spawnhealth >> 1)) &&
+                           (chance < 200))
+                        {
+                                actor->special2 = MT_SORCBALL3;                 // Green
+                        }
+                        else
+                        {
+                                actor->special2 = MT_SORCBALL1;                 // Yellow
+                        }
+                }
+                else
+#else
+        if ((actor->args[0] <= 0) && (chance < 200))
+#endif
 	{
 		actor->special2 = MT_SORCBALL2;			// Blue
 	}
+#ifdef PATCH12
+        }
+#endif
 	else if((actor->health < (actor->info->spawnhealth >> 1)) &&
 			(chance < 200))
 	{
