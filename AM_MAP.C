@@ -1462,11 +1462,11 @@ void AM_AddMapMarker(line_t * line, byte lock)
       size_t offs = (mi - map_markers) + 1;
       mapmarker_t * new_markers = calloc(sizeof(mapmarker_t), offs * 2);
       memcpy(new_markers, map_markers, offs * sizeof(mapmarker_t));
-      free(map_markers);
       new_markers[offs * 2 - 1].next = new_markers;
-      mi = new_markers[offs - 1].next = &new_markers[offs];
-      for(offs -= 2 ; offs >= 0 ; offs -= 1)
-        new_markers[offs].next = &new_markers[new_markers[offs].next - map_markers];
+      mi = new_markers[offs - 1].next = &(new_markers[offs]);
+      for(offs -= 1 ; offs > 0 ; offs -= 1)
+        new_markers[offs - 1].next = &(new_markers[new_markers[offs - 1].next - map_markers]);
+      free(map_markers);
       map_markers = new_markers;
     }
 

@@ -44,10 +44,18 @@
 //#define VERSIONTEXT "DVL BETA 10 05 95" // Used for GT for testing
 //#define VERSIONTEXT "DVL BETA 10 07 95" // Just an update for Romero
 //#define VERSIONTEXT "FINAL 1.0 (10 13 95)" // Just an update for Romero
+#ifdef PATCH12
+#ifdef RANGECHECK
+#define VERSIONTEXT "Version 1.2 +R "__DATE__" ("VER_ID")"
+#else
+#define VERSIONTEXT "Version 1.2 "__DATE__" ("VER_ID")"
+#endif
+#else
 #ifdef RANGECHECK
 #define VERSIONTEXT "Version 1.1 +R "__DATE__" ("VER_ID")"
 #else
 #define VERSIONTEXT "Version 1.1 "__DATE__" ("VER_ID")"
+#endif
 #endif
 
 // Remove all definitions before including system definitions
