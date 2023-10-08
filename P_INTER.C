@@ -1820,7 +1820,10 @@ void P_DamageMobj
 	if(target->health <= 0)
 	{
 #ifdef PATCH12
-                if (inflictor && inflictor->flags2&MF2_ICEDAMAGE && inflictor->type != MT_SHARDFX1)
+                if (inflictor && inflictor->flags2&MF2_ICEDAMAGE
+                              && inflictor->type != MT_SHARDFX1
+                              && !(inflictor == source && source->player && source->player->readyweapon == WP_SECOND && source->player->class == PCLASS_MAGE)
+                   )
 #else
 		if (inflictor && inflictor->flags2&MF2_ICEDAMAGE)
 #endif
