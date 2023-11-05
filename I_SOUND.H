@@ -40,6 +40,8 @@ void I_StartupSound (void);
 void I_ShutdownSound (void);
 void I_SetChannels(int channels);
 
+void I_LoadSoundBank(void *bank);
+
 #endif
 
 

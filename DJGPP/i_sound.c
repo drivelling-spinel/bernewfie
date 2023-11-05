@@ -377,22 +377,25 @@ void I_InitSound(void)
   for (i=1; i<NUMSFX; i++)
       S_sfx[i].snd_ptr = getsfx(S_sfx[i].lumpname, &lengths[i]);
 
-  // GB 2014
-  // Allegro load_ibk: Reads in a .IBK patch set file, for use by the Adlib driver.
-  // Returns non-zero on error. 
-  // int load_ibk(char *filename, int drums)
-  if (mus_card>0)
-  {
-	   if (load_ibk("MBF_D2GM.IBK",0)==0) fputs(" - MBF_D2GM.IBK loaded", stdout);
-	   else                               fputs(" - failed to load MBF_D2GM.IBK", stdout); 
-       //load_ibk("drum.ibk",1);
-  }
   // Finished initialization.
   puts("\nI_InitSound: sound module ready");    // killough 8/8/98
 
   //rest(4000);
   //sleep(8); //uncomment for debugging
 }
+
+void I_LoadSoundBank(void *bank)
+{
+  // GB 2014
+  // Allegro load_ibk: Reads in a .IBK patch set file, for use by the Adlib driver.
+  // Returns non-zero on error. 
+  // int load_ibk(char *filename, int drums)
+  if (mus_card>0)
+  {
+     load_op2(bank);
+  } 
+}
+
 
 ///
 // MUSIC API.
