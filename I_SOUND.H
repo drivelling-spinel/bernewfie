@@ -41,6 +41,7 @@ void I_ShutdownSound (void);
 void I_SetChannels(int channels);
 
 void I_LoadSoundBank(void *bank);
+boolean I_IsMusicCardOPL(void);
 
 #endif
 
