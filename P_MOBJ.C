@@ -97,7 +97,13 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	mobj->frame = st->frame;
 	if(st->action)
 	{ // Call action function
-//		st->action(mobj);
+#if defined(DEBUG_PTRS)
+		dmprintf("+Action %p(%p->type %d);\n", st->action, mobj, mobj->type);
+#endif
+		st->action(mobj);
+#if defined(DEBUG_PTRS)
+		dmprintf("-Action %p;\n", st->action); 
+#endif
 	}
 	return(true);
 }

@@ -1216,3 +1216,24 @@ void My_Debug(void)
 	}
 }
 */
+
+#if defined(DEBUG_PTRS)
+void DM_PrintThinkers()
+{
+	dmprintf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	dmprintf("P_MobjThinker=%p\n", P_MobjThinker);
+	dmprintf("T_RotatePoly=%p\n", T_RotatePoly);
+	dmprintf("T_MovePoly=%p\n", T_MovePoly);
+	dmprintf("T_PolyDoor=%p\n", T_PolyDoor);
+	dmprintf("T_PlatRaise=%p\n", T_PlatRaise);
+	dmprintf("T_MoveFloor=%p\n", T_MoveFloor);
+	dmprintf("T_BuildPillar=%p\n", T_BuildPillar);
+	dmprintf("T_FloorWaggle=%p\n", T_FloorWaggle);
+	dmprintf("T_Light=%p\n", T_Light);
+	dmprintf("T_Phase=%p\n", T_Phase);
+	dmprintf("T_InterpretACS=%p\n", T_InterpretACS);
+	dmprintf("T_MoveCeiling=%p\n", T_MoveCeiling);
+	dmprintf("T_VerticalDoor=%p\n", T_VerticalDoor);
+	dmprintf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+}
+#endif

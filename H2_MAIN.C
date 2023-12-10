@@ -248,7 +248,7 @@ void H2_Main(void)
 	SB_Init();
 	
 	CheckRecordFrom();
-
+	
 	p = M_CheckParm("-record");
 	if(p && p < myargc-1)
 	{
@@ -516,6 +516,12 @@ void H2_GameLoop(void)
 		debugfile = fopen(filename,"w");
 	}
 	I_InitGraphics();
+
+#if defined(DEBUG_PTRS)
+	DM_PrintActions();
+	DM_PrintThinkers();
+#endif
+
 	while(1)
 	{
 		// Frame syncronous IO operations
