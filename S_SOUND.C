@@ -649,7 +649,7 @@ void S_Init(void)
 	memset(dummy, 0, sizeof(mobj_t));
 	I_SetChannels(snd_Channels);
 	I_SetMusicVolume(snd_MusicVolume);
-
+        I_LoadSoundBank(W_CacheLumpName("GENMIDI", PU_CACHE));
 }
 
 //==========================================================================
