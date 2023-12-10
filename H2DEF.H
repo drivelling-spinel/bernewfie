@@ -834,6 +834,8 @@ extern int viewwidth;
 extern int scaledviewwidth;
 extern int viewheight;
 
+extern int screenblocks;
+
 extern int mouseSensitivity;
 
 extern boolean precache; // if true, load all graphics at level load

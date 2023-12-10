@@ -632,6 +632,10 @@ static void DrawAndBlit(void)
 			}
 			CT_Drawer();
 			UpdateState |= I_FULLVIEW;
+			if(hires && screenblocks == 10)
+			{
+				SB_state = -1;
+			}
 			SB_Drawer();
 			break;
 		case GS_INTERMISSION:

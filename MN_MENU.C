@@ -110,7 +110,6 @@ void MN_LoadSlotText(void);
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
 extern int detailLevel;
-extern int screenblocks;
 extern char *SavePath;
 extern int key_speed, key_strafe;
 extern boolean gamekeydown[256]; // The NUMKEYS macro is local to g_game

@@ -473,7 +473,7 @@ void R_DrawViewBorder (void)
 	src = W_CacheLumpName("F_022", PU_CACHE);
 	dest = vscreen;
 	
-	for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++)
+	for (y=0 ; y<SCREENHEIGHT ; y++)
 	{
 		for (x=0 ; x<SCREENWIDTH/64 ; x++)
 		{

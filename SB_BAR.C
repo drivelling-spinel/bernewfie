@@ -981,7 +981,7 @@ void SB_Drawer(void)
 		DrawSoundInfo();
 	}
 	CPlayer = &players[consoleplayer];
-	if(viewheight == SCREENHEIGHT && !automapactive)
+	if(screenblocks > 10 && !automapactive)
 	{
 		DrawFullScreenStuff();
 		SB_state = -1;
