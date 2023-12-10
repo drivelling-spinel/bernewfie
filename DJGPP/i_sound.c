@@ -53,9 +53,10 @@ extern sfxinfo_t S_sfx[];
 //int detect_voices; //jff 3/4/98 enables voice detection prior to install_sound
 //jff 1/22/98 make these visible here to disable sound/music on install err
 
-static SAMPLE *raw2SAMPLE(unsigned char *rawdata, int len)
+static SAMPLE *raw2SAMPLE(unsigned char *rawdata, int *len)
 {
   SAMPLE *spl = malloc(sizeof(SAMPLE));
+  *len = *len - 8;
   spl->bits = 8;
 
   // comment out this line for allegro pre-v3.12
@@ -65,15 +66,42 @@ static SAMPLE *raw2SAMPLE(unsigned char *rawdata, int len)
 
   // killough 1/22/98: Get correct frequency
   spl->freq = (rawdata[3]<<8)+rawdata[2];
-  spl->len = len;
+  spl->len = *len;
   spl->priority = 255;
   spl->loop_start = 0;
-  spl->loop_end = len;
+  spl->loop_end = *len;
   spl->param = -1;
   spl->data = rawdata + 8;
-  _go32_dpmi_lock_data(rawdata+8, len);   // killough 3/8/98: lock sound data
+  
+  _go32_dpmi_lock_data(rawdata+8, *len);   // killough 3/8/98: lock sound data
   return spl;
 }
+
+static SAMPLE *wav2SAMPLE(unsigned char *rawdata, int *len)
+{
+  SAMPLE *spl = malloc(sizeof(SAMPLE));
+  int channels = *(short *)(rawdata+22);
+  int i = 0;
+  int bytelen = *(int *)(rawdata+40);
+  
+  if(bytelen > *len - 44) bytelen = *len - 44;
+  *len = bytelen;
+  
+  spl->bits = *(short *)(rawdata+34);
+  spl->freq = *(int *)(rawdata+24);
+  spl->len = bytelen >> (spl->bits >> 4);
+  spl->priority = 255;
+  spl->loop_start = 0;
+  spl->loop_end = spl->len;
+  spl->param = -1;
+  spl->data = rawdata + 44;
+  
+  // Allegro does this for some reason
+  for(i = 0; i < spl->len && spl->bits == 16; i += 1) ((char *)spl->data)[1 + (i << 1)] ^= 0x80;
+  _go32_dpmi_lock_data(rawdata+44, bytelen);   // killough 3/8/98: lock sound data
+  return spl;
+}
+
 
 //
 // This function loads the sound data from the WAD lump,
@@ -81,11 +109,11 @@ static SAMPLE *raw2SAMPLE(unsigned char *rawdata, int len)
 //
 static void *getsfx(char *sfxname, int *len)
 {
-  unsigned char *sfx, *paddedsfx;
+  unsigned char *sfx;
   int  i;
   int  size;
-  int  paddedsize;
   int  sfxlump;
+  int  format;
 
   // Get the sound data from the WAD, allocate lump
   //  in zone memory.
@@ -107,33 +135,14 @@ static void *getsfx(char *sfxname, int *len)
     sfxlump = W_GetNumForName(sfxname);
 
   size = W_LumpLength(sfxlump);
-
   sfx = W_CacheLumpNum(sfxlump, PU_STATIC);
-
-  // Pads the sound effect out to the mixing buffer size.
-  // The original realloc would interfere with zone memory.
-  paddedsize = ((size-8 + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT;
-
-  // Allocate from zone memory.
-  paddedsfx = (unsigned char*) Z_Malloc(paddedsize+8, PU_STATIC, 0);
-
-  // ddt: (unsigned char *) realloc(sfx, paddedsize+8);
-  // This should interfere with zone memory handling,
-  //  which does not kick in in the soundserver.
-
-  // Now copy and pad.
-  memcpy(paddedsfx, sfx, size);
-  for (i=size; i<paddedsize+8; i++)
-    paddedsfx[i] = 128;
-
-  // Remove the cached lump.
-  Z_Free(sfx);
-
-  // Preserve padded length.
-  *len = paddedsize;
-
-  // Return allocated padded data.
-  return raw2SAMPLE(paddedsfx,paddedsize);  // killough 1/22/98: pass all data
+  
+  
+  format = size >= 44 && !strncmp("RIFF", sfx, 4);
+  *len = size;
+  
+  if(format) return wav2SAMPLE(sfx,len); 
+  return raw2SAMPLE(sfx,len);
 }
 
 // SFX API
