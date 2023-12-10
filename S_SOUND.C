@@ -644,7 +644,7 @@ void S_Init(void)
 	SoundCurve = W_CacheLumpName("SNDCURVE", PU_STATIC);
 //      SoundCurve = Z_Malloc(MAX_SND_DIST, PU_STATIC, NULL);
 	I_InitSound();
-	if(snd_Channels > MAX_CHANNELS) snd_Channels = MAX_CHANNELS;
+	if(snd_Channels > MAX_CHANNELS || maxsound) snd_Channels = MAX_CHANNELS;
 	memset(Channel, 0, MAX_CHANNELS*sizeof(channel_t));
 	memset(dummy, 0, sizeof(mobj_t));
 	I_SetChannels(snd_Channels);

@@ -98,6 +98,7 @@ boolean singletics;			// debug flag to cancel adaptiveness
 boolean artiskip;			// whether shift-enter skips an artifact
 boolean mlook;
 boolean novert;
+boolean maxsound;
 int quickparm;
 skill_t startskill;
 int startepisode;
@@ -330,6 +331,7 @@ static void HandleArgs(void)
 	cmdfrag = M_ParmExists("-cmdfrag");
 	mlook = M_ParmExists("-mlook");
 	novert = M_ParmExists("-novert");
+	maxsound = M_ParmExists("-maxsound");
 	quickparm = M_ParmExists("-quick") ? Q_ASK : 0;
 
 	// Process command line options
