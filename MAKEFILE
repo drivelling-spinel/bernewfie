@@ -1,5 +1,5 @@
-#MODE = RELEASE
-MODE = DEBUG
+MODE = RELEASE
+#MODE = DEBUG
 O = $(O_$(MODE))
 O_RELEASE = obj
 O_DEBUG = objdebug
@@ -22,14 +22,13 @@ EXE=$(O)/hex.exe
 CFLAGS_COMMON=-Wall
 
 # debug options
-CFLAGS_DEBUG=-g -O2 -DRANGECHECK -DZONEIDCHECK -DDEBUG_PTRS
+CFLAGS_DEBUG=-g -O2 -DRANGECHECK -DZONEIDCHECK 
 # -g -O2 -DRANGECHECK -DZONEIDCHECK -DINSTRUMENTED -DDEBUG_PTRS 
 LDFLAGS_DEBUG=
         
 # optimized (release) options
 CFLAGS_RELEASE=-O3 -ffast-math -fomit-frame-pointer -m486 -mreg-alloc=adcbSDB
-LDFLAGS_RELEASE=
-# -s
+LDFLAGS_RELEASE=-s
 
        
 # libraries to link in

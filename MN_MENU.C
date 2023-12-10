@@ -976,7 +976,7 @@ static void SCClass(int option)
 	switch(MenuPClass)
 	{
 		case PCLASS_FIGHTER:
-			SkillMenu.x = goffsx + 120;
+			SkillMenu.x = 120;
 			SkillItems[0].text = "SQUIRE";
 			SkillItems[1].text = "KNIGHT";
 			SkillItems[2].text = "WARRIOR";
@@ -984,7 +984,7 @@ static void SCClass(int option)
 			SkillItems[4].text = "TITAN";
 			break;
 		case PCLASS_CLERIC:
-			SkillMenu.x = goffsx + 116;
+			SkillMenu.x = 116;
 			SkillItems[0].text = "ALTAR BOY";
 			SkillItems[1].text = "ACOLYTE";
 			SkillItems[2].text = "PRIEST";
@@ -992,7 +992,7 @@ static void SCClass(int option)
 			SkillItems[4].text = "POPE";
 			break;
 		case PCLASS_MAGE:
-			SkillMenu.x = goffsx + 112;
+			SkillMenu.x = 112;
 			SkillItems[0].text = "APPRENTICE";
 			SkillItems[1].text = "ENCHANTER";
 			SkillItems[2].text = "SORCERER";
@@ -1194,7 +1194,7 @@ boolean MN_Responder(event_t *event)
 					{
 						case 1:
 							G_CheckDemoStatus(); 
-							I_Quit();
+							exit(0);
 							break;
 						case 2:
 							P_ClearMessage(&players[consoleplayer]);
