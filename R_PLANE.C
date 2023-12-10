@@ -259,6 +259,8 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
 	check->special = special;
 	check->minx = SCREENWIDTH;
 	check->maxx = -1;
+	(unsigned short)(check->pad1)=0xffff;
+	(unsigned short)(check->pad2)=0xffff;
 	memset(check->top, 0xff, sizeof(check->top));
 	return(check);
 }
@@ -360,7 +362,7 @@ void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
 //
 //==========================================================================
 
-#define SKYTEXTUREMIDSHIFTED (SCREENHEIGHT)
+#define SKYTEXTUREMIDSHIFTED (200)
 
 void R_DrawPlanes(void)
 {
@@ -545,8 +547,8 @@ void R_DrawPlanes(void)
 		}
 		planezlight = zlight[light];
 
-		pl->top[pl->maxx+1] = 0xff;
-		pl->top[pl->minx-1] = 0xff;
+		(unsigned short)(pl->top[pl->maxx+1]) = 0xffff;
+		(unsigned short)(pl->top[pl->minx-1]) = 0xffff;
 
 		stop = pl->maxx+1;
 		for(x = pl->minx; x <= stop; x++)

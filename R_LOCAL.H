@@ -193,22 +193,22 @@ typedef struct
 
 typedef byte    lighttable_t;           // this could be wider for >8 bit display
 
-#define MAXVISPLANES    160
+#define MAXVISPLANES    320
 #define MAXOPENINGS             MAXSCREENWIDTH*64
 
 typedef struct
 {
-	fixed_t         height;
+	fixed_t                 height;
 	int                     picnum;
 	int                     lightlevel;
 	int                     special;
 	int                     minx, maxx;
-	byte            pad1;                                           // leave pads for [minx-1]/[maxx+1]
-	byte            top[MAXSCREENWIDTH];
-	byte            pad2;
-	byte            pad3;
-	byte            bottom[MAXSCREENWIDTH];
-	byte            pad4;
+	unsigned short         pad1;                                           // leave pads for [minx-1]/[maxx+1]
+	unsigned short         top[MAXSCREENWIDTH];
+	unsigned short         pad2;
+	unsigned short         pad3;
+	unsigned short         bottom[MAXSCREENWIDTH];
+	unsigned short         pad4;
 } visplane_t;
 
 typedef struct drawseg_s
