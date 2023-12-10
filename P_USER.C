@@ -95,7 +95,8 @@ void P_Thrust(player_t *player, angle_t angle, fixed_t move)
 =
 = P_CalcHeight
 =
-=Calculate the walking / running height adjustment
+=
+Calculate the walking / running height adjustment
 =
 ==================
 */
@@ -244,10 +245,26 @@ void P_MovePlayer(player_t *player)
 		}
 		else
 		{
-			player->lookdir += 5*look;
-			if(player->lookdir > 90 || player->lookdir < -110)
+			if(mlook) {
+			  int s = look < 0 ? 1 : 0, m;
+			  m = s ? -look : look;
+			  m = ((m & 1) << 1) | ((m & 6) << 2) | ((m && 4) << 1);
+				player->lookdir += s ? -m : m;
+				if(player->lookdir > 155)
+				{
+					player->lookdir = 155;
+				} else if(player->lookdir < -155)
+				{
+					player->lookdir = -155;
+				}
+			}
+			else
 			{
-				player->lookdir -= 5*look;
+				player->lookdir += 5*look;
+				if(player->lookdir > 90 || player->lookdir < -110)
+				{
+					player->lookdir -= 5*look;
+				}
 			}
 		}
 	}

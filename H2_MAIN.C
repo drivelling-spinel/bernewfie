@@ -72,7 +72,6 @@ static void ExecOptionSCRIPTS(char **args, int tag);
 static void ExecOptionDEVMAPS(char **args, int tag);
 static void ExecOptionSKILL(char **args, int tag);
 static void ExecOptionPLAYDEMO(char **args, int tag);
-static void ExecOptionMAXZONE(char **args, int tag);
 static void CreateSavePath(void);
 static void WarpCheck(void);
 
@@ -97,7 +96,7 @@ boolean cdrom;				// true if cd-rom mode active
 boolean cmdfrag;			// true if a CMD_FRAG packet should be sent out
 boolean singletics;			// debug flag to cancel adaptiveness
 boolean artiskip;			// whether shift-enter skips an artifact
-int maxzone = 0x800000;		// Maximum allocated for zone heap (8meg default)
+boolean mlook;
 skill_t startskill;
 int startepisode;
 int startmap;
@@ -135,7 +134,6 @@ static execOpt_t ExecOptions[] =
 	{ "-skill", ExecOptionSKILL, 1, 0 },
 	{ "-playdemo", ExecOptionPLAYDEMO, 1, 0 },
 	{ "-timedemo", ExecOptionPLAYDEMO, 1, 0 },
-	{ "-maxzone", ExecOptionMAXZONE, 1, 0 },
 	{ NULL, NULL, 0, 0 } // Terminator
 };
 
@@ -328,6 +326,7 @@ static void HandleArgs(void)
 	deathmatch = M_ParmExists("-deathmatch");
 	cdrom = M_ParmExists("-cdrom");
 	cmdfrag = M_ParmExists("-cmdfrag");
+	mlook = M_ParmExists("-mlook");
 
 	// Process command line options
 	for(opt = ExecOptions; opt->name != NULL; opt++)
@@ -524,6 +523,7 @@ static void ExecOptionMAXZONE(char **args, int tag)
 void H2_GameLoop(void)
 {
   sleep(3);
+  I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
 
   while(1)
 	{
@@ -647,12 +647,12 @@ static void DrawAndBlit(void)
 	{
 		if(!netgame)
 		{
-			V_DrawPatch(160, viewwindowy+5, W_CacheLumpName("PAUSED",
+			V_DrawPatch(160 << hires, viewwindowy+5, W_CacheLumpName("PAUSED",
 				PU_CACHE));
 		}
 		else
 		{
-			V_DrawPatch(160, 70, W_CacheLumpName("PAUSED",
+			V_DrawPatch(160 << hires, 70 << hires, W_CacheLumpName("PAUSED",
 				PU_CACHE));
 		}
 	}
@@ -721,7 +721,7 @@ static void PageDrawer(void)
 	V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
 	if(demosequence == 1)
 	{
-		V_DrawPatch(4, 160, W_CacheLumpName("ADVISOR", PU_CACHE));
+		V_DrawPatch(4, 160 << hires, W_CacheLumpName("ADVISOR", PU_CACHE));
 	}
 	UpdateState |= I_FULLSCRN;
 }
