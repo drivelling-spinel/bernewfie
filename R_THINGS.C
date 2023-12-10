@@ -720,12 +720,12 @@ void R_DrawPSprite (pspdef_t *psp)
 	vis->mobjflags = 0;
 	vis->class = 0;
 	vis->psprite = true;
-	vis->texturemid = (CENTERY<<FRACBITS)+FRACUNIT/2
-		-((psp->sy-spritetopoffset[lump]) << hires);
+	vis->texturemid = (100<<FRACBITS)+FRACUNIT/2
+		-(psp->sy-spritetopoffset[lump]);
 	if(viewheight == SCREENHEIGHT)
 	{
-		vis->texturemid -= (PSpriteSY[viewplayer->class]
-			[players[consoleplayer].readyweapon]<<hires);
+		vis->texturemid -= PSpriteSY[viewplayer->class]
+			[players[consoleplayer].readyweapon];
 	}
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;

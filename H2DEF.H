@@ -1014,6 +1014,9 @@ extern int SCREENHEIGHT;
 #define MAXSCREENWIDTH (640)
 #define MAXSCREENHEIGHT (400)
 
+#define LORESWIDTH (320)
+#define LORESHEIGHT (200)
+
 byte *I_ZoneBase (int *size);
 // called by startup code to get the ammount of memory to malloc
 // for the zone management

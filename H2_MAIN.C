@@ -522,11 +522,7 @@ static void ExecOptionMAXZONE(char **args, int tag)
 
 void H2_GameLoop(void)
 {
-  wait(4);
-
-	S_StartSongName("orb", true);
-
-	while(1)
+  while(1)
 	{
 		// Frame syncronous IO operations
 		I_StartFrame();
@@ -629,7 +625,7 @@ static void DrawAndBlit(void)
 			{
 				R_RenderPlayerView(&players[displayplayer]);
 			}
-//			CT_Drawer();
+			CT_Drawer();
 			UpdateState |= I_FULLVIEW;
 			SB_Drawer();
 			break;

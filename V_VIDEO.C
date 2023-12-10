@@ -248,7 +248,17 @@ void V_DrawShadowedPatch(int x, int y, patch_t *patch)
 
 void V_DrawRawScreen(byte *raw)
 {
-	memcpy(vscreen, raw, SCREENWIDTH*SCREENHEIGHT);
+  byte * src = raw, * dst = vscreen ;
+  int i, pillar = SCREENWIDTH * (SCREENHEIGHT - LORESHEIGHT)/2 + (SCREENWIDTH - LORESWIDTH)/2;
+  memset(dst, 0, pillar);
+  dst += pillar;
+  for(i = 0 ; i < LORESHEIGHT ; i += 1) {
+    memcpy(dst, src, LORESWIDTH);
+    memset(dst + LORESWIDTH, 0, SCREENWIDTH - LORESWIDTH);
+    src += LORESWIDTH;
+    dst += SCREENWIDTH;
+  }
+  memset(dst, 0, SCREENWIDTH * SCREENHEIGHT - (dst - vscreen));
 }
 
 //---------------------------------------------------------------------------
