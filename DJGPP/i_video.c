@@ -218,6 +218,8 @@ int SCREENWIDTH=320;
 int SCREENHEIGHT=200;
 int CENTERY;
 
+static int bg = 0; // color 8 is almost black, zero is black in Doom
+
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
 
@@ -468,11 +470,11 @@ static void I_InitGraphicsMode(void)
 {
   int hiresfail=0;
   char safestring[]="";     
-  blackband = 0; 
 
   // PREPARATION AT FIRST RUN
   if (!in_graphics_mode) 
   {
+         blackband = 0; 
 	 in_hires=0;
 	 if (vesa_version=-1) // We have not checked it yet
 	 {
@@ -508,7 +510,7 @@ static void I_InitGraphicsMode(void)
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
 		  screen_w=640; // Necessary for when mode 13h/X has overwritten them.
  		  screen_h=480;
- 		  blackband=40;                     // color 8 is almost black, zero is black
+                  blackband=40;                     
 		}
 		else hiresfail=1;
 	 }
@@ -573,8 +575,8 @@ static void I_InitGraphicsMode(void)
 	 // Setup LFB access if available:
 	 if (safeparm || nolfbparm || vesa_version<2) linear=false; else linear=mode_LFB; // LFB wanted? and supported?
  	 if (linear) {if (vesa_get_screen_base_addr(0)==1) linear=false;} // Get LFB base address, should be available
-     if (blackband &&  linear) vesa_clear_pages_LFB   (2, 0x08);      // may be garbage left in video memory, 
-     if (blackband && !linear) vesa_clear_pages_banked(2, 0x08);      // which will otherwise be visible in the bars.
+     if (blackband &&  linear) vesa_clear_pages_LFB   (2, bg);      // may be garbage left in video memory, 
+     if (blackband && !linear) vesa_clear_pages_banked(2, bg);      // which will otherwise be visible in the bars.
   }
 
   // CONTINUE TO PREPARE GENERAL STUFF
@@ -602,6 +604,7 @@ void I_ResetScreen(void)
 
   //I_ShutdownGraphics(); // Switch out of old graphics mode // GB 2014, not necessary
 
+  bg = 1;
   I_InitGraphicsMode();     // Switch to new graphics mode
 
   Z_CheckHeap();

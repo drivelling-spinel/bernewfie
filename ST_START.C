@@ -21,7 +21,6 @@
 #include <stdarg.h>				// Needed for next as well as dos
 #include "st_start.h"
 
-
 // MACROS ------------------------------------------------------------------
 #define ST_MAX_NOTCHES		32
 #define ST_NOTCH_WIDTH		16
@@ -293,8 +292,8 @@ void ST_Message(char *message, ...)
 		printf(buffer);
 	}
 #else
-	printf(buffer);
-#endif
+        printf(buffer);
+#endif 
 }
 
 //==========================================================================

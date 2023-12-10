@@ -39,8 +39,6 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include "keyboard.h"
 #include "../h2def.h"
 
-
-
 // Most of the following has been rewritten by Lee Killough
 //
 // I_GetTime
@@ -157,7 +155,7 @@ void I_Quit (void)
 {
   has_exited=1;   /* Prevent infinitely recursive exits -- killough */
 
-  M_SaveDefaults ();
+  M_SaveDefaults ();   
 
   if (*errmsg)
     puts(errmsg);   // killough 8/8/98

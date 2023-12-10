@@ -223,7 +223,8 @@ void H2_Main(void)
 	S_Init();
 	//IO_StartupTimer();
 	S_Start();  
-	S_StartSongName("orb", true);
+        if(!M_CheckParm("-noorb"))
+          S_StartSongName("orb", true);
 
 
 	ST_Message("ST_Init: Init startup screen.\n");
@@ -300,6 +301,7 @@ void H2_Main(void)
 		BorderNeedRefresh = true;
 		if(autostart || netgame)
 		{
+                        I_ResetScreen();
 			G_StartNewInit();
 			G_InitNew(startskill, startepisode, startmap);
 		}
@@ -536,7 +538,10 @@ long superatol(char *s)
 
 void H2_GameLoop(void)
 {
-  sleep(3);
+  if(!M_CheckParm("-noorb"))
+    F_FadeToBlack(0xe04400);
+
+  I_ResetScreen();
   I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
 
   while(1)
