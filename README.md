@@ -1,7 +1,7 @@
 # BERNEWFIE
 ## Hexen source port hack for DOS
 
-![BERNEWFIE screenshot](/DOC/hex_036.png)
+![BERNEWFIE screenshot](/DOC/hex_000.png)
 
 BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard and mouse bindings (HEXEN.CFG) and SETUP.EXE from MBF 2.04 package is used to configure Allegro for sound and music (SETUP.CFG). If MBF_D2GM.IBK is found in the same directory it will be loaded during OPL music card initialization. Finally, BERNEWFIE requires CWSDMPI.EXE to be launched in "pure" DOS; it can also be found in MBF 2.04 package.
 
@@ -27,6 +27,23 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
   `-asmp6` 
   `-nolfb` 
   `-nopm` 
+- support for WAV sound effect lumps and 16-bit samples 
+  (in case a SoundBulb-like mod for Hexen arrives some day)
+- optional assets WAD with portions of status bar that are normally off-screen in lower resolutions,
+  that is explicitly loaded with either `-file BERNEW.WAD` _or_
+- `-extra` command line argument for a second way to provide PWADs to be loaded to the engine
+  (e.g. to `HEXENDK.EXE -extra WADS\BERNEW.WAD`)
+
+### More screenshots
+
+
+![Original Deathkings Mage demo running](/DOC/hexendk_007.png)
+
+![Status bar in high resolution with Deathkings and BERNEW.WAD loaded](/DOC/hexendk_005.png)
+
+![Automap in high resolition](/DOC/hexendk_006.png)
+
+![Additional savegame slots](/DOC/hex_001.png)
 
 ### What's removed
 - Graphical startup
