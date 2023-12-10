@@ -89,6 +89,9 @@ static void SCMouseSensi(int option);
 static void SCSfxVolume(int option);
 static void SCMusicVolume(int option);
 static void SCScreenSize(int option);
+#ifdef HIRESMENU
+static void SCScreenResolution(int option);
+#endif
 static boolean SCNetCheck(int option);
 static void SCNetCheck2(int option);
 static void SCLoadGame(int option);
@@ -143,7 +146,7 @@ boolean typeofask;
 static boolean FileMenuKeySteal;
 static boolean slottextloaded;
 static char SlotText[
-#ifdef HIRES2
+#ifdef HIRESMENU
         30
 #else
         16
@@ -151,7 +154,7 @@ static char SlotText[
 ][SLOTTEXTLEN+2];
 static char oldSlotText[SLOTTEXTLEN+2];
 static int SlotStatus[
-#ifdef HIRES2
+#ifdef HIRESMENU
         30
 #else
         16
@@ -231,7 +234,7 @@ static MenuItem_t LoadItems[] =
 	{ ITT_EFUNC, NULL, SCLoadGame, 13, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 14, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 15, MENU_NONE }
-#ifdef HIRES2
+#ifdef HIRESMENU
   ,     { ITT_EFUNC, NULL, SCLoadGame, 16, MENU_NONE },
         { ITT_EFUNC, NULL, SCLoadGame, 17, MENU_NONE },
         { ITT_EFUNC, NULL, SCLoadGame, 18, MENU_NONE },
@@ -278,7 +281,7 @@ static MenuItem_t SaveItems[] =
 	{ ITT_EFUNC, NULL, SCSaveGame, 13, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 14, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 15, MENU_NONE }
-#ifdef HIRES2
+#ifdef HIRESMENU
      ,  { ITT_EFUNC, NULL, SCSaveGame, 16, MENU_NONE },
         { ITT_EFUNC, NULL, SCSaveGame, 17, MENU_NONE },
         { ITT_EFUNC, NULL, SCSaveGame, 18, MENU_NONE },
@@ -351,13 +354,22 @@ static MenuItem_t Options2Items[] =
 	{ ITT_EMPTY, NULL, NULL, 0, MENU_NONE },
 	{ ITT_LRFUNC, "MUSIC VOLUME", SCMusicVolume, 0, MENU_NONE },
 	{ ITT_EMPTY, NULL, NULL, 0, MENU_NONE }
+#ifdef HIRESMENU
+   ,    { ITT_LRFUNC, "SCREEN RESOLUTION", SCScreenResolution, 0, MENU_NONE },
+	{ ITT_EMPTY, NULL, NULL, 0, MENU_NONE }
+#endif
 };
 
 static Menu_t Options2Menu =
 {
 	90, 20,
 	DrawOptions2Menu,
-	6, Options2Items,
+#ifdef HIRESMENU
+        8,
+#else
+	6,
+#endif
+        Options2Items,
 	0,
 	MENU_OPTIONS
 };
@@ -629,10 +641,10 @@ void MN_Drawer(void)
 			MN_DrawInfo();
 			return;
 		}
-		if(screenblocks < 10)
+                if(screenblocks < 10)
 		{
 			BorderNeedRefresh = true;
-		}
+                }
 		if(CurrentMenu->drawFunc != NULL)
 		{
 			CurrentMenu->drawFunc();
@@ -816,7 +828,7 @@ void MN_LoadSlotText(void)
 	}
 
 	for(; slot <
-#ifdef HIRES2
+#ifdef HIRESMENU
         30
 #else
         16
@@ -879,7 +891,7 @@ static void DrawFileSlots(Menu_t *menu)
 	}
 
         for(; i <
-#ifdef HIRES2
+#ifdef HIRESMENU
         30
 #else
         16
@@ -925,6 +937,9 @@ static void DrawOptions2Menu(void)
 	DrawSlider(&Options2Menu, 1, 9, screenblocks-3);
 	DrawSlider(&Options2Menu, 3, 16, snd_MaxVolume);
 	DrawSlider(&Options2Menu, 5, 16, snd_MusicVolume);
+#ifdef HIRESMENU
+        DrawSlider(&Options2Menu, 7, 6, screenresolution);
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -1255,6 +1270,29 @@ static void SCScreenSize(int option)
 	}
 	R_SetViewSize(screenblocks, detailLevel);
 }
+
+#ifdef HIRESMENU
+//---------------------------------------------------------------------------
+//
+// PROC SCScreenResolution
+//
+//---------------------------------------------------------------------------
+
+static void SCScreenResolution(int option)
+{
+	if(option == RIGHT_DIR)
+	{
+                if(screenresolution < 5)
+		{
+                        screenresolution++;
+		}
+	}
+        else if(screenresolution > 0)
+	{
+                screenresolution--;
+	}
+}
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -1783,7 +1821,7 @@ void MN_ActivateMenu(void)
 {
 	if(hires)
 	{
-#ifdef HIRES2
+#ifdef HIRESMENU
                 SaveMenu.itemCount = 30;
                 LoadMenu.itemCount = 30;
 #else
@@ -1822,6 +1860,7 @@ void MN_DeactivateMenu(void)
 {
 	CurrentMenu->oldItPos = CurrentItPos;
 	MenuActive = false;
+        SB_state = -1;
 	if(!netgame)
 	{
 		paused = false;

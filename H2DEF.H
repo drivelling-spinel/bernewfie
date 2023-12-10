@@ -866,6 +866,7 @@ extern int scaledviewwidth;
 extern int viewheight;
 #ifdef HIRES2
 extern fixed_t pspshift;
+extern int screenresolution;
 #endif
 
 extern int screenblocks;

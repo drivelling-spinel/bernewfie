@@ -191,6 +191,16 @@ extern void ppro_blast(void *destin, void *src);        // same but for PPro CPU
 extern void blast_nobar(void *destin, void *src);       // as above but without doing lower part
 extern void ppro_blast_nobar(void *destin, void *src);  // as above but without doing lower part
 
+#ifdef HIRES2
+int screenresolution;
+void            (*hiresfunc) (void);
+
+void    R_DrawColumn (void);
+void    R_DrawColumn2 (void);
+void    R_DrawColumn3 (void);
+void    R_DrawColumn4 (void);
+#endif
+
 //variables:
 extern boolean setsizeneeded;
 boolean noblit;
@@ -483,11 +493,35 @@ void I_FinishUpdate(void)
    }
    else
    {  // 1/16/98 killough: optimization based on CPU type:
-      if (current_mode>255) 
+      if (current_mode>255)
     	 dascreen = (byte *) screen_base_addr + scroll_offset*mode_BPS + blackband*mode_BPS; // VESA LFB access
+#ifdef INTELHACK
+      if(screen_w == mode_BPS || current_mode <= 255)
+      {
+#endif
            if (cpu_family >= 6) ppro_blit(dascreen,size);       // PPro, PII
       else if (cpu_family >= 5) pent_blit(dascreen,size);       // Pentium (GB 2014: not used for Cx5x86, but it is a little slower anyways)
-      else                      memcpy(dascreen,scr,size); // Others
+      else                      memcpy(dascreen,scr, size); // Others
+#ifdef INTELHACK
+      }
+      else
+      {
+         byte * restore = vscreen;
+         int l = size / screen_w;
+
+         while(l-->0)
+         {
+           if (cpu_family >= 6) ppro_blit(dascreen,screen_w);       // PPro, PII
+      else if (cpu_family >= 5) pent_blit(dascreen,screen_w);       // Pentium (GB 2014: not used for Cx5x86, but it is a little slower anyways)
+      else                      memcpy(dascreen,scr, screen_w); // Others
+            vscreen += screen_w;
+            scr += screen_w;
+            dascreen += mode_BPS;
+         }
+
+         vscreen = restore;
+      }
+#endif
    }
 
    if (in_page_flip) vesa_set_displaystart(0, scroll_offset, use_vsync); // hires hardware page-flipping (VBE 2.0 Only, Do not waste frames on 1.2)
@@ -618,6 +652,8 @@ static void I_InitGraphicsMode(void)
 			{vesa_mode_640x400=0x100; vesa_mode_640x480=0x101;
 #ifdef HIRES2
 vesa_mode_1280x1024=0x107;
+vesa_mode_1024x768=0x105;
+vesa_mode_800x600=0x103;
 #endif
                         } // zero found = bad BIOS?
 		// Note: it will set (mode_number | 0x4000) for LFB, when supported. 
@@ -631,9 +667,7 @@ vesa_mode_1280x1024=0x107;
   {  // GB 2014: Used to just try mode 100h and then 101h, but intel graphics gives trouble if 100h was tried first.
 	 if (vesa_version<1) {hiresfail=1;}
 #ifdef HIRES2
-         else if (vesa_mode_1280x1024>0) 
-     {
-        if (vesa_set_mode(vesa_mode_1280x1024)!=-1)      // Init 1280x1024
+        else if (SCREENHEIGHT == 1024 && vesa_mode_1280x1024 > 0 && vesa_set_mode(vesa_mode_1280x1024)!=-1)      // Init 1280x1024
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
                   screen_w=1280; // Necessary for when mode 13h/X has overwritten them.
@@ -644,8 +678,30 @@ vesa_mode_1280x1024=0x107;
                   screen_h=1024;
 #endif
 	 	}
-		else hiresfail=1;
-     }
+        else if (SCREENHEIGHT == 768 && vesa_mode_1024x768 > 0 && vesa_set_mode(vesa_mode_1024x768)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=1024; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=768;
+	 	}
+        else if (SCREENHEIGHT == 600 && vesa_mode_800x600 > 0 && vesa_set_mode(vesa_mode_800x600)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=800; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=600;
+	 	}
+        else if (SCREENHEIGHT == 480 && vesa_mode_640x480 > 0 && vesa_set_mode(vesa_mode_640x480)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=640; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=480;
+	 	}
+        else if (SCREENHEIGHT == 400 && vesa_mode_640x400 > 0 && vesa_set_mode(vesa_mode_640x400)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=640; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=400;
+	 	}
 #else
 	 else if (vesa_mode_640x400>0) 
      {
@@ -672,7 +728,7 @@ vesa_mode_1280x1024=0x107;
      else hiresfail=1; 
      if (hiresfail)
      {
-        I_Error("Failed to switch to high resolution. Exiting.\n");
+        I_Error("Failed to switch to high resolution. Try -safe.\n");
         return;
      }
   }
@@ -747,7 +803,8 @@ vesa_mode_1280x1024=0x107;
 #endif
   modeswitched=1; 
   if (current_mode==0x12) sprintf(mode_string,"%sMODE X  SIZE %dX%d  LFB %s  CPU %d  VBE %d",  safestring,               screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);  
-  else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version); 
+  else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -788,8 +845,58 @@ void I_InitGraphics(void)
   show_fps = M_ParmExists("-show_fps");
   use_vsync = M_ParmExists("-use_vsync");
   page_flip = M_ParmExists("-page_flip");
-#ifdef HIRES2
-  hires = M_ParmExists("-hires2") ? 2 : 0;
+
+#ifdef HIRES2 
+
+#ifndef HIRESMENU
+  if(M_ParmExists("-1024p")) screenresolution = 5;
+  else if(M_ParmExists("-768p")) screenresolution = 4;
+  else if(M_ParmExists("-600p")) screenresolution = 3;
+  else if(M_ParmExists("-480p")) screenresolution = 2;
+  else if(M_ParmExists("-400p")) screenresolution = 1;
+  else screenresolution = 0;
+#endif
+
+  switch(screenresolution)
+  {
+     case 1:
+        hires = 1;
+        SCREENWIDTH = 640;
+        SCREENHEIGHT = 400;
+        hiresfunc = R_DrawColumn;
+        break;
+     case 2:
+        hires = 1;
+        SCREENWIDTH = 640;
+        SCREENHEIGHT = 480;
+        hiresfunc = R_DrawColumn;
+        break;
+     case 3:
+        hires = 2;
+        SCREENWIDTH = 800;
+        SCREENHEIGHT = 600;
+        hiresfunc = R_DrawColumn4;
+        break;
+     case 4:
+        hires = 2;
+        SCREENWIDTH = 1024;
+        SCREENHEIGHT = 768;
+        hiresfunc = R_DrawColumn3;
+        break;
+     case 5:
+        hires = 2;
+        SCREENWIDTH = 1280;
+        SCREENHEIGHT = 1024;
+        hiresfunc = R_DrawColumn2;
+        break;
+     case 0:
+     default: 
+        hires = 0;
+        SCREENWIDTH = 320;
+        SCREENHEIGHT = 200;
+        hiresfunc = R_DrawColumn;
+        break;
+  }
 #else
   hires = M_ParmExists("-hires") ? 1 : 0;
 #endif
@@ -799,16 +906,10 @@ void I_InitGraphics(void)
   nolfbparm = M_ParmExists("-nolfb");
   nopmparm = M_ParmExists("-nopm");
 
-#if defined(HIRES2) && !defined(ASPECT)
-  if(hires)
-  {
-    SCREENWIDTH = 1280;
-    SCREENHEIGHT = 1024;
-  }
-#else
-  SCREENWIDTH <<= hires;
-  SCREENHEIGHT <<= hires;
-#endif
+#if !defined(HIRES2) || defined(ASPECT)
+  SCREENWIDTH = 320 << hires;
+  SCREENHEIGHT = 200 << hires;
+#endif  
 
   CENTERY = SCREENHEIGHT / 2;
 

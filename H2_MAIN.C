@@ -648,11 +648,15 @@ static void DrawAndBlit(void)
 			}
 			else
 			{
+                                if(BorderNeedRefresh)
+                                {
+                                   SB_state = -1;
+                                }
 				R_RenderPlayerView(&players[displayplayer]);
 			}
                         CT_Drawer();
 			UpdateState |= I_FULLVIEW;
-			if(hires && screenblocks == 10)
+                        if(hires && screenblocks == 10)
 			{
 				SB_state = -1;
 			}

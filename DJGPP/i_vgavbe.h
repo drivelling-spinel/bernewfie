@@ -43,6 +43,8 @@ extern int vesa_mode_640x400;
 extern int vesa_mode_640x480;
 #ifdef HIRES2
 extern int vesa_mode_1280x1024;
+extern int vesa_mode_800x600;
+extern int vesa_mode_1024x768;
 #endif
 extern unsigned long screen_base_addr;
 extern unsigned long mode_LFB_PTR;
