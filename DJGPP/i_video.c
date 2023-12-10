@@ -626,11 +626,11 @@ void I_InitGraphics(void)
 
   timer_simulate_retrace(0);
   
-  show_fps = M_CheckParm("-show_fps");
-  use_vsync = M_CheckParm("-use_vsync");
-  page_flip = M_CheckParm("-page_flip");
-  hires = M_CheckParm("-hires") ? 1 : 0;
-  safeparm = M_CheckParm("-safeparm");
+  show_fps = M_ParmExists("-show_fps");
+  use_vsync = M_ParmExists("-use_vsync");
+  page_flip = M_ParmExists("-page_flip");
+  hires = M_ParmExists("-hires") ? 1 : 0;
+  safeparm = M_ParmExists("-safeparm");
   
   SCREENWIDTH <<= hires;
   SCREENHEIGHT <<= hires;
