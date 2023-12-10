@@ -18,54 +18,10 @@
 #include "st_start.h"
 
 // Macros
-
 #define DEFAULT_ARCHIVEPATH     "o:\\sound\\archive\\"
 #define PRIORITY_MAX_ADJUST 10
 #define DIST_ADJUST (MAX_SND_DIST/PRIORITY_MAX_ADJUST)
 
-#define DPMI_INT 0x31
-
-#define SEQ_ADDR 0x3C4
-#define SEQ_DATA 0x3C5
-#define REG_MAPMASK 0x02
-
-#define MASK_PLANE0 0x01
-#define MASK_PLANE1 0x02
-#define MASK_PLANE2 0x04
-#define MASK_PLANE3 0x08
-
-#define P0OFFSET 38400*0
-#define P1OFFSET 38400*1
-#define P2OFFSET 38400*2
-#define P3OFFSET 38400*3
-
-#define VID_INT 0x10
-#define VB_SYNC {while(!(inp(0x3da)&8)); while(inp(0x3da)&8);}
-#define BITPLANE(p) (outp(SEQ_ADDR,REG_MAPMASK),outp(SEQ_DATA,(p)))
-
-//#define NOKBD
-//#define NOTIMER
-
-// Public Data
-
-int DisplayTicker = 0;
-
-
-void I_StartupNet (void);
-void I_ShutdownNet (void);
-void I_ReadExternDriver(void);
-
-typedef struct
-{
-	unsigned        edi, esi, ebp, reserved, ebx, edx, ecx, eax;
-	unsigned short  flags, es, ds, fs, gs, ip, cs, sp, ss;
-} dpmiregs_t;
-
-extern  dpmiregs_t      dpmiregs;
-
-void I_ReadMouse (void);
-
-extern  int     usemouse, usejoystick;
 
 extern void **lumpcache;
 
@@ -108,6 +64,9 @@ int snd_Channels;
 
 extern int startepisode;
 extern int startmap;
+
+static mobj_t _dummy;
+static mobj_t * dummy = &_dummy;
 
 // int AmbChan;
 
@@ -284,12 +243,15 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 
 	static int sndcount = 0;
 	int chan;
+	mobj_t * pmo = players[displayplayer].mo;
+	
+	if(!pmo) pmo = dummy;
 
 	if(sound_id == 0 || snd_MaxVolume == 0)
 		return;
 	if(origin == NULL)
 	{
-		origin = players[displayplayer].mo;
+		origin = pmo;
 	}
 	if(volume == 0)
 	{
@@ -298,8 +260,8 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 
 	// calculate the distance before other stuff so that we can throw out
 	// sounds that are beyond the hearing range.
-	absx = abs(origin->x-players[displayplayer].mo->x);
-	absy = abs(origin->y-players[displayplayer].mo->y);
+	absx = abs(origin->x-pmo->x);
+	absy = abs(origin->y-pmo->y);
 	dist = absx+absy-(absx > absy ? absy>>1 : absx>>1);
 	dist >>= FRACBITS;
 	if(dist >= MAX_SND_DIST)
@@ -316,6 +278,7 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 	{
 		return; // other sounds have greater priority
 	}
+	
 	for(i=0; i<snd_Channels; i++)
 	{
 		if(origin->player)
@@ -329,6 +292,7 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 			break;
 		}
 	}
+
 	if(i >= snd_Channels)
 	{
 		for(i = 0; i < snd_Channels; i++)
@@ -375,6 +339,7 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 			}
 		}
 	}
+
 	if(S_sfx[sound_id].lumpnum == 0)
 	{
 		S_sfx[sound_id].lumpnum = I_GetSfxLumpNum(&S_sfx[sound_id]);
@@ -387,27 +352,19 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 			sprintf(name, "%s%s.lmp", ArchivePath, S_sfx[sound_id].lumpname);
 			M_ReadFile(name, (byte **)&S_sfx[sound_id].snd_ptr);
 		}
-		else
-		{
-			S_sfx[sound_id].snd_ptr = W_CacheLumpNum(S_sfx[sound_id].lumpnum,
-				PU_SOUND);
-		}
-		#ifdef __WATCOMC__
-		_dpmi_lockregion(S_sfx[sound_id].snd_ptr,
-			lumpinfo[S_sfx[sound_id].lumpnum].size);
-		#endif
 	}
 
 	vol = (SoundCurve[dist]*(snd_MaxVolume*8)*volume)>>14;
-	if(origin == players[displayplayer].mo)
+	Channel[i].mo = origin;
+	if(origin == pmo)
 	{
 		sep = 128;
 //              vol = (volume*(snd_MaxVolume+1)*8)>>7;
 	}
 	else
 	{
-		angle = R_PointToAngle2(players[displayplayer].mo->x,
-			players[displayplayer].mo->y, Channel[i].mo->x, Channel[i].mo->y);
+		angle = R_PointToAngle2(pmo->x,
+			pmo->y, Channel[i].mo->x, Channel[i].mo->y);
 		angle = (angle-viewangle)>>24;
 		sep = angle*2-128;
 		if(sep < 64)
@@ -425,9 +382,10 @@ void S_StartSoundAtVolume(mobj_t *origin, int sound_id, int volume)
 	{
 		Channel[i].pitch = 127;
 	}
+
 	Channel[i].handle = I_StartSound(&S_sfx[sound_id], vol,
 		sep, Channel[i].pitch, 0);
-	Channel[i].mo = origin;
+
 	Channel[i].sound_id = sound_id;
 	Channel[i].priority = priority;
 	Channel[i].volume = volume;
@@ -537,7 +495,7 @@ void S_StopAllSound(void)
 			S_StopSound(Channel[i].mo);
 		}
 	}
-	memset(Channel, 0, 8*sizeof(channel_t));
+	memset(Channel, 0, MAX_CHANNELS*sizeof(channel_t));
 }
 
 //==========================================================================
@@ -597,6 +555,11 @@ void S_UpdateSounds(mobj_t *listener)
 	int priority;
 	int absx;
 	int absy;
+	
+	if(!listener) 
+	{
+	  listener = dummy;
+	}
 
 	if(snd_MaxVolume == 0)
 	{
@@ -680,7 +643,9 @@ void S_Init(void)
 	SoundCurve = W_CacheLumpName("SNDCURVE", PU_STATIC);
 //      SoundCurve = Z_Malloc(MAX_SND_DIST, PU_STATIC, NULL);
 	I_InitSound();
-	snd_Channels = 8;
+	if(snd_Channels > MAX_CHANNELS) snd_Channels = MAX_CHANNELS;
+	memset(Channel, 0, MAX_CHANNELS*sizeof(channel_t));
+	memset(dummy, 0, sizeof(mobj_t));
 	I_SetChannels(snd_Channels);
 	I_SetMusicVolume(snd_MusicVolume);
 

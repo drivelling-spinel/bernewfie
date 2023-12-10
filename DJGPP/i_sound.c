@@ -85,12 +85,10 @@ static void *getsfx(char *sfxname, int *len)
   int  i;
   int  size;
   int  paddedsize;
-  char name[20];
   int  sfxlump;
 
   // Get the sound data from the WAD, allocate lump
   //  in zone memory.
-  sprintf(name, "ds%s", sfxname);
 
   // Now, there is a severe problem with the
   //  sound handling, in it is not (yet/anymore)
@@ -103,10 +101,10 @@ static void *getsfx(char *sfxname, int *len)
   //  variable. Instead, we will use a
   //  default sound for replacement.
 
-  if ( W_CheckNumForName(name) == -1 )
-    sfxlump = W_GetNumForName("dspistol");
+  if ( W_CheckNumForName(sfxname) == -1 ) 
+    sfxlump = W_GetNumForName("default");
   else
-    sfxlump = W_GetNumForName(name);
+    sfxlump = W_GetNumForName(sfxname);
 
   size = W_LumpLength(sfxlump);
 
@@ -161,9 +159,7 @@ void I_SetChannels()
 //
 int I_GetSfxLumpNum(sfxinfo_t* sfx)
 {
-  char namebuf[9];
-  sprintf(namebuf, "ds%s", sfx->lumpname);
-  return W_CheckNumForName(namebuf);
+  return W_CheckNumForName(sfx->lumpname);
 }
 
 // Almost all of the sound code from this point on was
