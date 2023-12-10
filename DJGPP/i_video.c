@@ -196,6 +196,9 @@ int use_vsync;          // killough 2/8/98: controls whether vsync is called
 int page_flip;          // killough 8/15/98: enables page flipping
 int hires;
 int safeparm;
+int asmp6parm;
+int nolfbparm;
+int nopmparm;
 int in_graphics_mode;
 int in_page_flip, in_hires, linear;
 int scroll_offset;
@@ -315,10 +318,6 @@ void I_FinishUpdate(void)
    // GB 2014, FPS counter logic:
    if (show_fps || safeparm) show_info_proc();
 
-   // GB 2014, first part of code to check if statusbar needs to be (re)drawn on screen:
-   // TODO: use Hexen specific logic for this
-   // if ((viewactive || automapactive) && scaledviewheight<200 && !inhelpscreens) ymax=168; 
-
    // draws little dots on the bottom of the screen:
    if (debugmode) devparm_proc(ymax);
 
@@ -334,9 +333,9 @@ void I_FinishUpdate(void)
             // Pentium Pros and above need special consideration in the planar multiplexing code, to avoid partial stalls. killough
          } else screen_base_addr=0;
 		 dascreen=(byte *) __djgpp_conventional_base + 0xA0000 + screen_base_addr;
-         if (cpu_family >= 6 ) {if (ymax==200) ppro_blast      (dascreen, vscreen);  // PPro, PII
+         if (cpu_family >= 6 || asmp6parm) {if (ymax==SCREENHEIGHT) ppro_blast      (dascreen, vscreen);  // PPro, PII
                                             else           ppro_blast_nobar(dascreen, vscreen);}
-         else                              {if (ymax==200) blast           (dascreen, vscreen);  // Other CPUs, e.g. 486
+         else                              {if (ymax==SCREENHEIGHT) blast           (dascreen, vscreen);  // Other CPUs, e.g. 486
                                             else           blast_nobar     (dascreen, vscreen);}
          outportw(0x3d4, screen_base_addr | 0x0c);              // page flip 
          return;
@@ -480,10 +479,10 @@ static void I_InitGraphicsMode(void)
 	    vesa_get_info();  // Get vesa availability and vesa_version; 
         // Look for VESA 320x200; at an unpredictable number, but only with VBE 2.0 services is it worthwhile
 		// Also see if 640x400 is there, and 640x480, better do this properly...
-	    if (vesa_version>=1) if (vesa_find_modes(vesa_version<2)==0) 
+	    if (vesa_version>=1) if (vesa_find_modes(safeparm || nolfbparm || vesa_version<2)==0) 
 			{vesa_mode_640x400=0x100; vesa_mode_640x480=0x101;} // zero found = bad BIOS?
 		// Note: it will set (mode_number | 0x4000) for LFB, when supported. 
-        if ((vesa_version>=2)) get_vesa_pm_functions(0);
+        if ((vesa_version>=2) && (!nopmparm)) get_vesa_pm_functions(0);
 	 }
 	 //vesa_mode_320x200=0; // debugging
   }
@@ -572,7 +571,7 @@ static void I_InitGraphicsMode(void)
 		}
      }
 	 // Setup LFB access if available:
-	 if (vesa_version<2) linear=false; else linear=mode_LFB; // LFB wanted? and supported?
+	 if (safeparm || nolfbparm || vesa_version<2) linear=false; else linear=mode_LFB; // LFB wanted? and supported?
  	 if (linear) {if (vesa_get_screen_base_addr(0)==1) linear=false;} // Get LFB base address, should be available
      if (blackband &&  linear) vesa_clear_pages_LFB   (2, 0x08);      // may be garbage left in video memory, 
      if (blackband && !linear) vesa_clear_pages_banked(2, 0x08);      // which will otherwise be visible in the bars.
@@ -586,7 +585,6 @@ static void I_InitGraphicsMode(void)
   in_hires = hires;
   setsizeneeded = true;
   //if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
-//  I_SetPalette(W_CacheLumpName("PLAYPAL",PU_CACHE));
   modeswitched=1; 
   if (current_mode==0x12) sprintf(mode_string,"%sMODE X  SIZE %dX%d  LFB %s  CPU %d  VBE %d",  safestring,               screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);  
   else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version); 
@@ -630,7 +628,10 @@ void I_InitGraphics(void)
   use_vsync = M_ParmExists("-use_vsync");
   page_flip = M_ParmExists("-page_flip");
   hires = M_ParmExists("-hires") ? 1 : 0;
-  safeparm = M_ParmExists("-safeparm");
+  safeparm = M_ParmExists("-safe");
+  asmp6parm = M_ParmExists("-asmp6");
+  nolfbparm = M_ParmExists("-nolfb");
+  nopmparm = M_ParmExists("-nopm");
   
   SCREENWIDTH <<= hires;
   SCREENHEIGHT <<= hires;
