@@ -294,6 +294,13 @@ void I_ShutdownSound(void)
 //char midi_desc[160];
 //char digi_desc[160];
 
+static char _secondaries[256];
+
+char _has_secondary_instrument(char inst)
+{
+  return _secondaries[(unsigned char) inst];
+}
+
 
 void I_InitSound(void)
 {
@@ -305,6 +312,8 @@ void I_InitSound(void)
 
   // Secure and configure sound device first.
   fputs("I_InitSound: ", stdout);
+
+  memset(_secondaries, 0, sizeof(_secondaries));
 
   // GB 2014: In practice, Allegro 3.12 legacy audio selection does not work...
   // Here is the manual conversion from 3.00 to 3.12 device IDs.
@@ -392,10 +401,15 @@ void I_LoadSoundBank(void *bank)
   // int load_ibk(char *filename, int drums)
   if (mus_card>0)
   {
-     load_op2(bank);
+     int i = 0;
+     load_op2_extra(bank, _secondaries);
   } 
 }
 
+boolean I_IsMusicCardOPL(void)
+{
+  return midi_card > 0 && midi_card < MIDI_SB_OUT;
+}
 
 ///
 // MUSIC API.
@@ -476,7 +490,7 @@ int I_RegisterSong(void *data)
   if    //jff 02/08/98 add native midi support
     (
      (err=MidiToMIDI(data, &mididata)) &&       // try midi first
-     (err=mmus2mid(data, &mididata, 89, 1))     // now try mus
+     (err=mmus2mid(data, &mididata, 89, 1, I_IsMusicCardOPL()))  // now try mus
      )
     {
       handle=-1;
