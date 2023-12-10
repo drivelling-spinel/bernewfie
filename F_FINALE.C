@@ -232,7 +232,7 @@ static void TextWrite (void)
 //
 //===========================================================================
 
-static void InitializeFadeInternal(boolean fadeIn, char * pal)
+static void InitializeFadeInternal(boolean fadeIn, byte * pal)
 {
 
 	unsigned i;
@@ -290,9 +290,13 @@ static void InitializeFade(boolean fadeIn)
 static void DeInitializeFade(void)
 {
 	Z_Free(Palette);
+        Palette = 0;
 	Z_Free(PaletteDelta);
+        PaletteDelta = 0;
 	Z_Free(RealPalette);
+        RealPalette = 0;
         Z_Free(MonochromePalette);
+        MonochromePalette = 0;
 }
 
 //===========================================================================
@@ -402,8 +406,6 @@ static char *GetFinaleText(int sequence)
 
 void F_FadeToBlackInit(int color)
 {
-  int fade=70;
-
   DeInitializeFade();
   InitializeMonochromeFade(0, color);
 }
