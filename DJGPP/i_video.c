@@ -650,8 +650,10 @@ void I_InitGraphics(void)
   Z_CheckHeap();
 }
 
-void I_WaitVBL(int ignore) { //noop;
- }
+void I_WaitVBL(int count)
+{
+  rest((count*500)/TICRATE);
+}
 
 //----------------------------------------------------------------------------
 //
