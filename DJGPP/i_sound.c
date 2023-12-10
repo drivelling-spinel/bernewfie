@@ -82,23 +82,34 @@ static SAMPLE *wav2SAMPLE(unsigned char *rawdata, int *len)
   SAMPLE *spl = malloc(sizeof(SAMPLE));
   int channels = *(short *)(rawdata+22);
   int i = 0;
-  int bytelen = *(int *)(rawdata+40);
-  
-  if(bytelen > *len - 44) bytelen = *len - 44;
-  *len = bytelen;
+  int byteoffs = 44;
+  int bytelen = *(int *)(rawdata + byteoffs - 4);
   
   spl->bits = *(short *)(rawdata+34);
   spl->freq = *(int *)(rawdata+24);
-  spl->len = bytelen >> (spl->bits >> 4);
   spl->priority = 255;
   spl->loop_start = 0;
-  spl->loop_end = spl->len;
   spl->param = -1;
-  spl->data = rawdata + 44;
   
+  spl->data = rawdata + byteoffs;
+  if(bytelen > *len - byteoffs) bytelen = *len - byteoffs;
+  spl->len = bytelen >> (spl->bits >> 4);
+  
+  while(!strncmp("LIST", spl->data - 8, 4))
+  {
+    int listlen = *(int *)(spl->data - 4);
+    byteoffs += listlen + 8;
+    spl->data += listlen + 8;
+    bytelen = *(int *)(spl->data - 4);
+    if(bytelen > *len - byteoffs) bytelen = *len - byteoffs;
+    spl->len = bytelen >> (spl->bits >> 4);
+  }
+  
+  spl->loop_end = spl->len;
   // Allegro does this for some reason
   for(i = 0; i < spl->len && spl->bits == 16; i += 1) ((char *)spl->data)[1 + (i << 1)] ^= 0x80;
-  _go32_dpmi_lock_data(rawdata+44, bytelen);   // killough 3/8/98: lock sound data
+  *len = bytelen;
+  _go32_dpmi_lock_data(spl->data, bytelen);   // killough 3/8/98: lock sound data
   return spl;
 }
 
@@ -135,8 +146,7 @@ static void *getsfx(char *sfxname, int *len)
     sfxlump = W_GetNumForName(sfxname);
 
   size = W_LumpLength(sfxlump);
-  sfx = W_CacheLumpNum(sfxlump, PU_STATIC);
-  
+  sfx = memcpy(malloc(size), W_CacheLumpNum(sfxlump, PU_CACHE), size);
   
   format = size >= 44 && !strncmp("RIFF", sfx, 4);
   *len = size;
