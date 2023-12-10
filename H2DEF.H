@@ -1047,8 +1047,13 @@ void TryRunTics (void);
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
 
+#ifdef HIRES2
+#define MAXSCREENWIDTH (1280)
+#define MAXSCREENHEIGHT (800)
+#else
 #define MAXSCREENWIDTH (640)
 #define MAXSCREENHEIGHT (400)
+#endif
 
 #define LORESWIDTH (320)
 #define LORESHEIGHT (200)

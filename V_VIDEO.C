@@ -14,7 +14,7 @@
 
 #define SC_INDEX 0x3c4
 
-byte *vscreen;
+byte *vscreen = NULL;
 int dirtybox[4];
 int usegamma;
 
@@ -54,7 +54,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
 	if(x < 0 || x+SHORT(patch->width) > SCREENWIDTH || y < 0
 		|| y+SHORT(patch->height) > SCREENHEIGHT)
 	{
-		I_Error("Bad V_DrawPatch");
+                I_Error("Bad V_DrawPatch");
 	}
 	col = 0;
 	desttop = vscreen+y*SCREENWIDTH+x;
@@ -267,8 +267,16 @@ void V_DrawRawScreen(byte *raw)
 //
 //---------------------------------------------------------------------------
 
+#ifdef HIRES2
+extern int hires;
+#endif
+
 void V_Init(void)
 {
 	// I_AllocLow will put vscreen in low dos memory on PCs.
+#ifdef HIRES2
+        if(hires) vscreen = calloc(1, SCREENWIDTH*SCREENHEIGHT);
+        else
+#endif
 	vscreen = I_AllocLow(SCREENWIDTH*SCREENHEIGHT);
 }

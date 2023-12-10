@@ -438,8 +438,7 @@ void R_DrawSpanLow (void)
 void R_InitBuffer (int width, int height)
 {
 	int		i;
-	
-	viewwindowx = (SCREENWIDTH-width) >> 1;
+        viewwindowx = (SCREENWIDTH-width) >> 1;
 	for (i=0 ; i<width ; i++)
 		columnofs[i] = viewwindowx + i;
 	if (width == SCREENWIDTH)

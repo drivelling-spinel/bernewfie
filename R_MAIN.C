@@ -598,7 +598,11 @@ void R_ExecuteSetViewSize (void)
 
 	if (!detailshift)
 	{
-		colfunc = basecolfunc = R_DrawColumn;
+                colfunc = basecolfunc = 
+#ifdef HIRES2
+                        hires >= 2 ? R_DrawColumn2 :
+#endif
+                        R_DrawColumn;
 		fuzzcolfunc = R_DrawFuzzColumn;
 		transcolfunc = R_DrawTranslatedColumn;
 		spanfunc = R_DrawSpan;
@@ -610,7 +614,6 @@ void R_ExecuteSetViewSize (void)
 		transcolfunc = R_DrawTranslatedColumn;
 		spanfunc = R_DrawSpanLow;
 	}
-
 	R_InitBuffer (scaledviewwidth, viewheight);
 
 	R_InitTextureMapping ();
