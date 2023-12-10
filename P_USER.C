@@ -887,7 +887,11 @@ void P_PlayerThink(player_t *player)
 	{
 		player->powers[pw_infrared]--;
 	}
+#ifdef PATCH12
+        if(player->powers[pw_flight] && deathmatch && netgame)
+#else
 	if(player->powers[pw_flight] && netgame)
+#endif
 	{
 		if(!--player->powers[pw_flight])
 		{
@@ -1132,9 +1136,13 @@ void P_BlastMobj(mobj_t *source, mobj_t *victim, fixed_t strength)
 	angle_t angle,ang;
 	mobj_t *mo;
 	fixed_t x,y,z;
-
+#ifdef PATCH12
+        angle_t ang2 = R_PointToAngle2(source->x, source->y, victim->x, victim->y);
+        angle = ang2 >> ANGLETOFINESHIFT;
+#else
 	angle = R_PointToAngle2(source->x, source->y, victim->x, victim->y);
 	angle >>= ANGLETOFINESHIFT;
+#endif
 	if (strength < BLAST_FULLSTRENGTH)
 	{
 		victim->momx = FixedMul(strength, finecosine[angle]);
@@ -1160,6 +1168,12 @@ void P_BlastMobj(mobj_t *source, mobj_t *victim, fixed_t strength)
 				case MT_SORCBALL3:
 					return;
 					break;
+#ifdef PATCH12
+                                case MT_BISH_FX:        // Reflect to originator
+					victim->special1 = (int)victim->target;	
+					victim->target = source;
+                                        victim->angle = ang2;  
+#endif
 				case MT_MSTAFF_FX2:	// Reflect to originator
 					victim->special1 = (int)victim->target;	
 					victim->target = source;

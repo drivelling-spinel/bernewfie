@@ -202,9 +202,17 @@ weaponinfo_t WeaponInfo[NUMWEAPONS][NUMCLASSES] =
 
 static int WeaponManaUse[NUMCLASSES][NUMWEAPONS] = 
 {
+#ifdef PATCH12
 	{ 0, 2, 3, 14 },
+#else
+        { 0, 2, 4, 12 },
+#endif
 	{ 0, 1, 4, 18 },
+#ifdef PATCH12
+        { 0, 2, 6, 15 },
+#else
 	{ 0, 3, 5, 15 },
+#endif
 	{ 0, 0, 0, 0 }
 };
 
@@ -1039,9 +1047,15 @@ void A_LightningZap(mobj_t *actor)
 void A_MLightningAttack2(mobj_t *actor)
 {
 	mobj_t *fmo, *cmo;
+#ifdef PATCH12
+        boolean fmoved, cmoved;
 
-	fmo = P_SpawnPlayerMissile(actor, MT_LIGHTNING_FLOOR);
-	cmo = P_SpawnPlayerMissile(actor, MT_LIGHTNING_CEILING);
+        fmoved = P_SpawnPlayerMissileExplodeLater(actor, MT_LIGHTNING_FLOOR, &fmo);
+        cmoved = P_SpawnPlayerMissileExplodeLater(actor, MT_LIGHTNING_CEILING, &cmo);
+#else
+        fmo = P_SpawnPlayerMissile(actor, MT_LIGHTNING_FLOOR);
+        cmo = P_SpawnPlayerMissile(actor, MT_LIGHTNING_CEILING);
+#endif
 	if(fmo)
 	{
 		fmo->special1 = 0;
@@ -1055,6 +1069,25 @@ void A_MLightningAttack2(mobj_t *actor)
 		A_LightningZap(cmo);	
 	}
 	S_StartSound(actor, SFX_MAGE_LIGHTNING_FIRE);
+#ifdef PATCH12
+        if(!cmoved)
+        {
+                P_ExplodeMissile(cmo);
+                if(fmo)
+                {
+                            fmo->special2 = 0;
+                }
+        }
+        if(!fmoved)
+        {
+                P_ExplodeMissile(fmo);
+                if(cmo)
+                {
+                            cmo->special2 = 0;
+                }
+        }
+#endif
+
 }
 
 //============================================================================
@@ -1456,7 +1489,11 @@ void A_CMaceAttack(player_t *player, pspdef_t *psp)
 	int slope;
 	int i;
 
-	damage = 25+(P_Random()&15);
+#ifdef PATCH12
+        damage = 40+(P_Random()&15);
+#else
+        damage = 25+(P_Random()&15);
+#endif
 	PuffType = MT_HAMMERPUFF;
 	for(i = 0; i < 16; i++)
 	{
@@ -1687,11 +1724,15 @@ void A_CFlameMissile(mobj_t *actor)
 	
 	A_UnHideThing(actor);
 	S_StartSound(actor, SFX_CLERIC_FLAME_EXPLODE);
+#ifdef PATCH12
+        if(BlockingMobj && actor->args[0])
+#else
 	if(BlockingMobj && BlockingMobj->flags&MF_SHOOTABLE)
+#endif
 	{ // Hit something, so spawn the flame circle around the thing
 		dist = BlockingMobj->radius+18*FRACUNIT;
 		for(i = 0; i < 4; i++)
-		{
+                        {
 			an = (i*ANG45)>>ANGLETOFINESHIFT;
 			an90 = (i*ANG45+ANG90)>>ANGLETOFINESHIFT;
 			mo = P_SpawnMobj(BlockingMobj->x+FixedMul(dist, finecosine[an]),
@@ -2294,7 +2335,11 @@ void A_ShedShard(mobj_t *actor)
 	// every so many calls, spawn a new missile in it's set directions
 	if (spawndir & SHARDSPAWN_LEFT)
 	{
+#ifdef PATCH12
+                mo=P_SpawnMissileAngleSpeedNoCheck(actor, MT_SHARDFX1, actor->angle+(ANG45/9),
+#else
 		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle+(ANG45/9),
+#endif
 											 0, (20+2*spermcount)<<FRACBITS);
 		if (mo)
 		{
@@ -2303,11 +2348,18 @@ void A_ShedShard(mobj_t *actor)
 			mo->momz = actor->momz;
 			mo->target = actor->target;
 			mo->args[0] = (spermcount==3)?2:0;
+#ifdef PATCH12
+                        P_CheckMissileSpawn(mo);
+#endif
 		}
 	}
 	if (spawndir & SHARDSPAWN_RIGHT)
 	{
+#ifdef PATCH12
+                mo=P_SpawnMissileAngleSpeedNoCheck(actor, MT_SHARDFX1, actor->angle-(ANG45/9),
+#else
 		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle-(ANG45/9),
+#endif
 											 0, (20+2*spermcount)<<FRACBITS);
 		if (mo)
 		{
@@ -2316,11 +2368,18 @@ void A_ShedShard(mobj_t *actor)
 			mo->momz = actor->momz;
 			mo->target = actor->target;
 			mo->args[0] = (spermcount==3)?2:0;
+#ifdef PATCH12
+                        P_CheckMissileSpawn(mo);
+#endif
 		}
 	}
 	if (spawndir & SHARDSPAWN_UP)
 	{
-		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle, 
+#ifdef PATCH12
+                mo=P_SpawnMissileAngleSpeedNoCheck(actor, MT_SHARDFX1, actor->angle,
+#else
+		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle,
+#endif
 											 0, (15+2*spermcount)<<FRACBITS);
 		if (mo)
 		{
@@ -2333,11 +2392,19 @@ void A_ShedShard(mobj_t *actor)
 			mo->special2 = spermcount;
 			mo->target = actor->target;
 			mo->args[0] = (spermcount==3)?2:0;
+#ifdef PATCH12
+                        P_CheckMissileSpawn(mo);
+#endif
 		}
 	}
 	if (spawndir & SHARDSPAWN_DOWN)
 	{
-		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle, 
+#ifdef PATCH12
+                mo=P_SpawnMissileAngleSpeedNoCheck(actor, MT_SHARDFX1, actor->angle,
+#else
+		mo=P_SpawnMissileAngleSpeed(actor, MT_SHARDFX1, actor->angle,
+#endif
+
 											 0, (15+2*spermcount)<<FRACBITS);
 		if (mo)
 		{
@@ -2350,6 +2417,9 @@ void A_ShedShard(mobj_t *actor)
 			mo->special2 = spermcount;
 			mo->target = actor->target;
 			mo->args[0] = (spermcount==3)?2:0;
+#ifdef PATCH12
+                        P_CheckMissileSpawn(mo);
+#endif
 		}
 	}
 }

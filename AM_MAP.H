@@ -91,6 +91,9 @@
 //#define AM_GRIDKEY		34
 #define AM_FOLLOWKEY	'f'
 #define AM_GRIDKEY	'g'
+#ifdef PATCH12
+#define AM_MARKERS      'm'
+#endif
 
 #define AM_NUMMARKPOINTS 10
 
