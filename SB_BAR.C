@@ -151,6 +151,8 @@ static patch_t *PatchINVLFGEM2;
 static patch_t *PatchINVRTGEM1;
 static patch_t *PatchINVRTGEM2;
 
+static int goffsx, goffsy;
+
 // Toggle god mode
 static byte CheatGodSeq[] =
 {
@@ -971,6 +973,8 @@ extern boolean automapactive;
 
 void SB_Drawer(void)
 {
+  goffsx = (SCREENWIDTH-LORESWIDTH)/2;
+  goffsy = SCREENHEIGHT-LORESHEIGHT;
 	// Sound info debug stuff
 	if(DebugSound == true)
 	{
@@ -986,7 +990,7 @@ void SB_Drawer(void)
 	{
 		if(SB_state == -1)
 		{
-			V_DrawPatch(0, 134 << hires, PatchH2BAR);
+			V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2BAR);
 			oldhealth = -1;
 		}
 		DrawCommonBar();
@@ -997,11 +1001,11 @@ void SB_Drawer(void)
 				// Main interface
 				if(!automapactive)
 				{
-					V_DrawPatch(38, 162 << hires, PatchSTATBAR);
+					V_DrawPatch(goffsx + 38, goffsy + 162, PatchSTATBAR);
 				}
 				else
 				{
-					V_DrawPatch(38, 162 << hires, PatchKEYBAR);
+					V_DrawPatch(goffsx + 38, goffsy + 162, PatchKEYBAR);
 				}
 				oldarti = 0;
 				oldmana1 = -1;
@@ -1106,7 +1110,7 @@ static void DrawAnimatedIcons(void)
 			|| !(CPlayer->powers[pw_invulnerability]&16))
 		{
 			frame = (leveltime/3)&15;
-			V_DrawPatch(260, 19, W_CacheLumpNum(SpinDefenseLump+frame, 
+			V_DrawPatch(260 >> hires, 19, W_CacheLumpNum(SpinDefenseLump+frame, 
 				PU_CACHE));
 		}
 		BorderTopRefresh = true;
@@ -1120,7 +1124,7 @@ static void DrawAnimatedIcons(void)
 			|| !(CPlayer->powers[pw_minotaur]&16))
 		{
 			frame = (leveltime/3)&15;
-			V_DrawPatch(300, 19, W_CacheLumpNum(SpinMinotaurLump+frame, 
+			V_DrawPatch(300 >> hires, 19, W_CacheLumpNum(SpinMinotaurLump+frame, 
 				PU_CACHE));
 		}
 		BorderTopRefresh = true;
@@ -1209,7 +1213,7 @@ void DrawCommonBar(void)
 {
 	int healthPos;
 
-	V_DrawPatch(0, 134 << hires, PatchH2TOP);
+	V_DrawPatch(goffsx + 0, goffsy + 134, PatchH2TOP);
 
 	if(oldhealth != HealthMarker)
 	{
@@ -1223,10 +1227,10 @@ void DrawCommonBar(void)
 		{
 			healthPos = 100;
 		}
-		V_DrawPatch(28+(((healthPos*196)/100)%9), 193 << hires, PatchCHAIN);
-		V_DrawPatch(7+((healthPos*11)/5), 193 << hires, PatchLIFEGEM);
-		V_DrawPatch(0, 193 << hires, PatchLFEDGE);
-		V_DrawPatch(277, 193 << hires, PatchRTEDGE);
+		V_DrawPatch(goffsx + 28+(((healthPos*196)/100)%9), goffsy + 193, PatchCHAIN);
+		V_DrawPatch(goffsx + 7+((healthPos*11)/5), goffsy + 193, PatchLIFEGEM);
+		V_DrawPatch(goffsx + 0, goffsy + 193, PatchLFEDGE);
+		V_DrawPatch(goffsx + 277, goffsy + 193, PatchRTEDGE);
 //		ShadeChain();
 		UpdateState |= I_STATBAR;
 	}
@@ -1253,8 +1257,8 @@ void DrawMainBar(void)
 	// Ready artifact
 	if(ArtifactFlash)
 	{
-		V_DrawPatch(144, 160 << hires, PatchARTICLEAR);
-		V_DrawPatch(148, 164 << hires, W_CacheLumpNum(W_GetNumForName("useartia")
+		V_DrawPatch(goffsx + 144, goffsy + 160, PatchARTICLEAR);
+		V_DrawPatch(goffsx + 148, goffsy + 164, W_CacheLumpNum(W_GetNumForName("useartia")
 			+ ArtifactFlash - 1, PU_CACHE));
 		ArtifactFlash--;
 		oldarti = -1; // so that the correct artifact fills in after the flash
@@ -1263,14 +1267,14 @@ void DrawMainBar(void)
 	else if(oldarti != CPlayer->readyArtifact
 		|| oldartiCount != CPlayer->inventory[inv_ptr].count)
 	{
-		V_DrawPatch(144, 160 << hires, PatchARTICLEAR);
+		V_DrawPatch(goffsx + 144, goffsy + 160, PatchARTICLEAR);
 		if(CPlayer->readyArtifact > 0)
 		{
-			V_DrawPatch(143, 163 << hires, 
+			V_DrawPatch(goffsx + 143, goffsy + 163, 
 				W_CacheLumpName(patcharti[CPlayer->readyArtifact], PU_CACHE));
 			if(CPlayer->inventory[inv_ptr].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[inv_ptr].count, 162, 184 << hires);
+				DrSmallNumber(CPlayer->inventory[inv_ptr].count, goffsx + 162, goffsy + 184);
 			}
 		}
 		oldarti = CPlayer->readyArtifact;
@@ -1288,8 +1292,8 @@ void DrawMainBar(void)
 		}
 		if(temp != oldfrags)
 		{
-			V_DrawPatch(38, 162 << hires, PatchKILLS);
-			DrINumber(temp, 40, 176 << hires);
+			V_DrawPatch(goffsx + 38, goffsy + 162, PatchKILLS);
+			DrINumber(temp, goffsx + 40, goffsy + 176);
 			oldfrags = temp;
 			UpdateState |= I_STATBAR;
 		}
@@ -1308,14 +1312,14 @@ void DrawMainBar(void)
 		if(oldlife != temp)
 		{
 			oldlife = temp;
-			V_DrawPatch(41, 178 << hires, PatchARMCLEAR);
+			V_DrawPatch(goffsx + 41, goffsy + 178, PatchARMCLEAR);
 			if(temp >= 25)
 			{
-				DrINumber(temp, 40, 176 << hires);
+				DrINumber(temp, goffsx + 40, goffsy + 176);
 			}
 			else
 			{
-				DrRedINumber(temp, 40, 176 << hires);
+				DrRedINumber(temp, goffsx + 40, goffsy + 176);
 			}
 			UpdateState |= I_STATBAR;
 		}
@@ -1325,8 +1329,8 @@ void DrawMainBar(void)
 	temp = CPlayer->mana[0];
 	if(oldmana1 != temp)
 	{
-		V_DrawPatch(77, 178 << hires, PatchMANACLEAR);
-		DrSmallNumber(temp, 79, 181 << hires);
+		V_DrawPatch(goffsx + 77, goffsy + 178, PatchMANACLEAR);
+		DrSmallNumber(temp, goffsx + 79, goffsy + 181);
 		manaVialPatch1 = (patch_t *)1; // force a vial update
 		if(temp == 0)
 		{ // Draw Dim Mana icon
@@ -1342,8 +1346,8 @@ void DrawMainBar(void)
 	temp = CPlayer->mana[1];
 	if(oldmana2 != temp)
 	{
-		V_DrawPatch(109, 178 << hires, PatchMANACLEAR);
-		DrSmallNumber(temp, 111, 181 << hires);
+		V_DrawPatch(goffsx + 109, goffsy + 178, PatchMANACLEAR);
+		DrSmallNumber(temp, goffsx + 111, goffsy + 181);
 		manaVialPatch1 = (patch_t *)1; // force a vial update
 		if(temp == 0)
 		{ // Draw Dim Mana icon
@@ -1400,21 +1404,21 @@ void DrawMainBar(void)
 				manaPatch2 = PatchMANABRIGHT2;
 			}
 		}
-		V_DrawPatch(77, 164 << hires, manaPatch1);
-		V_DrawPatch(110, 164 << hires, manaPatch2);
-		V_DrawPatch(94, 164 << hires, manaVialPatch1);
-		for(i = 165 << hires; i < (187-(22*CPlayer->mana[0])/MAX_MANA)  << hires; i++)
+		V_DrawPatch(goffsx + 77, goffsy + 164, manaPatch1);
+		V_DrawPatch(goffsx + 110, goffsy + 164, manaPatch2);
+		V_DrawPatch(goffsx + 94, goffsy + 164, manaVialPatch1);
+		for(i = goffsy + 165; i < goffsy + (187-(22*CPlayer->mana[0])/MAX_MANA) ; i++)
 		{
-			vscreen[i*SCREENWIDTH+95] = 0;
-			vscreen[i*SCREENWIDTH+96] = 0;
-			vscreen[i*SCREENWIDTH+97] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 95] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 96] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 97] = 0;
 		}
-		V_DrawPatch(102, 164 << hires, manaVialPatch2);
-		for(i = 165 << hires; i < (187-(22*CPlayer->mana[1])/MAX_MANA)  << hires; i++)
+		V_DrawPatch(goffsx + 102, goffsy + 164 , manaVialPatch2);
+		for(i = goffsy + 165; i < goffsy + (187-(22*CPlayer->mana[1])/MAX_MANA); i++)
 		{
-			vscreen[i*SCREENWIDTH+103] = 0;
-			vscreen[i*SCREENWIDTH+104] = 0;
-			vscreen[i*SCREENWIDTH+105] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 103] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 104] = 0;
+			vscreen[i*SCREENWIDTH+goffsx + 105] = 0;
 		}
 		oldweapon = CPlayer->readyweapon;
 		UpdateState |= I_STATBAR;
@@ -1427,8 +1431,8 @@ void DrawMainBar(void)
 	if(oldarmor != temp)
 	{
 		oldarmor = temp;
-		V_DrawPatch(255, 178 << hires, PatchARMCLEAR);
-		DrINumber(FixedDiv(temp, 5*FRACUNIT)>>FRACBITS, 250, 176 << hires);
+		V_DrawPatch(goffsx + 255, goffsy + 178, PatchARMCLEAR);
+		DrINumber(FixedDiv(temp, 5*FRACUNIT)>>FRACBITS, goffsx + 250, goffsy + 176);
 		UpdateState |= I_STATBAR;
 	}
 	// Weapon Pieces
@@ -1453,30 +1457,30 @@ void DrawInventoryBar(void)
 
 	x = inv_ptr-curpos;
 	UpdateState |= I_STATBAR;
-	V_DrawPatch(38, 162 << hires, PatchINVBAR);
+	V_DrawPatch(goffsx + 38, goffsy + 162, PatchINVBAR);
 	for(i = 0; i < 7; i++)
 	{
 		//V_DrawPatch(50+i*31, 160, W_CacheLumpName("ARTIBOX", PU_CACHE));
 		if(CPlayer->inventorySlotNum > x+i
 			&& CPlayer->inventory[x+i].type != arti_none)
 		{
-			V_DrawPatch(50+i*31, 163 << hires, W_CacheLumpName(
+			V_DrawPatch(goffsx + 50+i*31, goffsy + 163, W_CacheLumpName(
 				patcharti[CPlayer->inventory[x+i].type], PU_CACHE));
 			if(CPlayer->inventory[x+i].count > 1)
 			{
-				DrSmallNumber(CPlayer->inventory[x+i].count, 68+i*31, 185 << hires);
+				DrSmallNumber(CPlayer->inventory[x+i].count, goffsx + 68+i*31, goffsy + 185);
 			}
 		}
 	}
-	V_DrawPatch(50+curpos*31, 163 << hires, PatchSELECTBOX);
+	V_DrawPatch(goffsx + 50+curpos*31, goffsy + 163, PatchSELECTBOX);
 	if(x != 0)
 	{
-		V_DrawPatch(42, 163 << hires, !(leveltime&4) ? PatchINVLFGEM1 :
+		V_DrawPatch(goffsx + 42, goffsy + 163, !(leveltime&4) ? PatchINVLFGEM1 :
 			PatchINVLFGEM2);
 	}
 	if(CPlayer->inventorySlotNum-x > 7)
 	{
-		V_DrawPatch(269, 163 << hires, !(leveltime&4) ? PatchINVRTGEM1 :
+		V_DrawPatch(goffsx + 269, goffsy + 163, !(leveltime&4) ? PatchINVRTGEM1 :
 			PatchINVRTGEM2);
 	}
 }
@@ -1500,7 +1504,7 @@ void DrawKeyBar(void)
 		{
 			if(CPlayer->keys&(1<<i))
 			{
-				V_DrawPatch(xPosition, 164 << hires, 
+				V_DrawPatch(goffsx + xPosition, goffsy + 164, 
 					W_CacheLumpNum(W_GetNumForName("keyslot1")+i, PU_CACHE));
 				xPosition += 20;
 			}
@@ -1522,18 +1526,18 @@ void DrawKeyBar(void)
 			if(CPlayer->armorpoints[i] <= 
 				(ArmorIncrement[CPlayer->class][i]>>2))
 			{
-				V_DrawFuzzPatch(150+31*i, 164 << hires, 
+				V_DrawFuzzPatch(goffsx + 150+31*i, goffsy + 164, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 			else if(CPlayer->armorpoints[i] <= 
 				(ArmorIncrement[CPlayer->class][i]>>1))
 			{
-				V_DrawAltFuzzPatch(150+31*i, 164 << hires, 
+				V_DrawAltFuzzPatch(goffsx + 150+31*i, goffsy + 164, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 			else
 			{
-				V_DrawPatch(150+31*i, 164 << hires, 
+				V_DrawPatch(goffsx + 150+31*i, goffsy + 164, 
 					W_CacheLumpNum(W_GetNumForName("armslot1")+i, PU_CACHE));
 			}
 		}
@@ -1560,21 +1564,21 @@ static void DrawWeaponPieces(void)
 {
 	if(CPlayer->pieces == 7)
 	{
-		V_DrawPatch(190, 162 << hires, PatchWEAPONFULL);
+		V_DrawPatch(goffsx + 190, goffsy + 162, PatchWEAPONFULL);
 		return;
 	}
-	V_DrawPatch(190, 162 << hires, PatchWEAPONSLOT);
+	V_DrawPatch(goffsx + 190, goffsy + 162, PatchWEAPONSLOT);
 	if(CPlayer->pieces&WPIECE1)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][0], 162 << hires, PatchPIECE1);
+		V_DrawPatch(goffsx + PieceX[PlayerClass[consoleplayer]][0], goffsy + 162, PatchPIECE1);
 	}
 	if(CPlayer->pieces&WPIECE2)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][1], 162 << hires, PatchPIECE2);
+		V_DrawPatch(goffsx + PieceX[PlayerClass[consoleplayer]][1], goffsy + 162, PatchPIECE2);
 	}
 	if(CPlayer->pieces&WPIECE3)
 	{
-		V_DrawPatch(PieceX[PlayerClass[consoleplayer]][2], 162 << hires, PatchPIECE3);
+		V_DrawPatch(goffsx + PieceX[PlayerClass[consoleplayer]][2], goffsy + 162, PatchPIECE3);
 	}
 }
 
