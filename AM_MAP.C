@@ -640,7 +640,7 @@ void AM_clearFB(int color)
 	}
 
   shx = mapxstart >> hires;
-  limy = hires ? SCREENHEIGHT : finit_height;
+  limy = hires ? SCREENHEIGHT : SCREENHEIGHT - SBARHEIGHT;
 	//blit the automap background to the screen.
 	j=(mapystart>>hires)*LORESWIDTH;
 	for(i = 0; i < limy; i++)
@@ -1269,7 +1269,7 @@ void AM_Drawer (void)
 //  AM_drawMarks();
 //	if(gameskill == sk_baby) AM_drawkeys();
 
-	MN_DrTextA(P_GetMapName(gamemap), 38 << hires, 144 << hires);
+	MN_DrTextA(P_GetMapName(gamemap), 38, SCREENHEIGHT - LORESHEIGHT + 144);
 	if(ShowKills && netgame && deathmatch)
 	{
 		AM_DrawDeathmatchStats();
@@ -1355,7 +1355,7 @@ void AM_DrawDeathmatchStats(void)
 		}
 		else
 		{
-			MN_DrTextA(PlayerColorText[order[i]], 8, yPosition);
+			MN_DrTextA(PlayerColorText[order[i]], 10, yPosition);
 			sprintf(textBuffer, "%d", fragCount[order[i]]);
 			MN_DrTextA(textBuffer, 80, yPosition);
 			yPosition += 10;
@@ -1378,6 +1378,7 @@ static void DrawWorldTimer(void)
 	int worldTimer;
 	char timeBuffer[15];
 	char dayBuffer[20];
+	int offsx = SCREENWIDTH - LORESWIDTH;
 
 	worldTimer = players[consoleplayer].worldTimer;
 
@@ -1391,7 +1392,7 @@ static void DrawWorldTimer(void)
 	seconds = worldTimer;
 
 	sprintf(timeBuffer, "%.2d : %.2d : %.2d", hours, minutes,seconds);
-	MN_DrTextA(timeBuffer, 240 << hires, 8 << hires);
+	MN_DrTextA(timeBuffer, offsx + 240, 10);
 
 	if (days)
 	{
@@ -1403,10 +1404,10 @@ static void DrawWorldTimer(void)
 		{
 			sprintf(dayBuffer, "%.2d DAYS", days);
 		}
-		MN_DrTextA(dayBuffer, 240, 20);
+		MN_DrTextA(dayBuffer, offsx + 240, 20);
 		if (days >= 5)
 		{
-			MN_DrTextA("YOU FREAK!!!", 230, 35);
+			MN_DrTextA("YOU FREAK!!!", offsx + 230, 35);
 		}
 	}
 }

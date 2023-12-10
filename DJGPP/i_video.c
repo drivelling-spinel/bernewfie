@@ -259,7 +259,7 @@ void show_info_proc()
 
  	if (modeswitched>0) // display video driver after switch
     {
-       MN_DrTextA(mode_string, 1, 1); 
+       MN_DrTextA(mode_string, 1, 0); 
 	   if (modeswitched==1)
 	   {
 	     fps_timeout=I_GetTime()+200; // I_GetTime_RealTime(); same result
@@ -288,7 +288,7 @@ void show_info_proc()
 			fps_counter=0; // flush old data
 		  }
 	   }
-       if (fps>-1) MN_DrTextAYellow(fps_string, SCREENWIDTH - MN_TextAWidth(fps_string)-2, 1);
+       if (fps>-1) MN_DrTextAYellow(fps_string, SCREENWIDTH - MN_TextAWidth(fps_string)-6, 0);
 	}
 }
 
