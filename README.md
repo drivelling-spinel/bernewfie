@@ -61,7 +61,8 @@ Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=tr
 - Hard to tell at the moment as lots of bugs are to be expected.
   If you run into any, and are on a board I frequent, please let me know.
 - No idea if multiplayer works
-- Sky scaling is buggy and produces a jittey effect from time to time
+- Sky scaling is buggy in hires or with mlook and produces a jittery effect from time to time
+- Intermission screens in hires show gibberish
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
@@ -78,7 +79,7 @@ Also changes were made to:
 - automap to work correctly in higher resolutions
 - screen refresh and screen border logic to accomodate for status bar only taking  
   a portion of the lower screen part in higher resolution
-- visplanes structure to extened heigh from 8 to 16 bits for higher resolution screens
+- visplanes structure to extened height from 8 to 16 bits for higher resolution screens
 - sky scaling code to work correctly in higher resolutions and with mouse look
 - player weapon sprites scaing code to show correctly in higher resolutions
 - game subsystems startup order to accomodate for changes to graphic mode initialization 
