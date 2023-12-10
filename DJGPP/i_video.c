@@ -195,6 +195,7 @@ int show_fps;           // GB 2014
 int use_vsync;          // killough 2/8/98: controls whether vsync is called
 int page_flip;          // killough 8/15/98: enables page flipping
 int hires;
+int safeparm;
 int in_graphics_mode;
 int in_page_flip, in_hires, linear;
 int scroll_offset;
@@ -217,12 +218,19 @@ int CENTERY;
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
 
+void MN_DrTextA(char *text, int x, int y);
+void MN_DrTextAYellow(char *text, int x, int y);
+int MN_TextAWidth(char *text);
+void MN_DrTextB(char *text, int x, int y);
+int MN_TextBWidth(char *text);
+
+
 //-----------------------------------------------------------------------------
 void devparm_proc(int y)
 {
       static int lasttic;
       byte *s = vscreen;
-	  int i = I_GetTime();
+	    int i = I_GetTime();
       int tics = i - lasttic;
       lasttic = i;
       if (tics > 20) tics = 20;
@@ -241,6 +249,48 @@ void devparm_proc(int y)
 }
 
 //-----------------------------------------------------------------------------
+//GB 2014: New procedure to show video mode and frame rate.  
+void show_info_proc()
+{
+	static int fps_counter, fps_starttime, fps_timeout, fps_nextcalculation, fps;
+
+ 	if (modeswitched>0) // display video driver after switch
+    {
+       MN_DrTextA(mode_string, 1, 1); 
+	   if (modeswitched==1)
+	   {
+	     fps_timeout=I_GetTime()+200; // I_GetTime_RealTime(); same result
+         fps_counter=0; // fps counter
+	     fps=-1;
+		 fps_nextcalculation=-1;
+		 modeswitched++;
+	   }
+       if (I_GetTime()>fps_timeout) modeswitched=0; 
+    } 
+ 	if (show_fps)
+ 	{
+	   int time=I_GetTime(); // I_GetTime_RealTime(); same result
+	   if (fps_counter==0) fps_starttime = I_GetTime(); 
+       fps_counter++;
+       // store a value and/or draw when data is ok:
+       if (fps_counter>(TICRATE+10)) 
+	   {  
+		  if (fps_nextcalculation<time) // in case of a very fast system, this will limit the sampling
+		  {
+		    fps=(double)((fps_counter-1)*TICRATE)/(time-fps_starttime); // minus 1!, exactly 35 FPS when measeraring for a longer time.
+			fps_nextcalculation=time+12; 
+		    if (fps>999999) fps=999999; // overflow
+            sprintf(fps_string,"%02d",fps);//"FPS:%5d",fps); 
+
+			fps_counter=0; // flush old data
+		  }
+	   }
+       if (fps>-1) MN_DrTextAYellow(fps_string, SCREENWIDTH - MN_TextAWidth(fps_string)-2, 1);
+	}
+}
+
+
+//-----------------------------------------------------------------------------
 void I_FinishUpdate(void)
 { 
 
@@ -250,7 +300,7 @@ void I_FinishUpdate(void)
   // int c=I_GetTime_RealTime();
   // int d=I_GetTime_RealTime();
 
-   int ymax=200, size;
+   int ymax=SCREENHEIGHT, size;
    if (noblit || !in_graphics_mode) return;
 
  //if (v12_compat)    M_DrawText2(1,10,CR_BLUE,true,"V12_COMPAT");   // debug
@@ -262,10 +312,17 @@ void I_FinishUpdate(void)
    //sprintf(mode_string,"%d",realtic);
    //M_DrawText2(1,0,CR_BLUE,true,mode_string); 
 
+   // GB 2014, FPS counter logic:
+   if (show_fps || safeparm) show_info_proc();
+
+   // GB 2014, first part of code to check if statusbar needs to be (re)drawn on screen:
+   // TODO: use Hexen specific logic for this
+   // if ((viewactive || automapactive) && scaledviewheight<200 && !inhelpscreens) ymax=168; 
+
    // draws little dots on the bottom of the screen:
    if (debugmode) devparm_proc(ymax);
 
-   size = in_hires ? SCREENWIDTH*ymax*4 : SCREENWIDTH*ymax; 
+   size = SCREENWIDTH*ymax; 
 
    if (in_page_flip)
       if (!in_hires && (current_mode<256)) // Transfer from system memory to planar 'mode X' video memory:
@@ -309,7 +366,7 @@ void I_FinishUpdate(void)
 // I_ReadScreen
 void I_ReadScreen(byte *scr)
 {
-  int size = hires ? SCREENWIDTH*SCREENHEIGHT*4 : SCREENWIDTH*SCREENHEIGHT;
+  int size = SCREENWIDTH*SCREENHEIGHT;
   // 1/18/98 killough: optimized based on CPU type:
        if (cpu_family >= 6) ppro_blit(scr,size); // PPro or PII
   else if (cpu_family >= 5) pent_blit(scr,size); // Pentium
@@ -460,8 +517,7 @@ static void I_InitGraphicsMode(void)
 
      if (hiresfail)
      {
-		hires = 0;                    // Revert to lowres
-        I_InitGraphicsMode();         // Start all over
+        I_Error("Failed to switch to high resolution. Exiting.\n");
         return;
      }
   }
@@ -532,8 +588,8 @@ static void I_InitGraphicsMode(void)
   //if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
   I_SetPalette(W_CacheLumpName("PLAYPAL",PU_CACHE));
   modeswitched=1; 
-  if (current_mode==0x12) sprintf(mode_string,"%sMODE:X SIZE:%dx%d LFB:%s CPU:%d VBE:%d",  safestring,               screen_w, screen_h, linear ? "true" : "false", cpu_family, vesa_version);  
-  else                    sprintf(mode_string,"%sMODE:%xh SIZE:%dx%d LFB:%s CPU:%d VBE:%d",safestring, current_mode, screen_w, screen_h, linear ? "true" : "false", cpu_family, vesa_version); 
+  if (current_mode==0x12) sprintf(mode_string,"%sMODE X  SIZE %dX%d  LFB %s  CPU %d  VBE %d",  safestring,               screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);  
+  else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version); 
 }
 
 //-----------------------------------------------------------------------------
@@ -574,6 +630,7 @@ void I_InitGraphics(void)
   use_vsync = M_CheckParm("-use_vsync");
   page_flip = M_CheckParm("-page_flip");
   hires = M_CheckParm("-hires") ? 1 : 0;
+  safeparm = M_CheckParm("-safeparm");
   
   SCREENWIDTH <<= hires;
   SCREENHEIGHT <<= hires;
