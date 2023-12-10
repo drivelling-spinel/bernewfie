@@ -52,7 +52,7 @@ int			viewangletox[FINEANGLES/2];
 
 // The xtoviewangleangle[] table maps a screen pixel to the lowest viewangle
 // that maps back to x ranges from clipangle to -clipangle
-angle_t		xtoviewangle[SCREENWIDTH+1];
+angle_t		xtoviewangle[MAXSCREENWIDTH+1];
 
 // the finetangentgent[angle+FINEANGLES/4] table holds the fixed_t tangent
 // values for view angles, ranging from MININT to 0 to MAXINT.
@@ -581,8 +581,8 @@ void R_ExecuteSetViewSize (void)
 	}
 	else
 	{
-		scaledviewwidth = setblocks*32;
-		viewheight = (setblocks*161/10);
+		scaledviewwidth = (setblocks*32) << hires;
+		viewheight = (setblocks*161/10) << hires;
 	}
 
 	detailshift = setdetail;

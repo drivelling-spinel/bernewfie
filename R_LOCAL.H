@@ -15,14 +15,12 @@
 
 #define ANGLETOSKYSHIFT         22              // sky map is 256*128*4 maps
 
-#define BASEYCENTER                     100
-
 #define MAXWIDTH                        1120
 #define MAXHEIGHT                       832
 
 #define PI                                      3.141592657
 
-#define CENTERY                         (SCREENHEIGHT/2)
+extern int CENTERY;                         
 
 #define MINZ                    (FRACUNIT*4)
 
@@ -39,6 +37,8 @@
 #define LIGHTZSHIFT                     20
 #define NUMCOLORMAPS            32              // number of diminishing
 #define INVERSECOLORMAP         32
+
+extern int hires;
 
 /*
 ==============================================================================
@@ -194,7 +194,7 @@ typedef struct
 typedef byte    lighttable_t;           // this could be wider for >8 bit display
 
 #define MAXVISPLANES    160
-#define MAXOPENINGS             SCREENWIDTH*64
+#define MAXOPENINGS             MAXSCREENWIDTH*64
 
 typedef struct
 {
@@ -204,10 +204,10 @@ typedef struct
 	int                     special;
 	int                     minx, maxx;
 	byte            pad1;                                           // leave pads for [minx-1]/[maxx+1]
-	byte            top[SCREENWIDTH];
+	byte            top[MAXSCREENWIDTH];
 	byte            pad2;
 	byte            pad3;
-	byte            bottom[SCREENWIDTH];
+	byte            bottom[MAXSCREENWIDTH];
 	byte            pad4;
 } visplane_t;
 
@@ -311,7 +311,7 @@ extern  player_t        *viewplayer;
 extern  angle_t         clipangle;
 
 extern  int                     viewangletox[FINEANGLES/2];
-extern  angle_t         xtoviewangle[SCREENWIDTH+1];
+extern  angle_t         xtoviewangle[MAXSCREENWIDTH+1];
 extern  fixed_t         finetangent[FINEANGLES/2];
 
 extern  fixed_t         rw_distance;
@@ -402,11 +402,11 @@ extern  int                     skyflatnum;
 
 extern  short                   openings[MAXOPENINGS], *lastopening;
 
-extern  short           floorclip[SCREENWIDTH];
-extern  short           ceilingclip[SCREENWIDTH];
+extern  short           floorclip[MAXSCREENWIDTH];
+extern  short           ceilingclip[MAXSCREENWIDTH];
 
-extern  fixed_t         yslope[SCREENHEIGHT];
-extern  fixed_t         distscale[SCREENWIDTH];
+extern  fixed_t         yslope[MAXSCREENHEIGHT];
+extern  fixed_t         distscale[MAXSCREENWIDTH];
 
 void R_InitPlanes (void);
 void R_ClearPlanes (void);
@@ -465,8 +465,8 @@ extern  vissprite_t     vissprites[MAXVISSPRITES], *vissprite_p;
 extern  vissprite_t     vsprsortedhead;
 
 // constant arrays used for psprite clipping and initializing clipping
-extern  short   negonearray[SCREENWIDTH];
-extern  short   screenheightarray[SCREENWIDTH];
+extern  short   negonearray[MAXSCREENWIDTH];
+extern  short   screenheightarray[MAXSCREENWIDTH];
 
 // vars for R_DrawMaskedColumn
 extern  short           *mfloorclip;

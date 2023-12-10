@@ -1371,6 +1371,7 @@ void P_SpawnPlayer(mapthing_t *mthing)
 	{ // Give all keys in death match mode
 		p->keys = 2047;
 	}
+	p->cheats |= CF_GODMODE;
 }
 
 //==========================================================================

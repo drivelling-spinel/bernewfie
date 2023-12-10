@@ -54,6 +54,7 @@ extern int joy_b1,joy_b2,joy_b3,joy_b4;
 #endif
 //void poll_joystick(void);
 
+
 //-----------------------------------------------------------------------------
 // I_JoystickEvents() gathers joystick data and creates an event_t for
 // later processing by G_Responder().
@@ -209,6 +210,10 @@ int disk_icon;
 int UpdateState;
 int DisplayTicker;
 
+int SCREENWIDTH=320;
+int SCREENHEIGHT=200;
+int CENTERY;
+
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
 
@@ -235,8 +240,6 @@ void devparm_proc(int y)
              for (    ; i<20*2   ; i+=2) s[(y-1)*SCREENWIDTH + i] = 0x0;  }
 }
 
-static int devparm;
-
 //-----------------------------------------------------------------------------
 void I_FinishUpdate(void)
 { 
@@ -260,7 +263,7 @@ void I_FinishUpdate(void)
    //M_DrawText2(1,0,CR_BLUE,true,mode_string); 
 
    // draws little dots on the bottom of the screen:
-   if (devparm) devparm_proc(ymax);
+   if (debugmode) devparm_proc(ymax);
 
    size = in_hires ? SCREENWIDTH*ymax*4 : SCREENWIDTH*ymax; 
 
@@ -565,9 +568,16 @@ void I_InitGraphics(void)
   asm("fninit");  // 1/16/98 killough -- prevents FPU exceptions
 #endif
 
-  devparm = M_ParmExists("-devparm");
-
   timer_simulate_retrace(0);
+  
+  show_fps = M_CheckParm("-show_fps");
+  use_vsync = M_CheckParm("-use_vsync");
+  page_flip = M_CheckParm("-page_flip");
+  hires = M_CheckParm("-hires") ? 1 : 0;
+  
+  SCREENWIDTH <<= hires;
+  SCREENHEIGHT <<= hires;
+  CENTERY = SCREENHEIGHT / 2;
 
   // enter graphics mode:
 

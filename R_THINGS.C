@@ -43,8 +43,8 @@ fixed_t		pspritescale, pspriteiscale;
 lighttable_t	**spritelights;
 
 // constant arrays used for psprite clipping and initializing clipping
-short	negonearray[SCREENWIDTH];
-short	screenheightarray[SCREENWIDTH];
+short	negonearray[MAXSCREENWIDTH];
+short	screenheightarray[MAXSCREENWIDTH];
 
 boolean LevelUseFullBright;
 /*
@@ -720,16 +720,16 @@ void R_DrawPSprite (pspdef_t *psp)
 	vis->mobjflags = 0;
 	vis->class = 0;
 	vis->psprite = true;
-	vis->texturemid = (BASEYCENTER<<FRACBITS)+FRACUNIT/2
-		-(psp->sy-spritetopoffset[lump]);
+	vis->texturemid = (CENTERY<<FRACBITS)+FRACUNIT/2
+		-((psp->sy-spritetopoffset[lump]) << hires);
 	if(viewheight == SCREENHEIGHT)
 	{
-		vis->texturemid -= PSpriteSY[viewplayer->class]
-			[players[consoleplayer].readyweapon];
+		vis->texturemid -= (PSpriteSY[viewplayer->class]
+			[players[consoleplayer].readyweapon]<<hires);
 	}
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-	vis->scale = pspritescale<<detailshift;
+	vis->scale = (pspritescale<<detailshift);
 	if (flip)
 	{
 		vis->xiscale = -pspriteiscale;
