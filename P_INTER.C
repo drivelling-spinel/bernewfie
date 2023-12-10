@@ -2008,7 +2008,7 @@ Centaur_inflict:
 	}
 	// Push the target unless source is using the gauntlets
 	if(inflictor && (!source || !source->player)
-		&& !(inflictor->flags2&MF2_NODMGTHRUST))
+                && !(inflictor->flags2&MF2_NODMGTHRUST))                       
 	{
 		ang = R_PointToAngle2(inflictor->x, inflictor->y,
 			target->x, target->y);
@@ -2096,17 +2096,20 @@ Centaur_inflict:
                         target->damage = 0;
                 }
         }
-        switch(inflictor->type)
+        if(inflictor)
         {
-        case MT_CFLAME_MISSILE:
-                inflictor->args[0] = true;
-                break;
-        case MT_MWAND_MISSILE:
-        case MT_MSTAFF_FX2: //?????
-                if(inflictor->special2 == target)
-                        return;
-                inflictor->special2 = target;
-                break;
+                switch(inflictor->type)
+                {
+                case MT_CFLAME_MISSILE:
+                        inflictor->args[0] = true;
+                        break;
+                case MT_MWAND_MISSILE:
+                case MT_MSTAFF_FX2: //?????
+                        if(inflictor->special2 == target)
+                                return;
+                        inflictor->special2 = target;
+                        break;
+                }
         }
 #endif
 	//
