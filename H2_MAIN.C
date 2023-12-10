@@ -27,7 +27,7 @@
 // MACROS ------------------------------------------------------------------
 
 #define CONFIG_FILE_NAME "hexen.cfg"
-#define MAXWADFILES 20
+#define MAXWADFILES 21
 
 // TYPES -------------------------------------------------------------------
 
