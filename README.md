@@ -1,7 +1,7 @@
 # BERNEWFIE
 ## Hexen source port hack for DOS
 
-![BERNEWFIE screenshot](/DOC/hex_000.png)
+![BERNEWFIE screenshot](/DOC/hex_036.png)
 
 BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard and mouse bindings (HEXEN.CFG) and SETUP.EXE from MBF 2.04 package is used to configure Allegro for sound and music (SETUP.CFG). If MBF_D2GM.IBK is found in the same directory it will be loaded during OPL music card initialization. Finally, BERNEWFIE requires CWSDMPI.EXE to be launched in "pure" DOS; it can also be found in MBF 2.04 package.
 
@@ -30,11 +30,12 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 - External driver support for "exotic" input devices
 
 ### What does not work
-- Hard to tell at the moment but finale screens and minimap have never been tested yet
+- Hard to tell at the moment as lots of bugs are to be expected.
+  If you run into any, and are on a board I frequent, please let me know.
+- Finale screen has not been tested
 - Demos go out of sync
 - No idea if multiplayer works
-- Patch scaling is not implemented and status bar is showing outright weird
-  It is strongly recommended to play with fullscreen HUD as on the screenshot
+- Patch scaling is not implemented and full screen HUD geometry is not correct
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
@@ -45,11 +46,14 @@ Most of the code in BERNEWFIE is untouched Hexen code, except for:
 Also changes were made to:
 - game startup to incorporate allegedly more Windows NT friendly MBF 2.04 code 
 - sound handing to avoid crashes in main menu and to accomodate for MBF sound caching
-- status bar / HUD drawing to "scale" to higher resolutions
-- menu layout to center in higher resolutions
-- info and title drawing procs to show correctly in higher resolutions
+- fullscreen HUD drawing to "scale" to higher resolutions
+- menu, status bar and  finale layout and messages to center in higher resolutions
+- info, title and finale drawing procs to show correctly in higher resolutions
+- automap to work correctly in higher resolutions
+- screen refresh and screen border logic to accomodate for status bar only taking  
+  a portion of the lower screen part in higher resolution
 - visplanes structure to extened heigh from 8 to 16 bits for higher resolution screens
-- sky scaling code to work correctly in higher resolutions
+- sky scaling code to work correctly in higher resolutions and with mouse look
 - player weapon sprites scaing code to show correctly in higher resolutions
 - game subsystems startup order to accomodate for changes to graphic mode initialization 
 
