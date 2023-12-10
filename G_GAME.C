@@ -804,7 +804,6 @@ void G_Ticker(void)
 				G_DoLoadLevel();
 				break;
 			case ga_initnew:
-				BackOffQuickParm();
 				G_DoInitNew();
 				break;
 			case ga_newgame:
@@ -830,20 +829,16 @@ void G_Ticker(void)
 				gameaction = ga_nothing;
 				break;
 			case ga_leavemap:
-				BackOffQuickParm();
 				Draw_TeleportIcon();
 				G_DoTeleportNewMap();
 				break;
 			case ga_completed:
-				BackOffQuickParm();
 				G_DoCompleted();
 				break;
 			case ga_worlddone:
-				BackOffQuickParm();
 				G_DoWorldDone();
 				break;
 			case ga_victory:
-				BackOffQuickParm();
 				F_StartFinale();
 				break;
 			default:
