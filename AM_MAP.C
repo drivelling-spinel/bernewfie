@@ -257,7 +257,7 @@ void AM_initVariables(void)
   //static event_t st_notify = { ev_keyup, AM_MSGENTERED };
 
   automapactive = true;
-  fb = screen;
+  fb = vscreen;
 
   f_oldloc.x = MAXINT;
   amclock = 0;
@@ -639,9 +639,9 @@ void AM_clearFB(int color)
 	j=mapystart*finit_width;
 	for(i = 0; i < SCREENHEIGHT-SBARHEIGHT; i++)
 	{
-		memcpy(screen+i*finit_width, maplump+j+mapxstart, 	
+		memcpy(vscreen+i*finit_width, maplump+j+mapxstart, 	
 			finit_width-mapxstart);
-		memcpy(screen+i*finit_width+finit_width-mapxstart, maplump+j, 
+		memcpy(vscreen+i*finit_width+finit_width-mapxstart, maplump+j, 
 			mapxstart);
 		j += finit_width;
 		if(j >= finit_height*finit_width)

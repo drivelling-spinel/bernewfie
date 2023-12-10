@@ -182,9 +182,7 @@ extern boolean inventory;
 extern int curpos;
 extern int inv_ptr;
 
-extern  int             isCyberPresent;     // is CyberMan present?
 boolean usearti = true;
-void I_ReadCyberCmd (ticcmd_t *cmd);
 
 void G_BuildTiccmd (ticcmd_t *cmd)
 {
@@ -215,8 +213,6 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 
 	cmd->consistancy =
 		consistancy[consoleplayer][maketic%BACKUPTICS];
-	if (isCyberPresent)
-		I_ReadCyberCmd (cmd);
 
 //printf ("cons: %i\n",cmd->consistancy);
 	
@@ -732,7 +728,8 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 	{
 		side = -MaxPlayerMove[pClass];
 	}
-	if(players[consoleplayer].powers[pw_speed]
+
+	if(players[consoleplayer].powers[pw_speed]
 		&& !players[consoleplayer].morphTics)
 	{ // Adjust for a player with a speed artifact
 		forward = (3*forward)>>1;
@@ -1037,7 +1034,9 @@ void G_Ticker(void)
 // get commands, check consistancy, and build new consistancy check
 //
 	//buf = gametic%BACKUPTICS;
-	buf = (gametic/ticdup)%BACKUPTICS;
+
+
+	buf = (gametic/ticdup)%BACKUPTICS;
 
 	for (i=0 ; i<MAXPLAYERS ; i++)
 		if (playeringame[i])
@@ -1106,7 +1105,8 @@ void G_Ticker(void)
 				}
 			}
 		}
-	// turn inventory off after a certain amount of time
+	
+// turn inventory off after a certain amount of time
 	if(inventory && !(--inventoryTics))
 	{
 		players[consoleplayer].readyArtifact =
@@ -1307,7 +1307,8 @@ boolean G_CheckSpot (int playernum, mapthing_t *mthing)
 	an = ( ANG45 * (mthing->angle/45) ) >> ANGLETOFINESHIFT;
 
 	mo = P_SpawnMobj (x+20*finecosine[an], y+20*finesine[an],
-		ss->sector->floorheight+TELEFOGHEIGHT, MT_TFOG);
+		ss->sector->floorheight+TELEFOGHEIGHT, MT_TFOG);
+
 	if (players[consoleplayer].viewz != 1)
 		S_StartSound (mo, SFX_TELEPORT);  // don't start sound on first frame
 
