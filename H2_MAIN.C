@@ -631,7 +631,7 @@ static void DrawAndBlit(void)
 	// Change the view size if needed
 	if(setsizeneeded)
 	{
-		R_ExecuteSetViewSize();
+                R_ExecuteSetViewSize();
 	}
 
 	// Do buffered drawing
@@ -644,19 +644,19 @@ static void DrawAndBlit(void)
 			}
 			if(automapactive)
 			{
-				AM_Drawer();
+                                AM_Drawer();
 			}
 			else
 			{
 				R_RenderPlayerView(&players[displayplayer]);
 			}
-			CT_Drawer();
+                        CT_Drawer();
 			UpdateState |= I_FULLVIEW;
 			if(hires && screenblocks == 10)
 			{
 				SB_state = -1;
 			}
-			SB_Drawer();
+                        SB_Drawer();
 			break;
 		case GS_INTERMISSION:
 			IN_Drawer();

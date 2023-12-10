@@ -378,7 +378,11 @@ void AM_Start (void)
   static int lastlevel = -1, lastepisode = -1;
   
   finit_width = SCREENWIDTH;
+#ifdef HIRES2
+  finit_height = SCREENHEIGHT - (SBARHEIGHT + 3);
+#else
   finit_height = SCREENHEIGHT-((SBARHEIGHT+3) << hires);
+#endif
  
   if (!stopped) AM_Stop();
   stopped = false;
@@ -673,13 +677,13 @@ void AM_clearFB(int color)
 	{
 	  int k;
 	  char *dst = vscreen + i * finit_width;
+          if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
+                j=0;
 	  for(k = 0 ; k < (1<<hires) ; k ++, dst += LORESWIDTH) {
       memcpy(dst, maplump + j + shx, LORESWIDTH - shx);
       memcpy(dst + LORESWIDTH - shx, maplump+j, shx);
     }
 		j += LORESWIDTH;
-                if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
-			j=0;
 	}
 
   if(hires)

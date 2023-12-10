@@ -16,7 +16,7 @@
 #include "soundst.h"
 
 #define MAX_SND_DIST    2025
-#define MAX_CHANNELS    128
+#define MAX_CHANNELS    32
 
 // Music identifiers
 

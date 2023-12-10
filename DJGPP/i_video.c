@@ -47,7 +47,9 @@ static const char rcsid[] = "$Id: i_video.c,v 1.3 2000-08-12 21:29:28 fraggle Ex
 extern int usejoystick;
 extern int joystickpresent;
 
+#ifdef ASPECT
 byte * vscreen2 = NULL;
+#endif
 
 // fraggle: commented these out for allegro 3.12
 #if(ALLEGRO_VERSION>=3 && ALLEGRO_SUB_VERSION==0)
@@ -296,7 +298,7 @@ void show_info_proc()
 	}
 }
 
-#ifdef HIRES2
+#ifdef ASPECT
 
 static const byte * restore;
 
@@ -437,7 +439,7 @@ void I_FinishUpdate(void)
    if (debugmode) devparm_proc(ymax);
 
    scr = 
-#ifdef HIRES2
+#ifdef ASPECT
      _scale_vscreen()
 #else
      vscreen
@@ -445,8 +447,8 @@ void I_FinishUpdate(void)
    ;
 
    size =
-#ifdef HIRES2
-   in_hires ? ((SCREENWIDTH * SCREENHEIGHT * 6 ) / 5) :
+#ifdef ASPECT
+   in_hires ? (SCREENWIDTH * SCREENHEIGHT * 6 / 5) :
 #endif
    (SCREENWIDTH*ymax);
 
@@ -465,7 +467,7 @@ void I_FinishUpdate(void)
          else                              {if (ymax==SCREENHEIGHT) blast           (dascreen, scr);  // Other CPUs, e.g. 486
                                             else           blast_nobar     (dascreen, scr);}
          outportw(0x3d4, screen_base_addr | 0x0c);              // page flip 
-#ifdef HIRES2
+#ifdef ASPECT
          _restore_vscreen();
 #endif
          return;
@@ -489,7 +491,7 @@ void I_FinishUpdate(void)
    }
 
    if (in_page_flip) vesa_set_displaystart(0, scroll_offset, use_vsync); // hires hardware page-flipping (VBE 2.0 Only, Do not waste frames on 1.2)
-#ifdef HIRES2
+#ifdef ASPECT
    _restore_vscreen();
 #endif
 }
@@ -635,8 +637,12 @@ vesa_mode_1280x1024=0x107;
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
                   screen_w=1280; // Necessary for when mode 13h/X has overwritten them.
-                  screen_h=1024;
+#ifdef ASPECT
+                  screen_h=800;
                   blackband=32;
+#else
+                  screen_h=1024;
+#endif
 	 	}
 		else hiresfail=1;
      }
@@ -735,11 +741,10 @@ vesa_mode_1280x1024=0x107;
   in_hires = hires;
   setsizeneeded = true;
   //if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
-#ifdef HIRES2
+#ifdef ASPECT
   if(in_hires)
     vscreen2 = I_AllocLow(SCREENWIDTH * SCREENHEIGHT * 6 / 5);
 #endif
-  assert(vscreen2);
   modeswitched=1; 
   if (current_mode==0x12) sprintf(mode_string,"%sMODE X  SIZE %dX%d  LFB %s  CPU %d  VBE %d",  safestring,               screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);  
   else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version); 
@@ -793,9 +798,18 @@ void I_InitGraphics(void)
   asmp6parm = M_ParmExists("-asmp6");
   nolfbparm = M_ParmExists("-nolfb");
   nopmparm = M_ParmExists("-nopm");
-  
+
+#if defined(HIRES2) && !defined(ASPECT)
+  if(hires)
+  {
+    SCREENWIDTH = 1280;
+    SCREENHEIGHT = 1024;
+  }
+#else
   SCREENWIDTH <<= hires;
   SCREENHEIGHT <<= hires;
+#endif
+
   CENTERY = SCREENHEIGHT / 2;
 
   // enter graphics mode:

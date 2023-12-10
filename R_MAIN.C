@@ -587,6 +587,14 @@ void R_ExecuteSetViewSize (void)
 		viewheight = (setblocks*(LORESHEIGHT - SBARHEIGHT)/10) << hires;
 	}
 
+#ifdef HIRES2
+        pspshift = 0;
+        if (viewheight == SCREENHEIGHT) {
+                pspshift = (100 << FRACBITS) - FRACUNIT / 2 -
+                    (SCREENHEIGHT << (FRACBITS - hires - 1));
+        }
+#endif
+
 	detailshift = setdetail;
 	viewwidth = scaledviewwidth>>detailshift;
 
@@ -614,9 +622,9 @@ void R_ExecuteSetViewSize (void)
 		transcolfunc = R_DrawTranslatedColumn;
 		spanfunc = R_DrawSpanLow;
 	}
-	R_InitBuffer (scaledviewwidth, viewheight);
+        R_InitBuffer (scaledviewwidth, viewheight);
 
-	R_InitTextureMapping ();
+        R_InitTextureMapping ();
 
 //
 // psprite scales
@@ -666,7 +674,7 @@ void R_ExecuteSetViewSize (void)
 //
 // draw the border
 //
-	R_DrawViewBorder ();    // erase old menu stuff
+        R_DrawViewBorder ();    // erase old menu stuff
 	SB_state = -1;
 }
 

@@ -17,10 +17,11 @@
 
 #ifdef HIRES2
 #define MAXWIDTH                        1280
+#define MAXHEIGHT                       1024
 #else
 #define MAXWIDTH                        1120
-#endif
 #define MAXHEIGHT                       832
+#endif
 
 #define PI                                      3.141592657
 
@@ -198,7 +199,7 @@ typedef struct
 typedef byte    lighttable_t;           // this could be wider for >8 bit display
 
 #ifdef HIRES2
-#define MAXVISPLANES    640
+#define MAXVISPLANES    960
 #else
 #define MAXVISPLANES    320
 #endif
@@ -467,7 +468,11 @@ void R_PrecacheLevel (void);
 //
 // R_things.c
 //
+#ifdef HIRES2
+#define MAXVISSPRITES   256
+#else
 #define MAXVISSPRITES   192
+#endif
 
 extern  vissprite_t     vissprites[MAXVISSPRITES], *vissprite_p;
 extern  vissprite_t     vsprsortedhead;
