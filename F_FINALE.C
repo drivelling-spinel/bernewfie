@@ -240,7 +240,6 @@ static void InitializeFadeInternal(boolean fadeIn, char * pal)
 	Palette = Z_Malloc(768*sizeof(fixed_t), PU_STATIC, 0);
 	PaletteDelta = Z_Malloc(768*sizeof(fixed_t), PU_STATIC, 0);
 	RealPalette = Z_Malloc(768*sizeof(byte), PU_STATIC, 0);
-        MonochromePalette = Z_Malloc(768*sizeof(byte), PU_STATIC, 0);
 
 	if(fadeIn)
 	{
@@ -266,8 +265,9 @@ static void InitializeFadeInternal(boolean fadeIn, char * pal)
 static void InitializeMonochromeFade(boolean fadeIn, int color)
 {
   int i = 0;
+  MonochromePalette = Z_Malloc(768*sizeof(byte), PU_STATIC, 0);
   memset(MonochromePalette, 0, 768*sizeof(byte));
-  for(i = 3 ; i < 768 ; i += 3)
+  for(i = 6 ; i < 768 ; i += 3)
     {
       MonochromePalette[i] = color >> 16;
       MonochromePalette[i+1] = color >> 8;
@@ -292,6 +292,7 @@ static void DeInitializeFade(void)
 	Z_Free(Palette);
 	Z_Free(PaletteDelta);
 	Z_Free(RealPalette);
+        Z_Free(MonochromePalette);
 }
 
 //===========================================================================
@@ -399,12 +400,19 @@ static char *GetFinaleText(int sequence)
 	return ClusterMessage;
 }
 
-void F_FadeToBlack(int color)
+void F_FadeToBlackInit(int color)
 {
   int fade=70;
 
   DeInitializeFade();
   InitializeMonochromeFade(0, color);
+}
+
+
+void F_DoFadeToBlack(int color)
+{
+  int fade=70;
+
   rest(1000);
   S_StartSound(NULL, SFX_STARTUP_TICK);
   rest(1000);
