@@ -342,10 +342,11 @@ void SN_StartSequenceName(mobj_t *mobj, char *name)
 
 void SN_StopSequence(mobj_t *mobj)
 {
-	seqnode_t *node;
+	seqnode_t *node, *next;
 
-	for(node = SequenceListHead; node; node = node->next)
+	for(node = SequenceListHead; node; node = next)
 	{
+	  next = node->next;
 		if(node->mobj == mobj)
 		{
 			S_StopSound(mobj);

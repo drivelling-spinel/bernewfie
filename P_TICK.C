@@ -81,11 +81,12 @@ void P_Ticker(void)
 
 static void RunThinkers(void)
 {
-	thinker_t *currentthinker;
+	thinker_t *currentthinker, *nextthinker;
 
 	currentthinker = thinkercap.next;
 	while(currentthinker != &thinkercap)
 	{
+		nextthinker = currentthinker->next;
 		if(currentthinker->function == (think_t)-1)
 		{ // Time to remove it
 			currentthinker->next->prev = currentthinker->prev;
@@ -102,7 +103,7 @@ static void RunThinkers(void)
 			dmprintf("-function %p\n", currentthinker->function);
 #endif			
 		}
-		currentthinker = currentthinker->next;
+		currentthinker = nextthinker;
 	}
 }
 
