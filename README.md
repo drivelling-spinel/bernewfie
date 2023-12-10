@@ -14,6 +14,8 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 - up to 128 sound channels
   (SETUP.EXE limits this to 8, so HEXEN.CFG needs to be edited by hand)
 - more visplanes 
+- more fluid experience with quicksave/quickload with `-quick` command line argument:
+  quickloading instead of respawning, less prompts and end game/suicide buttons switched off
 - additional command line arguments to fine-tune Gerwin's VESA code
   (see [readme](DOC/MBFUP204.TXT) for details):
   `-show_fps` 

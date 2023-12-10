@@ -107,6 +107,9 @@ static void DrawSaveMenu(void);
 static void DrawSlider(Menu_t *menu, int item, int width, int slot);
 void MN_LoadSlotText(void);
 
+void SCQuickSave(void);
+void SCQuickLoad(void);
+
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
 extern int detailLevel;
@@ -650,8 +653,11 @@ static void DrawSkillMenu(void)
 static void DrawFilesMenu(void)
 {
 // clear out the quicksave/quickload stuff
-	quicksave = 0;
-	quickload = 0;
+	if(!quickparm)
+	{
+		quicksave = 0;
+		quickload = 0;
+	}
 	P_ClearMessage(&players[consoleplayer]);
 }
 
@@ -913,7 +919,15 @@ static void SCLoadGame(int option)
 	if(quickload == -1)
 	{
 		quickload = option+1;
+		if(quickparm)
+		{
+			quicksave = quickload;
+		}
 		P_ClearMessage(&players[consoleplayer]);
+	} 
+	if(quickload != option + 1)
+	{
+    BackOffQuickParm();
 	}
 }
 
@@ -953,6 +967,11 @@ static void SCSaveGame(int option)
 	if(quicksave == -1)
 	{
 		quicksave = option+1;
+		if(quickparm) 
+		{
+			quickload = quicksave;
+			quickparm = Q_DONT_ASK;
+		}
 		P_ClearMessage(&players[consoleplayer]);
 	}
 }
@@ -1204,21 +1223,13 @@ boolean MN_Responder(event_t *event)
 							H2_StartTitle(); // go to intro/demo mode.
 							break;
 						case 3:
-							P_SetMessage(&players[consoleplayer], 
-								"QUICKSAVING....", false);
-							FileMenuKeySteal = true;
-							SCSaveGame(quicksave-1);
-							askforquit = false;
-							typeofask = 0;
-							BorderNeedRefresh = true;
+							SCQuickSave();
+							if(quickparm) {
+								quickparm = Q_DONT_ASK;
+							}
 							return true;
 						case 4:
-							P_SetMessage(&players[consoleplayer], 
-								"QUICKLOADING....", false);
-							SCLoadGame(quickload-1);
-							askforquit = false;
-							typeofask = 0;
-							BorderNeedRefresh = true;
+							SCQuickLoad();
 							return true;
 						case 5:
 							askforquit = false;
@@ -1272,14 +1283,6 @@ boolean MN_Responder(event_t *event)
 				BorderNeedRefresh = true;
 				UpdateState |= I_FULLSCRN;
 				return(true);
-#ifdef __NeXT__
-			case 'q':
-				MenuActive = false;
-				askforquit = true;
-				typeofask = 5; // suicide
-				return true;
-#endif
-#ifndef __NeXT__
 			case KEY_F1: // help screen
 				SCInfo(0); // start up info screens
 				MenuActive = true;
@@ -1331,8 +1334,11 @@ boolean MN_Responder(event_t *event)
 				return true;
 			case KEY_F5:
 				MenuActive = false;
-				askforquit = true;
-				typeofask = 5; // suicide
+				if(!quickparm)
+				{
+					askforquit = true;
+					typeofask = 5; // suicide
+				}
 				return true;
 			case KEY_F6: // quicksave
 				if(gamestate == GS_LEVEL && !demoplayback)
@@ -1354,6 +1360,11 @@ boolean MN_Responder(event_t *event)
 						P_SetMessage(&players[consoleplayer],
 							"CHOOSE A QUICKSAVE SLOT", true);
 					}
+					else if(quickparm > 1) 
+					{
+						SCQuickSave();
+						return true;
+					}
 					else
 					{
 						askforquit = true;
@@ -1367,7 +1378,7 @@ boolean MN_Responder(event_t *event)
 				}
 				return true;
 			case KEY_F7: // endgame
-				if(SCNetCheck(3))
+				if(!quickparm && SCNetCheck(3))
 				{
 					if(gamestate == GS_LEVEL && !demoplayback)
 					{
@@ -1399,7 +1410,7 @@ boolean MN_Responder(event_t *event)
 						P_SetMessage(&players[consoleplayer],
 							"CHOOSE A QUICKLOAD SLOT", true);
 					}
-					else
+					else 
 					{
 						askforquit = true;
 						if(!netgame && !demoplayback)
@@ -1445,7 +1456,6 @@ boolean MN_Responder(event_t *event)
 				P_SetMessage(&players[consoleplayer], TXT_CHEATWARP,
 					false);
 				return true;
-#endif
 		}
 
 	}
@@ -1728,4 +1738,25 @@ static void DrawSlider(Menu_t *menu, int item, int width, int slot)
 	}
 	V_DrawPatch(x2, y, W_CacheLumpName("M_SLDRT", PU_CACHE));
 	V_DrawPatch(x+4+slot*8, y+7, W_CacheLumpName("M_SLDKB", PU_CACHE));
+}
+
+void SCQuickSave()
+{
+	P_SetMessage(&players[consoleplayer], 
+		"QUICKSAVING....", false);
+	FileMenuKeySteal = true;
+	SCSaveGame(quicksave-1);
+	askforquit = false;
+	typeofask = 0;
+	BorderNeedRefresh = true;
+}
+
+void SCQuickLoad()
+{
+	P_SetMessage(&players[consoleplayer], 
+		"QUICKLOADING....", false);
+	SCLoadGame(quickload-1);
+	askforquit = false;
+	typeofask = 0;
+	BorderNeedRefresh = true;
 }

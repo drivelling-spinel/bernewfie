@@ -602,6 +602,7 @@ void AM_clearFB(int color)
 	int dmapx;
 	int dmapy;
 	int shx;
+	int limy;
 
 	if(followplayer)
 	{
@@ -639,9 +640,10 @@ void AM_clearFB(int color)
 	}
 
   shx = mapxstart >> hires;
+  limy = hires ? SCREENHEIGHT : finit_height;
 	//blit the automap background to the screen.
 	j=(mapystart>>hires)*LORESWIDTH;
-	for(i = 0; i < finit_height; i++)
+	for(i = 0; i < limy; i++)
 	{
 	  int k;
 	  char *dst = vscreen + i * finit_width;
@@ -654,6 +656,10 @@ void AM_clearFB(int color)
 			j=0;
 	}
 
+  if(hires)
+  {
+    SB_state = -1;
+  }
 //	 memcpy(screen, maplump, finit_width*finit_height);
 //  memset(fb, color, f_w*f_h);
 }

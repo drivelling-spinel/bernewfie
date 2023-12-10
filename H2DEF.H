@@ -777,6 +777,11 @@ extern boolean cmdfrag; // true if a CMD_FRAG packet should be sent out every
 
 extern boolean mlook;
 extern boolean novert;
+extern boolean quickparm;
+
+#define Q_ASK (1)
+#define Q_DONT_ASK (2)
+#define BackOffQuickParm( )  { quickparm = (quickparm == Q_DONT_ASK) ? Q_ASK : quickparm ; }
 
 extern boolean playeringame[MAXPLAYERS];
 extern pclass_t PlayerClass[MAXPLAYERS];
