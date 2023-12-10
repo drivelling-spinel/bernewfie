@@ -1611,10 +1611,24 @@ static void ClearSaveSlot(int slot)
 
 	for(i = 0; i < MAX_MAPS; i++)
 	{
-		sprintf(fileName, "%shex%d%02d.hxs", SavePath, slot, i);
+		if(slot <= REBORN_SLOT) 
+		{
+			sprintf(fileName, "%shex%d%02d.hxs", SavePath, slot, i);
+		} 
+		else
+		{
+			sprintf(fileName, "%shex%c%02d.hxs", SavePath, (char)(slot - REBORN_SLOT - 1 + 'a'), i);
+		}
 		remove(fileName);
 	}
-	sprintf(fileName, "%shex%d.hxs", SavePath, slot);
+	if(slot <= REBORN_SLOT)
+	{
+		sprintf(fileName, "%shex%d.hxs", SavePath, slot);
+	}
+	else
+	{
+		sprintf(fileName, "%shex%c.hxs", SavePath, (char)(slot - REBORN_SLOT - 1 + 'a'));
+	}
 	remove(fileName);
 }
 
@@ -1634,17 +1648,45 @@ static void CopySaveSlot(int sourceSlot, int destSlot)
 
 	for(i = 0; i < MAX_MAPS; i++)
 	{
-		sprintf(sourceName, "%shex%d%02d.hxs", SavePath, sourceSlot, i);
+		if(sourceSlot <= REBORN_SLOT) 
+		{
+			sprintf(sourceName, "%shex%d%02d.hxs", SavePath, sourceSlot, i);
+		} 
+		else
+		{
+			sprintf(sourceName, "%shex%c%02d.hxs", SavePath, (char)(sourceSlot - REBORN_SLOT - 1 + 'a'), i);
+		}
 		if(ExistingFile(sourceName))
 		{
-			sprintf(destName, "%shex%d%02d.hxs", SavePath, destSlot, i);
+			if(destSlot <= REBORN_SLOT) 
+			{
+				sprintf(destName, "%shex%d%02d.hxs", SavePath, destSlot, i);
+			} 
+			else
+			{
+				sprintf(destName, "%shex%c%02d.hxs", SavePath, (char)(destSlot - REBORN_SLOT - 1 + 'a'), i);
+			}
 			CopyFile(sourceName, destName);
 		}
 	}
-	sprintf(sourceName, "%shex%d.hxs", SavePath, sourceSlot);
+	if(sourceSlot <= REBORN_SLOT)
+	{
+		sprintf(sourceName, "%shex%d.hxs", SavePath, sourceSlot);
+	}
+	else
+	{
+		sprintf(sourceName, "%shex%c.hxs", SavePath, (char)(sourceSlot - REBORN_SLOT - 1 + 'a'));
+	}	
 	if(ExistingFile(sourceName))
 	{
-		sprintf(destName, "%shex%d.hxs", SavePath, destSlot);
+		if(destSlot <= REBORN_SLOT)
+		{
+			sprintf(destName, "%shex%d.hxs", SavePath, destSlot);
+		}
+		else
+		{
+			sprintf(destName, "%shex%c.hxs", SavePath, (char)(destSlot - REBORN_SLOT - 1 + 'a'));
+		}	
 		CopyFile(sourceName, destName);
 	}
 }

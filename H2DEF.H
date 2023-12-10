@@ -220,7 +220,7 @@ ticcmd_t;
 #define	BT_WEAPONSHIFT	3
 
 #define BT_SPECIAL		128			// game events, not really buttons
-#define	BTS_SAVEMASK	(4+8+16)
+#define	BTS_SAVEMASK	(4+8+16+32+64)
 #define	BTS_SAVESHIFT	2
 #define	BT_SPECIALMASK	3
 #define	BTS_PAUSE		1			// pause the game

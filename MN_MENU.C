@@ -28,6 +28,8 @@
 #define SLOTTEXTLEN	16
 #define ASCII_CURSOR '['
 
+#define SLOT_ID(idx) (((idx) > 5) ? ((idx) + 2) : (idx))
+
 // TYPES -------------------------------------------------------------------
 
 typedef enum
@@ -140,9 +142,9 @@ boolean askforquit;
 boolean typeofask;
 static boolean FileMenuKeySteal;
 static boolean slottextloaded;
-static char SlotText[6][SLOTTEXTLEN+2];
+static char SlotText[16][SLOTTEXTLEN+2];
 static char oldSlotText[SLOTTEXTLEN+2];
-static int SlotStatus[6];
+static int SlotStatus[16];
 static int slotptr;
 static int currentSlot;
 static int quicksave;
@@ -206,7 +208,17 @@ static MenuItem_t LoadItems[] =
 	{ ITT_EFUNC, NULL, SCLoadGame, 2, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 3, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 4, MENU_NONE },
-	{ ITT_EFUNC, NULL, SCLoadGame, 5, MENU_NONE }
+	{ ITT_EFUNC, NULL, SCLoadGame, 5, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 6, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 7, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 8, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 9, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 10, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 11, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 12, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 13, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 14, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCLoadGame, 15, MENU_NONE }
 };
 
 static Menu_t LoadMenu =
@@ -225,7 +237,17 @@ static MenuItem_t SaveItems[] =
 	{ ITT_EFUNC, NULL, SCSaveGame, 2, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 3, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 4, MENU_NONE },
-	{ ITT_EFUNC, NULL, SCSaveGame, 5, MENU_NONE }
+	{ ITT_EFUNC, NULL, SCSaveGame, 5, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 6, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 7, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 8, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 9, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 10, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 11, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 12, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 13, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 14, MENU_NONE },
+	{ ITT_EFUNC, NULL, SCSaveGame, 15, MENU_NONE }
 };
 
 static Menu_t SaveMenu =
@@ -544,7 +566,7 @@ void MN_Drawer(void)
 				MN_DrTextA(SlotText[quickload-1], goffsx + 160-
 					MN_TextAWidth(SlotText[quickload-1])/2, goffsy + 90);
 				MN_DrTextA("?", goffsx + 160+
-					MN_TextAWidth(SlotText[quicksave-1])/2, goffsy + 90);
+					MN_TextAWidth(SlotText[quickload-1])/2, goffsy + 90);
 			}
 			UpdateState |= I_FULLSCRN;
 		}
@@ -552,6 +574,7 @@ void MN_Drawer(void)
 	}
 	else
 	{
+		int loffsy = (CurrentMenu == &SaveMenu || CurrentMenu == &LoadMenu) ? 0 : goffsy;
 		UpdateState |= I_FULLSCRN;
 		if(InfoType)
 		{
@@ -567,7 +590,7 @@ void MN_Drawer(void)
 			CurrentMenu->drawFunc();
 		}
 		x = goffsx + CurrentMenu->x;
-		y = goffsy + CurrentMenu->y;
+		y = loffsy + CurrentMenu->y;
 		item = CurrentMenu->items;
 		for(i = 0; i < CurrentMenu->itemCount; i++)
 		{
@@ -578,7 +601,8 @@ void MN_Drawer(void)
 			y += ITEM_HEIGHT;
 			item++;
 		}
-		y = goffsy + CurrentMenu->y+(CurrentItPos*ITEM_HEIGHT)+SELECTOR_YOFFSET;
+		
+		y = loffsy + CurrentMenu->y+(CurrentItPos*ITEM_HEIGHT)+SELECTOR_YOFFSET;
 		selName = MenuTime&16 ? "M_SLCTR1" : "M_SLCTR2";
 		V_DrawPatch(x+SELECTOR_XOFFSET, y,
 			W_CacheLumpName(selName, PU_CACHE));
@@ -669,7 +693,7 @@ static void DrawFilesMenu(void)
 
 static void DrawLoadMenu(void)
 {
-	MN_DrTextB("LOAD GAME", goffsx + 160-MN_TextBWidth("LOAD GAME")/2, goffsy + 10);
+	MN_DrTextB("LOAD GAME", goffsx + 160-MN_TextBWidth("LOAD GAME")/2, 10);
 	if(!slottextloaded)
 	{
 		MN_LoadSlotText();
@@ -685,7 +709,7 @@ static void DrawLoadMenu(void)
 
 static void DrawSaveMenu(void)
 {
-	MN_DrTextB("SAVE GAME", goffsx + 160-MN_TextBWidth("SAVE GAME")/2, goffsy + 10);
+	MN_DrTextB("SAVE GAME", goffsx + 160-MN_TextBWidth("SAVE GAME")/2, 10);
 	if(!slottextloaded)
 	{
 		MN_LoadSlotText();
@@ -737,6 +761,38 @@ void MN_LoadSlotText(void)
 		}
 	}
 	slottextloaded = true;
+	
+	if(!hires) 
+	{
+	  return;
+	}
+
+	for(; slot < 16; slot++)
+	{
+		found = false;
+		sprintf(name, "%shex%c.hxs", SavePath, slot - 6 + 'a');
+		fp = fopen(name, "rb");
+		if(fp)
+		{
+			fread(description, HXS_DESCRIPTION_LENGTH, 1, fp);
+			fread(versionText, HXS_VERSION_TEXT_LENGTH, 1, fp);
+			fclose(fp);
+			if(!strcmp(versionText, HXS_VERSION_TEXT))
+			{
+				found = true;
+			}
+		}
+		if(found)
+		{
+			memcpy(SlotText[slot], description, SLOTTEXTLEN);
+			SlotStatus[slot] = 1;
+		}
+		else
+		{
+			memset(SlotText[slot], 0, SLOTTEXTLEN);
+			SlotStatus[slot] = 0;
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -752,8 +808,23 @@ static void DrawFileSlots(Menu_t *menu)
 	int y;
 
 	x = goffsx + menu->x;
-	y = goffsy + menu->y;
+	y = menu->y;
 	for(i = 0; i < 6; i++)
+	{
+		V_DrawPatch(x, y, W_CacheLumpName("M_FSLOT", PU_CACHE));
+		if(SlotStatus[i])
+		{
+			MN_DrTextA(SlotText[i], x+5, y+5);
+		}
+		y += ITEM_HEIGHT;
+	}
+	
+	if(!hires) 
+	{
+		return;
+	}
+
+	for(; i < 16; i++)
 	{
 		V_DrawPatch(x, y, W_CacheLumpName("M_FSLOT", PU_CACHE));
 		if(SlotStatus[i])
@@ -913,7 +984,7 @@ static void SCLoadGame(int option)
 	{ // Don't try to load from an empty slot
 		return;
 	}
-	G_LoadGame(option);
+	G_LoadGame(SLOT_ID(option));
 	MN_DeactivateMenu();
 	BorderNeedRefresh = true;
 	if(quickload == -1)
@@ -959,7 +1030,7 @@ static void SCSaveGame(int option)
 	}
 	else
 	{
-		G_SaveGame(option, SlotText[option]);
+		G_SaveGame(SLOT_ID(option), SlotText[option]);
 		FileMenuKeySteal = false;
 		MN_DeactivateMenu();
 	}
@@ -1650,6 +1721,11 @@ boolean MN_Responder(event_t *event)
 
 void MN_ActivateMenu(void)
 {
+	if(hires)
+	{
+		SaveMenu.itemCount = 16;
+		LoadMenu.itemCount = 16;
+	}
 	if(MenuActive)
 	{
 		return;
