@@ -30,14 +30,12 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
   `-nopm`    
 - support for WAV sound effect lumps and 16-bit samples    
   (in case a SoundBulb-like mod for Hexen arrives some day)
-- optional assets WAD with portions of status bar that are normally off-screen in lower resolutions,
-  that is explicitly loaded with either `-file BERNEW.WAD` _or_
 - `-extra` command line argument for a second way to provide PWADs to be loaded to the engine   
   (e.g. to `HEXENDK.EXE -extra PWADS\BERNEW.WAD`)   
-  The assets WAD uses graphics created by Nash Muhandes and contributors for 
-  [WidePix GZDoom mod](https://doomwiki.org/wiki/WidePix) 
 - `-noorb` command line to spend as few time as possible in the start screen 
   and jump to the title screen instead
+- work in progress conversion to C of Hexen Unofficial Update v1.2 \@Boondorl written originally by in ZScript 
+  activate by -DPATCH12 during compile time
 
 ### BERNEWFIE in action
 
