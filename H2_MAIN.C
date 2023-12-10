@@ -68,6 +68,7 @@ static void CheckRecordFrom(void);
 static void AddWADFile(char *file);
 static void DrawAndBlit(void);
 static void ExecOptionFILE(char **args, int tag);
+static void ExecOptionEXTRA(char **args, int tag);
 static void ExecOptionSCRIPTS(char **args, int tag);
 static void ExecOptionDEVMAPS(char **args, int tag);
 static void ExecOptionSKILL(char **args, int tag);
@@ -132,6 +133,7 @@ static char *wadfiles[MAXWADFILES] =
 static execOpt_t ExecOptions[] =
 {
 	{ "-file", ExecOptionFILE, 1, 0 },
+	{ "-extra", ExecOptionEXTRA, 1, 0 },
 	{ "-scripts", ExecOptionSCRIPTS, 1, 0 },
 	{ "-devmaps", ExecOptionDEVMAPS, 1, 0 },
 	{ "-skill", ExecOptionSKILL, 1, 0 },
@@ -413,6 +415,22 @@ static void ExecOptionFILE(char **args, int tag)
 	}
 }
 
+//==========================================================================
+//
+// ExecOptionFILE
+//
+//==========================================================================
+
+static void ExecOptionEXTRA(char **args, int tag)
+{
+	int p;
+
+	p = M_CheckParm("-extra");
+	while(++p != myargc && myargv[p][0] != '-')
+	{
+		AddWADFile(myargv[p]);
+	}
+}
 
 //==========================================================================
 //
