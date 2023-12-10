@@ -1720,7 +1720,7 @@ static void DrawSlider(Menu_t *menu, int item, int width, int slot)
 	int count;
 
 	x = goffsx + menu->x+24;
-	y = menu->y+2+(item*ITEM_HEIGHT);
+	y = goffsy + menu->y+2+(item*ITEM_HEIGHT);
 	V_DrawPatch(x-32, y, W_CacheLumpName("M_SLDLT", PU_CACHE));
 	for(x2 = x, count = width; count--; x2 += 8)
 	{
