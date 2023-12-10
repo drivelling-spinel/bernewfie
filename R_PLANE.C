@@ -102,7 +102,7 @@ void R_InitSky(int map)
 void R_InitSkyMap(void)
 {
 	skyflatnum = R_FlatNumForName("F_SKY");
-	skytexturemid = SCREENHEIGHT*FRACUNIT;
+	skytexturemid = 200*FRACUNIT;
 	skyiscale = FRACUNIT;
 }
 
