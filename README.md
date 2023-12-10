@@ -42,16 +42,14 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 ![Original Deathkings Mage demo running](/DOC/hexendk_007.png)   
 _Original Deathkings Mage demo running_
 
-![Status bar in high resolution with Deathkings and BERNEW.WAD loaded](/DOC/hexendk_005.png)   
-_Status bar in high resolution with Deathkings and BERNEW.WAD loaded_
+![Deathkings as Warropr in in high resolution](/DOC/hexendk_005.png)   
+_Deathkings as Warropr in in high resolution_
 
 ![Automap in high resolition](/DOC/hexendk_006.png)   
 _Automap in high resolition_
 
 ![Additional savegame slots](/DOC/hex_001.png)   
 _Additional savegame slots_
-
-Also check out a recording of live gameplay: <https://www.youtube.com/watch?v=trRCKFNDD6Q>
 
 ### What's removed
 - Graphical startup (although Bernewfie tries to mimic it a little bit, 
