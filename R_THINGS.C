@@ -705,11 +705,11 @@ void R_DrawPSprite (pspdef_t *psp)
 	{
 		tempangle = 0;
 	}
-	x1 = (centerxfrac + FixedMul (tx,pspritescale)+tempangle ) >>FRACBITS;
+	x1 = (centerxfrac + FixedMul (tx,pspritescale<<hires)+tempangle ) >>FRACBITS;
 	if (x1 > viewwidth)
 		return;		// off the right side
 	tx +=  spritewidth[lump];
-	x2 = ((centerxfrac + FixedMul (tx, pspritescale)+tempangle ) >>FRACBITS) - 1;
+	x2 = ((centerxfrac + FixedMul (tx, pspritescale<<hires)+tempangle ) >>FRACBITS) - 1;
 	if (x2 < 0)
 		return;		// off the left side
 
@@ -729,15 +729,15 @@ void R_DrawPSprite (pspdef_t *psp)
 	}
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-	vis->scale = (pspritescale<<detailshift);
+	vis->scale = (pspritescale<<detailshift) << hires;
 	if (flip)
 	{
-		vis->xiscale = -pspriteiscale;
+		vis->xiscale = -pspriteiscale>>hires;
 		vis->startfrac = spritewidth[lump]-1;
 	}
 	else
 	{
-		vis->xiscale = pspriteiscale;
+		vis->xiscale = pspriteiscale>>hires;
 		vis->startfrac = 0;
 	}
 	if (vis->x1 > x1)
