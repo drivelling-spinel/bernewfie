@@ -511,8 +511,6 @@ char *QuitEndMsg[] =
 };
 
 
-#define BETA_FLASH_TEXT "BETA"
-
 void MN_Drawer(void)
 {
 	int i;
@@ -520,15 +518,6 @@ void MN_Drawer(void)
 	int y;
 	MenuItem_t *item;
 	char *selName;
-
-#ifdef TIMEBOMB
-	// Beta blinker ***
-	if(leveltime&16)
-	{
-		MN_DrTextA( BETA_FLASH_TEXT,
-				160-(MN_TextAWidth(BETA_FLASH_TEXT)>>1), 12);
-	}
-#endif // TIMEBOMB
 
 	if(MenuActive == false)
 	{

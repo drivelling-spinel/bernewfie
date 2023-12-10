@@ -95,7 +95,7 @@ static void CheatTrackFunc2(player_t *player, Cheat_t *cheat);
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
-extern byte *screen;
+extern byte *vscreen;
 extern int ArmorIncrement[NUMCLASSES][NUMARMOR];
 extern int AutoArmorSave[NUMCLASSES];
 
@@ -851,7 +851,7 @@ static void ShadeLine(int x, int y, int height, int shade)
 	byte *shades;
 
 	shades = colormaps+9*256+shade*2*256;
-	dest = screen+y*SCREENWIDTH+x;
+	dest = vscreen+y*SCREENWIDTH+x;
 	while(height--)
 	{
 		*(dest) = *(shades+*dest);
@@ -1173,7 +1173,7 @@ void SB_PaletteFlash(boolean forceChange)
 	static int sb_palette = 0;
 	int palette;
 	byte *pal;
-
+	
 	if(forceChange)
 	{ 
 		sb_palette = -1;
@@ -1351,6 +1351,7 @@ void DrawMainBar(void)
 			UpdateState |= I_STATBAR;
 		}
 	}
+	
 	// Mana
 	temp = CPlayer->mana[0];
 	if(oldmana1 != temp)
@@ -1386,6 +1387,7 @@ void DrawMainBar(void)
 		oldmana2 = temp;
 		UpdateState |= I_STATBAR;
 	}
+	
 	if(oldweapon != CPlayer->readyweapon || manaPatch1 || manaPatch2
 		|| manaVialPatch1)
 	{ // Update mana graphics based upon mana count/weapon type
@@ -1434,20 +1436,21 @@ void DrawMainBar(void)
 		V_DrawPatch(94, 164, manaVialPatch1);
 		for(i = 165; i < 187-(22*CPlayer->mana[0])/MAX_MANA; i++)
 		{
-			screen[i*SCREENWIDTH+95] = 0;
-			screen[i*SCREENWIDTH+96] = 0;
-			screen[i*SCREENWIDTH+97] = 0;
+			vscreen[i*SCREENWIDTH+95] = 0;
+			vscreen[i*SCREENWIDTH+96] = 0;
+			vscreen[i*SCREENWIDTH+97] = 0;
 		}
 		V_DrawPatch(102, 164, manaVialPatch2);
 		for(i = 165; i < 187-(22*CPlayer->mana[1])/MAX_MANA; i++)
 		{
-			screen[i*SCREENWIDTH+103] = 0;
-			screen[i*SCREENWIDTH+104] = 0;
-			screen[i*SCREENWIDTH+105] = 0;
+			vscreen[i*SCREENWIDTH+103] = 0;
+			vscreen[i*SCREENWIDTH+104] = 0;
+			vscreen[i*SCREENWIDTH+105] = 0;
 		}
 		oldweapon = CPlayer->readyweapon;
 		UpdateState |= I_STATBAR;
 	}
+	
 	// Armor
 	temp = AutoArmorSave[CPlayer->class]
 		+CPlayer->armorpoints[ARMOR_ARMOR]+CPlayer->armorpoints[ARMOR_SHIELD]

@@ -357,7 +357,7 @@ void AM_Stop (void)
 void AM_Start (void)
 {
   static int lastlevel = -1, lastepisode = -1;
-
+  return;
   if (!stopped) AM_Stop();
   stopped = false;
   if(gamestate != GS_LEVEL)
@@ -397,7 +397,7 @@ boolean AM_Responder (event_t *ev)
 	int rc;
 	static int cheatstate=0;
 	static int bigstate=0;
-	
+	return false;
 	rc = false;
 	if (!automapactive)
 	{

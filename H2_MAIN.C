@@ -76,10 +76,6 @@ static void ExecOptionMAXZONE(char **args, int tag);
 static void CreateSavePath(void);
 static void WarpCheck(void);
 
-#ifdef TIMEBOMB
-static void DoTimeBomb(void);
-#endif
-
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
 extern boolean automapactive;
@@ -193,17 +189,8 @@ void H2_Main(void)
 	ST_Message("W_Init: Init WADfiles.\n");
 	W_InitMultipleFiles(wadfiles);
 
-#ifdef TIMEBOMB
-	DoTimeBomb();
-#endif
-
 	ST_Message("Z_Init: Init zone memory allocation daemon.\n");
 	Z_Init();
-
-#ifdef __WATCOMC__
-	I_StartupKeyboard();
-	I_StartupJoystick();
-#endif
 
 	ST_Message("MN_Init: Init menu system.\n");
 	MN_Init();
@@ -632,7 +619,7 @@ static void DrawAndBlit(void)
 			{
 				R_RenderPlayerView(&players[displayplayer]);
 			}
-			CT_Drawer();
+//			CT_Drawer();
 			UpdateState |= I_FULLVIEW;
 			SB_Drawer();
 			break;
@@ -856,22 +843,6 @@ static void AddWADFile(char *file)
 	wadfiles[i] = new;
 }
 
-#ifdef __WATCOMC__
-/*
-void CleanExit(void)
-{
-	union REGS regs;
-
-	I_ShutdownKeyboard();
-	regs.x.eax = 0x3;
-	int386(0x10, &regs, &regs);
-	printf("Exited from HEXEN: Beyond Heretic.\n");
-	exit(1);
-}
-*/
-#endif
-
-
 //==========================================================================
 //
 // CreateSavePath
@@ -890,42 +861,8 @@ static void CreateSavePath(void)
 	len = strlen(SavePath);
 	if (len >= 120) I_Error("Save path too long\n");
 	strcpy(creationPath, SavePath);
-#ifdef __WATCOMC__
 	creationPath[len-1] = 0;
 	mkdir(creationPath);
-#endif
 }
 
-#ifdef TIMEBOMB
-//==========================================================================
-//
-// DoTimeBomb
-//
-//==========================================================================
 
-static void DoTimeBomb(void)
-{
-#ifdef __WATCOMC__
-	time_t timeOfDay;
-	struct tm timeBuffer;
-
-	timeOfDay = time(NULL);
-	_localtime(&timeOfDay, &timeBuffer);
-	if(timeBuffer.tm_year != TIMEBOMB_YEAR 
-	|| timeBuffer.tm_yday < TIMEBOMB_STARTDATE 
-	|| timeBuffer.tm_yday > TIMEBOMB_ENDDATE)
-	{
-		I_Error("W_InitWadfiles:  Wad file doesn't have IWAD or PWAD id\n");
-	}
- 
-	printf("\n===============================================================================\n");
-	printf("                             Hexen:  Beyond Heretic\n\n");
-	printf("                           Beta -- Do Not Distribute!\n");
-	printf("                           Press any key to continue.\n");
-	printf("===============================================================================\n");
-	
-	getch();
-	printf("\n");
-#endif
-}
-#endif
