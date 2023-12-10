@@ -400,7 +400,6 @@ boolean AM_Responder (event_t *ev)
 	int rc;
 	static int cheatstate=0;
 	static int bigstate=0;
-	return false;
 	rc = false;
 	if (!automapactive)
 	{
@@ -638,16 +637,19 @@ void AM_clearFB(int color)
 		mapystart += finit_height;
 	}
 
+  mapxstart >>=hires;
 	//blit the automap background to the screen.
-	j=mapystart*finit_width;
-	for(i = 0; i < SCREENHEIGHT-SBARHEIGHT; i++)
+	j=(mapystart>>hires)*LORESWIDTH;
+	for(i = 0; i < SCREENHEIGHT - ((SBARHEIGHT + 3) << hires); i++)
 	{
-		memcpy(vscreen+i*finit_width, maplump+j+mapxstart, 	
-			finit_width-mapxstart);
-		memcpy(vscreen+i*finit_width+finit_width-mapxstart, maplump+j, 
-			mapxstart);
-		j += finit_width;
-		if(j >= finit_height*finit_width)
+	  int k;
+	  char *dst = vscreen + i * finit_width;
+	  for(k = 0 ; k < (1<<hires) ; k ++, dst += LORESWIDTH) {
+      memcpy(dst, maplump + j + mapxstart, LORESWIDTH - mapxstart);
+      memcpy(dst + LORESWIDTH - mapxstart, maplump+j, mapxstart);
+    }
+		j += LORESWIDTH;
+		if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
 			j=0;
 	}
 
@@ -862,17 +864,17 @@ void PUTDOT(short xx,short yy,byte *cc, byte *cm)
 	if(yy == oldyy+1)
 	{
 		oldyy++;
-		oldyyshifted += 320;
+		oldyyshifted += SCREENWIDTH;
 	}
 	else if(yy == oldyy-1)
 	{
 		oldyy--;
-		oldyyshifted -= 320;
+		oldyyshifted -= SCREENWIDTH;
 	}
 	else if(yy != oldyy)
 	{
 		oldyy = yy;
-		oldyyshifted = yy*320;
+		oldyyshifted = yy*SCREENWIDTH;
 	}
 	fb[oldyyshifted+xx] = *(cc);
 // 	fb[(yy)*f_w+(xx)]=*(cc);
@@ -1260,7 +1262,7 @@ void AM_Drawer (void)
 //  AM_drawMarks();
 //	if(gameskill == sk_baby) AM_drawkeys();
 
-	MN_DrTextA(P_GetMapName(gamemap), 38, 144);
+	MN_DrTextA(P_GetMapName(gamemap), 38 << hires, 144 << hires);
 	if(ShowKills && netgame && deathmatch)
 	{
 		AM_DrawDeathmatchStats();
