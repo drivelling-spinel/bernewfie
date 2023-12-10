@@ -19,7 +19,9 @@ CP=copy /y
 EXE=$(O)/hex.exe
         
 # options common to all builds
-CFLAGS_COMMON=-Wall
+CFLAGS_COMMON=-Wall -DGORE -DVER_ID=\"BERNEW\"
+#for Unofficial Patch 1.2 version:
+#CFLAGS_COMMON=-Wall -DPATCH12 -DGORE -DVER_ID=\"Unofficial\"
 
 # debug options
 CFLAGS_DEBUG=-g -O2 -DRANGECHECK -DZONEIDCHECK -DINSTRUMENTED 
