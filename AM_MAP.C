@@ -312,7 +312,7 @@ void AM_initVariables(void)
 	}
 
   // inform the status bar of the change
-//c  ST_Responder(&st_notify);
+//  ST_Responder(&st_notify);
 }
 
 void AM_loadPics(void)
@@ -678,7 +678,7 @@ void AM_clearFB(int color)
       memcpy(dst + LORESWIDTH - shx, maplump+j, shx);
     }
 		j += LORESWIDTH;
-		if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
+                if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
 			j=0;
 	}
 

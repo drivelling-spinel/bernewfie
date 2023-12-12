@@ -14,14 +14,30 @@ RM=del
         
 # the command you use to copy files
 CP=copy /y
+
+DJP=$(DJDIR)/bin/djp.exe
+
+UPX=$(O)/upx.exe
+
+ENAME=hex
           
 # the exe file name -sf
-EXE=$(O)/hex.exe
-        
+EXE1=$(O)\$(ENAME).exe
+
+EXE2=$(O)\$(ENAME)1024.exe
+
+EXE=$(O)\$(ENAME).exe
+       
 # options common to all builds
-CFLAGS_COMMON=-Wall -DGORE -DVER_ID=\"BERNEW\"
-#for Unofficial Patch 1.2 version:
-#CFLAGS_COMMON=-Wall -DPATCH12 -DGORE -DVER_ID=\"Unofficial\"
+CFLAGS_COMMON=-Wall -DGORE 
+
+CFLAGS_HIRES2=-DHIRES2
+CFLAGS_HIRES1=
+CFLAGS_HIRES=$(CFLAGS_HIRES1)
+
+CFLAGS_VER12=-DPATCH12 -DVER_ID=\"Unofficial\" 
+CFLAGS_VER11=-DVER_ID=\"Bernewfie\"
+CFLAGS_VER=$(CFLAGS_VER11)
 
 # debug options
 CFLAGS_DEBUG=-g -O2 -DRANGECHECK -DZONEIDCHECK -DINSTRUMENTED 
@@ -31,50 +47,66 @@ LDFLAGS_DEBUG=
 # optimized (release) options
 CFLAGS_RELEASE=-O3 -ffast-math -fomit-frame-pointer -m486 -mreg-alloc=adcbSDB
 LDFLAGS_RELEASE=-s
-
        
 # libraries to link in
 LIBS=-lalleg -lm -lemu
         
 # this selects flags based on debug and release tagets
-CFLAGS=$(CFLAGS_COMMON)  $(CFLAGS_$(MODE))
+CFLAGS=$(CFLAGS_COMMON)  $(CFLAGS_$(MODE)) $(CFLAGS_HIRES$(HIRES)) $(CFLAGS_VER$(VER))
 LDFLAGS=$(LDFLAGS_COMMON) $(LDFLAGS_$(MODE))
 
 
-LOCOBJS=$(O)/keyboard.o $(O)/i_system.o $(O)/i_sound.o $(O)/mmus2mid.o $(O)/i_vgavbe.o $(O)/i_video.o $(O)/i_net.o $(O)/i_main.o $(O)/emu8kmid.o $(O)/pproblit.o $(O)/drawcol.o $(O)/drawspan.o
+LOCOBJS=$(O)/keyboard.o $(O)/i_system.o $(O)/i_sound.o $(O)/mmus2mid.o $(O)/i_vgavbe.o $(O)/i_video.o $(O)/i_net.o $(O)/i_main.o $(O)/emu8kmid.o $(O)/pproblit.o $(O)/drawspan.o
 
 GLOBOBJS=$(O)/am_map.o $(O)/a_action.o $(O)/ct_chat.o $(O)/d_net.o $(O)/f_finale.o $(O)/g_game.o $(O)/h2_main.o $(O)/info.o $(O)/in_lude.o $(O)/mn_menu.o $(O)/m_misc.o $(O)/p_acs.o $(O)/p_anim.o $(O)/p_ceilng.o $(O)/p_doors.o $(O)/p_enemy.o $(O)/p_floor.o $(O)/p_inter.o $(O)/p_lights.o $(O)/p_map.o $(O)/p_maputl.o $(O)/p_mobj.o $(O)/p_plats.o $(O)/p_pspr.o $(O)/p_setup.o $(O)/p_sight.o $(O)/p_spec.o $(O)/p_switch.o $(O)/p_telept.o $(O)/p_tick.o $(O)/p_things.o $(O)/p_user.o $(O)/po_man.o $(O)/r_bsp.o $(O)/r_data.o $(O)/r_draw.o $(O)/r_main.o $(O)/r_plane.o $(O)/r_segs.o $(O)/r_things.o $(O)/sb_bar.o $(O)/sc_man.o $(O)/sn_sonix.o $(O)/st_start.o $(O)/sv_save.o $(O)/sounds.o $(O)/tables.o $(O)/v_video.o $(O)/w_wad.o $(O)/z_zone.o $(O)/s_sound.o
 
+OBJS1=$(LOCOBJS) $(GLOBOBJS) $(O)/drawcol.o 
 
-OBJS=$(LOCOBJS) $(GLOBOBJS) 
+OBJS2=$(LOCOBJS) $(GLOBOBJS) $(O)/drawcol.o $(O)/drawcol2.o 
 
+OBJS=$(OBJS1)
 
+default: $(EXE$(HIRES))
 
-build: $(EXE) 
+$(EXE$(HIRES)): $(OBJS$(HIRES)) 
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS$(HIRES)) -o $@ $(LIBS)
+    ifneq ($(wildcard $(UPX)),)
+	$(UPX) -9 $(EXE$(HIRES))
+    else
+        ifneq ($(wildcard $(DJP)),)
+		$(DJP) $(EXE$(HIRES))
+        endif
+    endif
 
-
-$(EXE): $(OBJS) 
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
-
-
-$(O)/%.o:    %.c
+$(O)/%.o:    %.c  
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(O)/%.o:   $(PLATFORM)/%.c
+$(O)/%.o:   $(PLATFORM)/%.c 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(O)/%.o:   $(PLATFORM)/%.s
+$(O)/%.o:   $(PLATFORM)/%.s 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 # Very important that all sources #include this one
-$(OBJS): h2def.h
+$(OBJS$(HIRES)): h2def.h
 
 
 # If you change the makefile, everything should rebuild
-$(OBJS): Makefile
+$(OBJS$(HIRES)): Makefile
 
 
+$(OBJS$(HIRES)): $(O)/_$(VER)_$(HIRES).tmp
 
+clean:
+	$(RM) $(O)\*.o 
+	$(RM) $(O)\$(EXE1)
+	$(RM) $(O)\$(EXE2)
+	$(RM) $(O)\_*.tmp
+
+$(O)/_$(VER)_$(HIRES).tmp: 
+	$(RM) $(O)\_*.tmp
+	echo _$(VER)_$(HIRES).tmp > $(O)\_$(VER)_$(HIRES).tmp
+	

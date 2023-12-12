@@ -402,7 +402,7 @@ void R_DrawPlanes(void)
 	}
 #endif
 
-  skyscale = (hires || mlook) ? 1 : 0;
+        skyscale = hires ? hires : (mlook ? 1 : 0);
   
 	for(pl = visplanes; pl < lastvisplane; pl++)
 	{
@@ -425,6 +425,7 @@ void R_DrawPlanes(void)
 					if(dc_yl <= dc_yh)
 					{
                                                 int scaled_offset;
+                                                int sc;
 						count = dc_yh-dc_yl;
 						if(count < 0)
 						{
@@ -436,6 +437,7 @@ void R_DrawPlanes(void)
                                                 source2 = R_GetColumn(skyTexture2, angle+offset2);
                                                 scaled_offset = (SKYTEXTUREMIDSHIFTED << skyscale)
                                                   - centery + dc_yl;
+                                                sc = scaled_offset & ((skyscale << 1) - 1);
                                                 source += (scaled_offset >> skyscale);
                                                 source2 += (scaled_offset >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
@@ -447,14 +449,42 @@ void R_DrawPlanes(void)
 							*dest = c;
 							dest += SCREENWIDTH;
                                                         if(!skyscale) continue;
-                                                        if(scaled_offset & 1)
+#ifndef HIRES2
+                                                        if(sc == 1)
                                                           {
-                                                            scaled_offset = 0;
+                                                            sc = 0;
                                                             continue;
                                                           }
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#else
+                                                        if(sc == (skyscale << 1) - 1)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+                                                        if(skyscale == 1) continue;
+                                                        if(sc == 2)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+                                                        if(sc == 1)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+#endif
 						} while(count--);
 					}
 				}
@@ -479,6 +509,7 @@ void R_DrawPlanes(void)
 					if(dc_yl <= dc_yh)
 					{
                                                 size_t scaled_offset;
+                                                int sc;
                                                 count = dc_yh-dc_yl;
 						if(count < 0)
 						{
@@ -489,6 +520,7 @@ void R_DrawPlanes(void)
                                                 source = R_GetColumn(skyTexture, angle+offset);
                                                 scaled_offset = (SKYTEXTUREMIDSHIFTED << skyscale)
                                                   - centery + dc_yl;
+                                                sc = scaled_offset & ((skyscale << 1) - 1);
                                                 source += (scaled_offset >> skyscale);
 						dest = ylookup[dc_yl]+columnofs[x];
 						do
@@ -497,14 +529,42 @@ void R_DrawPlanes(void)
 							*dest = c;
 							dest += SCREENWIDTH;
                                                         if(!skyscale) continue;
-                                                        if(scaled_offset & 1)
+#ifndef HIRES2
+                                                        if(sc == 1)
                                                           {
-                                                            scaled_offset = 0;
+                                                            sc = 0;
                                                             continue;
                                                           }
 							if(!count--) break;
 							*dest = c;
 							dest += SCREENWIDTH;
+#else
+                                                        if(sc == (skyscale << 1) - 1)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+                                                        if(skyscale == 1) continue;
+                                                        if(sc == 2)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+                                                        if(sc == 1)
+                                                          {
+                                                            sc = 0;
+                                                            continue;
+                                                          }
+							if(!count--) break;
+							*dest = c;
+							dest += SCREENWIDTH;
+#endif
 						} while(count--);
 					}
 				}

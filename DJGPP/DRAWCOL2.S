@@ -16,8 +16,8 @@
 
  .text
  .align 8
- .globl _R_DrawColumn
-_R_DrawColumn:
+ .globl _R_DrawColumn2
+_R_DrawColumn2:
  pushl %ebp
  pushl %esi
  pushl %edi
@@ -28,7 +28,7 @@ _R_DrawColumn:
  incl %esi
  movl _ylookup(,%edx,4),%ebx
  subl %edx,%esi
- jle end
+ jle end2
  addl _columnofs(,%eax,4),%ebx
  movl _dc_texheight,%eax
  subl _centery,%edx
@@ -38,122 +38,44 @@ _R_DrawColumn:
  movl _dc_colormap,%edi
  addl _dc_texturemid,%edx
 
- cmpl $0, _hires
- jne hi
-
- testl %eax,%ecx
- je powerof2
- sall $16,%eax
-
-red1:
- subl %eax,%edx
- jge red1
-
-red2:
- addl %eax,%edx
- jl red2
-
- .align 8,0x90
-nonp2loop:
- movl %edx,%ecx
- sarl $16,%ecx
- addl _dc_iscale,%edx
- movzbl (%ecx,%ebp),%ecx
- movb (%edi,%ecx),%cl
- movb %cl,(%ebx)
- addl $320,%ebx
- cmpl %eax,%edx
- jge wraparound
- decl %esi
- jg nonp2loop
- popl %ebx
- popl %edi
- popl %esi
- popl %ebp
- ret
-
- .align 8
-wraparound:
- subl %eax,%edx
- decl %esi
- jg nonp2loop
- popl %ebx
- popl %edi
- popl %esi
- popl %ebp
- ret
-
- .align 8
-end:
- popl %ebx
- popl %edi
- popl %esi
- popl %ebp
- ret
-
- .align 8
-p2loop:
- movl %edx,%eax
- sarl $16,%eax
- addl _dc_iscale,%edx
- andl %ecx,%eax
- movzbl (%eax,%ebp),%eax
- movb (%eax,%edi),%al
- movb %al,(%ebx)
- movl %edx,%eax
- addl _dc_iscale,%edx
- sarl $16,%eax
- andl %ecx,%eax
- movzbl (%eax,%ebp),%eax
- movb (%eax,%edi),%al
- movb %al,320(%ebx)
- addl $640,%ebx
-
-powerof2:
- addl $-2,%esi
- jge p2loop
- jnp end
- sarl $16,%edx
- andl %ecx,%edx
- xorl %eax,%eax
- movb (%edx,%ebp),%al
- movb (%eax,%edi),%al
- movb %al,(%ebx)
- popl %ebx
- popl %edi
- popl %esi
- popl %ebp
- ret
-
 // killough 11/98: add hires support
+ jmp hi2
 
  .align 8
-hi:
+end2:
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+hi2:
  testl %eax,%ecx
- je powerof2_hi
+ je powerof2_hi2
  sall $16,%eax
 
-red1_hi:
+red1_hi2:
  subl %eax,%edx
- jge red1_hi
+ jge red1_hi2
 
-red2_hi:
+red2_hi2:
  addl %eax,%edx
- jl red2_hi
+ jl red2_hi2
 
  .align 8,0x90
-nonp2loop_hi:
+nonp2loop_hi2:
  movl %edx,%ecx
  sarl $16,%ecx
  addl _dc_iscale,%edx
  movzbl (%ecx,%ebp),%ecx
  movb (%edi,%ecx),%cl
  movb %cl,(%ebx)
- addl $640,%ebx
+ addl $1280,%ebx
  cmpl %eax,%edx
- jge wraparound_hi
+ jge wraparound_hi2
  decl %esi
- jg nonp2loop_hi
+ jg nonp2loop_hi2
  popl %ebx
  popl %edi
  popl %esi
@@ -161,10 +83,10 @@ nonp2loop_hi:
  ret
 
  .align 8
-wraparound_hi:
+wraparound_hi2:
  subl %eax,%edx
  decl %esi
- jg nonp2loop_hi
+ jg nonp2loop_hi2
  popl %ebx
  popl %edi
  popl %esi
@@ -172,7 +94,7 @@ wraparound_hi:
  ret
 
  .align 8
-p2loop_hi:
+p2loop_hi2:
  movl %edx,%eax
  sarl $16,%eax
  addl _dc_iscale,%edx
@@ -185,14 +107,14 @@ p2loop_hi:
  sarl $16,%eax
  andl %ecx,%eax
  movzbl (%eax,%ebp),%eax
- addl $1280,%ebx
+ addl $2560,%ebx
  movb (%eax,%edi),%al
- movb %al,-640(%ebx)
+ movb %al,-1280(%ebx)
 
-powerof2_hi:
+powerof2_hi2:
  addl $-2,%esi
- jge p2loop_hi
- jnp end
+ jge p2loop_hi2
+ jnp end2
  sarl $16,%edx
  andl %ecx,%edx
  xorl %eax,%eax
@@ -224,4 +146,3 @@ powerof2_hi:
 //
 //
 //----------------------------------------------------------------------------
-
