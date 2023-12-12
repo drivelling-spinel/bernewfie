@@ -27,6 +27,9 @@ int columnofs[MAXWIDTH];
 //byte translations[3][256]; // color tables for different players
 byte *tinttable; // used for translucent sprites
 
+#ifdef HIRES2
+fixed_t pspshift;
+#endif
 /*
 ==================
 =

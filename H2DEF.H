@@ -864,6 +864,9 @@ extern int viewwindowy;
 extern int viewwidth;
 extern int scaledviewwidth;
 extern int viewheight;
+#ifdef HIRES2
+extern fixed_t pspshift;
+#endif
 
 extern int screenblocks;
 
@@ -1049,7 +1052,7 @@ extern int SCREENHEIGHT;
 
 #ifdef HIRES2
 #define MAXSCREENWIDTH (1280)
-#define MAXSCREENHEIGHT (800)
+#define MAXSCREENHEIGHT (1024)
 #else
 #define MAXSCREENWIDTH (640)
 #define MAXSCREENHEIGHT (400)

@@ -267,14 +267,14 @@ void V_DrawRawScreen(byte *raw)
 //
 //---------------------------------------------------------------------------
 
-#ifdef HIRES2
+#ifdef ASPECT
 extern int hires;
 #endif
 
 void V_Init(void)
 {
 	// I_AllocLow will put vscreen in low dos memory on PCs.
-#ifdef HIRES2
+#ifdef ASPECT
         if(hires) vscreen = calloc(1, SCREENWIDTH*SCREENHEIGHT);
         else
 #endif

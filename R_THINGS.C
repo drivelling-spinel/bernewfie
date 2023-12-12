@@ -720,8 +720,13 @@ void R_DrawPSprite (pspdef_t *psp)
 	vis->mobjflags = 0;
 	vis->class = 0;
 	vis->psprite = true;
-	vis->texturemid = (100<<FRACBITS)+FRACUNIT/2
+        vis->texturemid = (100<<FRACBITS)+FRACUNIT/2
 		-(psp->sy-spritetopoffset[lump]);
+
+#ifdef HIRES2
+        vis->texturemid += pspshift;
+#endif
+
 	if(viewheight == SCREENHEIGHT)
 	{
 		vis->texturemid -= PSpriteSY[viewplayer->class]

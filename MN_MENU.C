@@ -142,9 +142,21 @@ boolean askforquit;
 boolean typeofask;
 static boolean FileMenuKeySteal;
 static boolean slottextloaded;
-static char SlotText[16][SLOTTEXTLEN+2];
+static char SlotText[
+#ifdef HIRES2
+        30
+#else
+        16
+#endif
+][SLOTTEXTLEN+2];
 static char oldSlotText[SLOTTEXTLEN+2];
-static int SlotStatus[16];
+static int SlotStatus[
+#ifdef HIRES2
+        30
+#else
+        16
+#endif
+];
 static int slotptr;
 static int currentSlot;
 static int quicksave;
@@ -219,6 +231,24 @@ static MenuItem_t LoadItems[] =
 	{ ITT_EFUNC, NULL, SCLoadGame, 13, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 14, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCLoadGame, 15, MENU_NONE }
+#ifdef HIRES2
+  ,     { ITT_EFUNC, NULL, SCLoadGame, 16, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 17, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 18, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 19, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 20, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 21, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 22, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 23, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 24, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 25, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 26, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 27, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 28, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 29, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 30, MENU_NONE },
+        { ITT_EFUNC, NULL, SCLoadGame, 31, MENU_NONE }
+#endif
 };
 
 static Menu_t LoadMenu =
@@ -248,6 +278,24 @@ static MenuItem_t SaveItems[] =
 	{ ITT_EFUNC, NULL, SCSaveGame, 13, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 14, MENU_NONE },
 	{ ITT_EFUNC, NULL, SCSaveGame, 15, MENU_NONE }
+#ifdef HIRES2
+     ,  { ITT_EFUNC, NULL, SCSaveGame, 16, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 17, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 18, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 19, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 20, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 21, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 22, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 23, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 24, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 25, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 26, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 27, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 28, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 29, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 30, MENU_NONE },
+        { ITT_EFUNC, NULL, SCSaveGame, 31, MENU_NONE }
+#endif
 };
 
 static Menu_t SaveMenu =
@@ -767,7 +815,13 @@ void MN_LoadSlotText(void)
 	  return;
 	}
 
-	for(; slot < 16; slot++)
+	for(; slot <
+#ifdef HIRES2
+        30
+#else
+        16
+#endif
+        ; slot++)
 	{
 		found = false;
 		sprintf(name, "%shex%c.hxs", SavePath, slot - 6 + 'a');
@@ -824,7 +878,13 @@ static void DrawFileSlots(Menu_t *menu)
 		return;
 	}
 
-	for(; i < 16; i++)
+        for(; i <
+#ifdef HIRES2
+        30
+#else
+        16
+#endif
+        ; i++)
 	{
 		V_DrawPatch(x, y, W_CacheLumpName("M_FSLOT", PU_CACHE));
 		if(SlotStatus[i])
@@ -1723,8 +1783,13 @@ void MN_ActivateMenu(void)
 {
 	if(hires)
 	{
+#ifdef HIRES2
+                SaveMenu.itemCount = 30;
+                LoadMenu.itemCount = 30;
+#else
 		SaveMenu.itemCount = 16;
 		LoadMenu.itemCount = 16;
+#endif
 	}
 	if(MenuActive)
 	{
