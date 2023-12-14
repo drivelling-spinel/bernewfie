@@ -402,7 +402,12 @@ void R_DrawPlanes(void)
 	}
 #endif
 
-        skyscale = hires ? hires : (mlook ? 1 : 0);
+#ifdef HIRES2
+        skyscale = (hires + (mlook ? 1 : 0));
+        if(skyscale > 2) skyscale = 2;
+#else
+        skyscale = (hires || mlook) ? 1 : 0;
+#endif
   
 	for(pl = visplanes; pl < lastvisplane; pl++)
 	{

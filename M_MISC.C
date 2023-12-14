@@ -517,6 +517,9 @@ default_t defaults[] =
 	{ "joyb_jump", &joybjump, -1 },
 
 	{ "screenblocks", &screenblocks, 10 },
+#ifdef HIRESMENU
+        { "screenresolution", &screenresolution, 2 },
+#endif
 
 #ifndef __NeXT__
 	{ "snd_channels", &snd_Channels, 3 },

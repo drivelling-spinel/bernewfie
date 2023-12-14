@@ -520,9 +520,6 @@ extern  byte                    *dc_source;             // first pixel in a colu
 extern  int                     dc_texheight;
 
 void    R_DrawColumn (void);
-#ifdef HIRES2
-void    R_DrawColumn2 (void);
-#endif
 void    R_DrawColumnLow (void);
 void    R_DrawFuzzColumn (void);
 void    R_DrawFuzzColumnLow (void);

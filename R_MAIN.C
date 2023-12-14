@@ -74,6 +74,10 @@ void		(*fuzzcolfunc) (void);
 void		(*transcolfunc) (void);
 void		(*spanfunc) (void);
 
+#ifdef HIRES2
+void            (*hiresfunc) (void);
+#endif
+
 /*
 ===================
 =
@@ -579,12 +583,27 @@ void R_ExecuteSetViewSize (void)
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	}
+#ifdef HIRES2
+//        else if (hires) {
 	else if (setblocks == 10 && hires) {
+#else
+	else if (setblocks == 10 && hires) {
+#endif
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	} else 	{
+#ifdef HIRES2
+                setblocks += 1; 
+                do
+                {
+                setblocks -= 1;
+#endif
 		scaledviewwidth = (setblocks*32) << hires;
 		viewheight = (setblocks*(LORESHEIGHT - SBARHEIGHT)/10) << hires;
+#ifdef HIRES2
+                }
+                while(viewheight > SCREENHEIGHT || scaledviewwidth > SCREENWIDTH);
+#endif
 	}
 
 #ifdef HIRES2
@@ -608,9 +627,10 @@ void R_ExecuteSetViewSize (void)
 	{
                 colfunc = basecolfunc = 
 #ifdef HIRES2
-                        hires >= 2 ? R_DrawColumn2 :
-#endif
+                        hiresfunc;
+#else
                         R_DrawColumn;
+#endif
 		fuzzcolfunc = R_DrawFuzzColumn;
 		transcolfunc = R_DrawTranslatedColumn;
 		spanfunc = R_DrawSpan;

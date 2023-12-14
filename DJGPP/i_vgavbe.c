@@ -122,6 +122,8 @@ int vesa_mode_320x200=0;
 int vesa_mode_640x400=0;
 int vesa_mode_640x480=0;
 #ifdef HIRES2
+int vesa_mode_800x600=0;
+int vesa_mode_1024x768=0;
 int vesa_mode_1280x1024=0;
 #endif
 int vesa_PM_enable=0;
@@ -401,7 +403,7 @@ int vesa_get_info()
      vesa_version=0; // fail, no vesa
      return -1;
    }
-   vesa_version=vesa_info.VESAVersion>>8; 
+   vesa_version=vesa_info.VESAVersion>>8;
    return 0;
 }
 
@@ -648,8 +650,10 @@ int vesa_find_modes(int lfb_disable)
       else if ((mode_info.XResolution == 640) && (mode_info.YResolution == 480)) {vesa_mode_640x480=mode_list[c]+mode_LFB*0x4000; found++;}
 #ifdef HIRES2
       else if ((mode_info.XResolution == 1280) && (mode_info.YResolution == 1024)) {vesa_mode_1280x1024=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 800) && (mode_info.YResolution == 600)) {vesa_mode_800x600=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 1024) && (mode_info.YResolution == 768)) {vesa_mode_1024x768=mode_list[c]+mode_LFB*0x4000; found++;}
 #endif
-          if (found>=4) return found;
+          if (found>=6) return found;
    }
    return found; 
 }
