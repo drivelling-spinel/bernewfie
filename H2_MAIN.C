@@ -751,7 +751,7 @@ static void PageDrawer(void)
         V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
 	if(demosequence == 1)
 	{
-                V_DrawPatch(4, 160 << hires, W_CacheLumpName("ADVISOR", PU_CACHE));
+                V_DrawPatch(4, hires ? SCREENHEIGHT - 40 : 160, W_CacheLumpName("ADVISOR", PU_CACHE));
 	}
 	UpdateState |= I_FULLSCRN;
 }
