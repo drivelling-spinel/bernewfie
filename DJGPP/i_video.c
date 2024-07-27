@@ -731,6 +731,13 @@ vesa_mode_800x600=0x103;
         I_Error("Failed to switch to high resolution. Try -safe.\n");
         return;
      }
+#ifdef HIRES2
+     else
+     {
+        printf("vesa:%d mode:%xh w:%d h:%d banksize:%d BPS:%d\n",vesa_version,current_mode, screen_w, screen_h, mode_banksize, mode_BPS);
+        printf("vesa:%d modehi:%d modehi2:%d modelow:%d\n",vesa_version, vesa_mode_640x400, vesa_mode_640x480, vesa_mode_320x200);
+     }
+#endif
   }
 
   // NORMAL RESOLUTION - 320x200 modes, three options:
