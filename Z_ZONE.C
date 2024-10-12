@@ -69,7 +69,12 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.3 2000-08-12 21:29:34 fraggle Exp
 #define MIN_BLOCK_SPLIT (1024)
 
 // How much RAM to leave aside for other libraries
+#ifdef CRVSFIX
+// CRVS 2020: adding RAM (x6) - was not enough with non-swaping DPMI
+#define LEAVE_ASIDE (128*1024*6)
+#else
 #define LEAVE_ASIDE (128*1024)
+#endif
 
 // Minimum RAM machine is assumed to have
 #define MIN_RAM (7*1024*1024)
