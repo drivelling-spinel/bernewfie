@@ -29,7 +29,7 @@ EXE2=$(O)\$(ENAME)1024.exe
 EXE=$(O)\$(ENAME).exe
        
 # options common to all builds
-CFLAGS_COMMON=-Wall -DGORE -DINTELHACK
+CFLAGS_COMMON=-Wall -DGORE -DINTELHACK -DCRVSFIX
 
 # incomplete or abandoned features
 # -DASPECT
