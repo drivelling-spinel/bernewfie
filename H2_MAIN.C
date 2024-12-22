@@ -749,10 +749,12 @@ void H2_PageTicker(void)
 static void PageDrawer(void)
 {
         V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
+#ifdef GORE
 	if(demosequence == 1)
 	{
                 V_DrawPatch(4, hires ? SCREENHEIGHT - 40 : 160, W_CacheLumpName("ADVISOR", PU_CACHE));
 	}
+#endif
 	UpdateState |= I_FULLSCRN;
 }
 
