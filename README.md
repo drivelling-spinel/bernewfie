@@ -1,20 +1,23 @@
 # BERNEWFIE
-## Hexen source port hack for DOS
+## Hexen source port for DOS
 
 ![BERNEWFIE screenshot](/DOC/hex_000.png)   
 _Are you ready to die?_
 
-BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard and mouse bindings (HEXEN.CFG) and SETUP.EXE from MBF 2.04 package is used to configure Allegro for sound and music (SETUP.CFG). If MBF_D2GM.IBK is found in the same directory it will be loaded during OPL music card initialization. Finally, BERNEWFIE requires CWSDMPI.EXE to be launched in "pure" DOS; it can also be found in MBF 2.04 package.
+BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard and mouse bindings (HEXEN.CFG) and ASETUP.EXE is used to configure Allegro for sound and music (SETUP.CFG). 
 
 ### What's been added
-- 640x400 resolution activated with `-hires` command line argument   
-  (pillarboxed 640x480 will be activated if 640x400 is not supported by the installed video card)
+- High resolution support activated with one of the below arguments   
+  `-400p`    
+  `-480p`    
+  `-600p`    
+  `-768p`    
+  `-1024p`    
 - mouse look and alternative flight controls activated with `-mlook` command line argument   
   (when flying hold mouse jump button and move mouse vertically to fly up and down)
 - `-novert` command line argument
-- up to 128 sound channels activated with `-maxsound` command line argument    
-  (SETUP.EXE limits this to 8, so HEXEN.CFG needs to be edited by hand for values between 8 and 128)
-- twice more visplanes 
+- up to 32 sound channels activated with `-maxsound` command line argument    
+  (running SETUP.EXE caps to 8, but HEXEN.CFG can be edited by hand for values between 8 and 32)
 - more fluid experience with quicksave/quickload with `-quick` command line argument:
   quickloading instead of respawning, less prompts and end game/suicide buttons switched off
 - 10 more savegame slots available with `-hires` command line argument   
@@ -33,17 +36,18 @@ BERNEWFIE is a quick and dirty and source port of Hexen 1996 PC game by Raven So
 - `-extra` command line argument for a second way to provide PWADs to be loaded to the engine   
   (e.g. to `HEXENDK.EXE -extra PWADS\BERNEW.WAD`)   
 - `-noorb` command line to spend as few time as possible in the start screen 
-  and jump to the title screen instead
-- work in progress conversion to C of Hexen Unofficial Update v1.2 \@Boondorl written originally by in ZScript 
-  activate by -DPATCH12 during compile time
+  and jump to the title screen instead   
+- Hexen Unofficial Update v1.2 \@Boondorl ported from ZScript C
+  (optionally included at compile time)   
+- more visplanes (bumped to 960), also more vissprites (bumped to 256)
 
 ### BERNEWFIE in action
 
 ![Original Deathkings Mage demo running](/DOC/hexendk_007.png)   
 _Original Deathkings Mage demo running_
 
-![Deathkings as Warropr in in high resolution](/DOC/hexendk_005.png)   
-_Deathkings as Warropr in in high resolution_
+![Deathkings as Warrior in in high resolution](/DOC/hexendk_005.png)   
+_Deathkings as Warrior in in high resolution_
 
 ![Automap in high resolition](/DOC/hexendk_006.png)   
 _Automap in high resolition_
