@@ -20,7 +20,7 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
   (running SETUP.EXE caps to 8, but HEXEN.CFG can be edited by hand for values between 8 and 32)
 - more fluid experience with quicksave/quickload with `-quick` command line argument:
   quickloading instead of respawning, less prompts and end game/suicide buttons switched off
-- 10 more savegame slots available with `-hires` command line argument   
+- 10 more savegame slots available with high resolution options   
   (new slots have filenames like hexa*.*, hexb*.* etc in HEXNDATA)
 - additional command line arguments to fine-tune Gerwin's VESA code
   (see [readme](DOC/MBFUP204.TXT) for details):
