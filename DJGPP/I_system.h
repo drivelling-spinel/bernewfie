@@ -115,7 +115,7 @@ extern struct keyboard_queue_s {
 #define KEYD_HOME       0xc7
 #define KEYD_PAGEUP     0xc9
 #define KEYD_PAGEDOWN   0xd1
-#define KEYD_DEL        KEYD_BACKSPACE
+#define KEYD_DEL        0xd3
 #define KEYD_END        0xcf
 #define KEYD_SCROLLLOCK 0xc6
 #define KEYD_SPACEBAR   0x20
