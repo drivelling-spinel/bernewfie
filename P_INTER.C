@@ -1623,6 +1623,9 @@ boolean P_MorphMonster(mobj_t *actor)
 	fixed_t y;
 	fixed_t z;
 	mobj_t oldMonster;
+#ifdef PORKPATCH
+        int searcher = -1;
+#endif
 
 	if(actor->player) return(false);
 	if(!(actor->flags&MF_COUNTKILL)) return false;
@@ -1644,6 +1647,9 @@ boolean P_MorphMonster(mobj_t *actor)
 	x = oldMonster.x;
 	y = oldMonster.y;
 	z = oldMonster.z;
+#ifdef PORKPATCH
+        P_FindMobjFromTID(oldMonster.tid, &searcher);
+#endif
 	P_RemoveMobjFromTIDList(actor);
 	P_SetMobjState(actor, S_FREETARGMOBJ);
 	fog = P_SpawnMobj(x, y, z+TELEFOGHEIGHT, MT_TFOG);
@@ -1656,7 +1662,15 @@ boolean P_MorphMonster(mobj_t *actor)
 	monster->angle = oldMonster.angle;
 	monster->tid = oldMonster.tid;
 	monster->special = oldMonster.special;
-	P_InsertMobjIntoTIDList(monster, oldMonster.tid);
+#ifdef PORKPATCH
+        if(searcher >= 0)
+        {
+#endif
+
+                P_InsertMobjIntoTIDList(monster, oldMonster.tid);
+#ifdef PORKPATCH
+        }
+#endif
 	memcpy(monster->args, oldMonster.args, 5);
 
 	// check for turning off minotaur power for active icon

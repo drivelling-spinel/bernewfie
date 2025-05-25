@@ -1706,7 +1706,12 @@ mobj_t *P_FindMobjFromTID(int tid, int *searchPosition)
 {
 	int i;
 
-	for(i = *searchPosition+1; TIDList[i] != 0; i++)
+	for(i = *searchPosition+1;
+#ifdef PORKPATCH
+                                   tid && 
+#endif
+
+                                   TIDList[i] != 0; i++)
 	{
 		if(TIDList[i] == tid)
 		{

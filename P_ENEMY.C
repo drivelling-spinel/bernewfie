@@ -895,6 +895,9 @@ boolean P_UpdateMorphedMonster(mobj_t *actor, int tics)
 	mobjtype_t moType;
 	mobj_t *mo;
 	mobj_t oldMonster;
+#ifdef PORKPATCH
+        int searcher = -1;
+#endif
 
 	actor->special1 -= tics;
 	if(actor->special1 > 0)
@@ -917,6 +920,9 @@ boolean P_UpdateMorphedMonster(mobj_t *actor, int tics)
 	z = actor->z;
 	oldMonster = *actor;			// Save pig vars
 
+#ifdef PORKPATCH
+        P_FindMobjFromTID(oldMonster.tid, &searcher);
+#endif
 	P_RemoveMobjFromTIDList(actor);
 	P_SetMobjState(actor, S_FREETARGMOBJ);
 	mo = P_SpawnMobj(x, y, z, moType);
@@ -934,7 +940,14 @@ boolean P_UpdateMorphedMonster(mobj_t *actor, int tics)
 		mo->special2 = moType;
 		mo->tid = oldMonster.tid;
 		memcpy(mo->args, oldMonster.args, 5);
-		P_InsertMobjIntoTIDList(mo, oldMonster.tid);
+#ifdef PORKPATCH
+                if(searcher >= 0)
+                {
+#endif
+                        P_InsertMobjIntoTIDList(mo, oldMonster.tid);
+#ifdef PORKPATCH
+                }
+#endif
 		return(false);
 	}
 	mo->angle = oldMonster.angle;
@@ -942,7 +955,14 @@ boolean P_UpdateMorphedMonster(mobj_t *actor, int tics)
 	mo->tid = oldMonster.tid;
 	mo->special = oldMonster.special;
 	memcpy(mo->args, oldMonster.args, 5);
-	P_InsertMobjIntoTIDList(mo, oldMonster.tid);
+#ifdef PORKPATCH
+        if(searcher >= 0)
+        {
+#endif
+                P_InsertMobjIntoTIDList(mo, oldMonster.tid);
+#ifdef PORKPATCH
+        }
+#endif
 	fog = P_SpawnMobj(x, y, z+TELEFOGHEIGHT, MT_TFOG);
 	S_StartSound(fog, SFX_TELEPORT);
 	return(true);
