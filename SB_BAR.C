@@ -592,6 +592,9 @@ void SB_SetClassData(void)
 	int class;
 
 	class = PlayerClass[consoleplayer]; // original player class (not pig)
+
+        if(class > PCLASS_MAGE) class = 0;         
+
 	PatchWEAPONSLOT = W_CacheLumpNum(W_GetNumForName("wpslot0")
 		+class, PU_STATIC);
 	PatchWEAPONFULL = W_CacheLumpNum(W_GetNumForName("wpfull0")
@@ -1074,7 +1077,11 @@ static void DrawAnimatedIcons(void)
 			|| !(CPlayer->powers[pw_flight]&16))
 		{
 			frame = (leveltime/3)&15;
-			if(CPlayer->mo->flags2&MF2_FLY)
+			if(CPlayer->mo->flags2&MF2_FLY
+#ifdef ICANFLY
+                           && !peoplecanfly
+#endif
+                        )
 			{
 				if(hitCenterFrame && (frame != 15 && frame != 0))
 				{
@@ -1581,7 +1588,8 @@ static int PieceX[NUMCLASSES][3] =
 	{ 190, 225, 234 },
 	{ 190, 212, 225 },
 	{ 190, 205, 224 },
-	{ 0, 0, 0 }			// Pig is never used
+	{ 190, 225, 234 },
+//        { 0, 0, 0 }                     // Pig was never used
 };
 
 static void DrawWeaponPieces(void)

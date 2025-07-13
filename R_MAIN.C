@@ -608,9 +608,9 @@ void R_ExecuteSetViewSize (void)
 
 #ifdef HIRES2
         pspshift = 0;
-        if (viewheight == SCREENHEIGHT) {
-                pspshift = (100 << FRACBITS) - FRACUNIT / 2 -
-                    (SCREENHEIGHT << (FRACBITS - hires - 1));
+        if (viewheight == SCREENHEIGHT && hires) {
+                 pspshift = ((50 + 5 * hires) << FRACBITS) - FRACUNIT / 2 -
+                            (SCREENHEIGHT << FRACBITS) / 2 / (1 + hires + hires);
         }
 #endif
 

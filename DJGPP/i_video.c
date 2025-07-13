@@ -65,6 +65,9 @@ extern int joy_b1,joy_b2,joy_b3,joy_b4;
 void I_JoystickEvents()
 {
   event_t event;
+#ifdef WINGMAN
+  event_t eventx;
+#endif
 
   if (!joystickpresent || !usejoystick) return;
   poll_joystick(); // Reads the current joystick settings
@@ -88,6 +91,26 @@ void I_JoystickEvents()
 
   // post what you found
   H2_PostEvent(&event);
+
+#ifdef WINGMAN
+  poll_joystick(); // Reads the current joystick settings
+  eventx.type = ev_joyextra;
+  eventx.data1 = 0;
+
+  if (joy_b5) eventx.data1 |= 1;
+  if (joy_b6) eventx.data1 |= 2;
+
+  if      (joy_hat == JOY_HAT_LEFT)  eventx.data2 = -1;
+  else if (joy_hat == JOY_HAT_RIGHT) eventx.data2 = 1;
+  else                eventx.data2 = 0;
+  
+  if      (joy_hat == JOY_HAT_UP)    eventx.data3 = 1;
+  else if (joy_hat == JOY_HAT_DOWN)  eventx.data3 = -1;
+  else                eventx.data3 = 0;
+
+  // post what you found
+  H2_PostEvent(&eventx);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -196,6 +219,7 @@ int screenresolution;
 void            (*hiresfunc) (void);
 
 void    R_DrawColumn (void);
+void    R_DrawColumn1 (void);
 void    R_DrawColumn2 (void);
 void    R_DrawColumn3 (void);
 void    R_DrawColumn4 (void);
@@ -654,6 +678,7 @@ static void I_InitGraphicsMode(void)
 vesa_mode_1280x1024=0x107;
 vesa_mode_1024x768=0x105;
 vesa_mode_800x600=0x103;
+vesa_mode_1600x1200=0x11c;
 #endif
                         } // zero found = bad BIOS?
 		// Note: it will set (mode_number | 0x4000) for LFB, when supported. 
@@ -667,6 +692,12 @@ vesa_mode_800x600=0x103;
   {  // GB 2014: Used to just try mode 100h and then 101h, but intel graphics gives trouble if 100h was tried first.
 	 if (vesa_version<1) {hiresfail=1;}
 #ifdef HIRES2
+        else if (SCREENHEIGHT == 1200 && vesa_mode_1600x1200 > 0 && vesa_set_mode(vesa_mode_1600x1200)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=1600; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=1200;
+	 	}
         else if (SCREENHEIGHT == 1024 && vesa_mode_1280x1024 > 0 && vesa_set_mode(vesa_mode_1280x1024)!=-1)      // Init 1280x1024
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
@@ -856,7 +887,8 @@ void I_InitGraphics(void)
 #ifdef HIRES2 
 
 #ifndef HIRESMENU
-  if(M_ParmExists("-1024p")) screenresolution = 5;
+  if(M_ParmExists("-1200p")) screenresolution = 6;
+  else if(M_ParmExists("-1024p")) screenresolution = 5;
   else if(M_ParmExists("-768p")) screenresolution = 4;
   else if(M_ParmExists("-600p")) screenresolution = 3;
   else if(M_ParmExists("-480p")) screenresolution = 2;
@@ -895,6 +927,12 @@ void I_InitGraphics(void)
         SCREENWIDTH = 1280;
         SCREENHEIGHT = 1024;
         hiresfunc = R_DrawColumn2;
+        break;
+     case 6:
+        hires = 3;
+        SCREENWIDTH = 1600;
+        SCREENHEIGHT = 1200;
+        hiresfunc = R_DrawColumn1;
         break;
      case 0:
      default: 

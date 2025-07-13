@@ -705,11 +705,11 @@ void R_DrawPSprite (pspdef_t *psp)
 	{
 		tempangle = 0;
 	}
-	x1 = (centerxfrac + FixedMul (tx,pspritescale<<hires)+tempangle ) >>FRACBITS;
+        x1 = (centerxfrac + FixedMul (tx,pspritescale*(1+hires+hires/2))+tempangle ) >>FRACBITS;
 	if (x1 > viewwidth)
 		return;		// off the right side
 	tx +=  spritewidth[lump];
-	x2 = ((centerxfrac + FixedMul (tx, pspritescale<<hires)+tempangle ) >>FRACBITS) - 1;
+        x2 = ((centerxfrac + FixedMul (tx,pspritescale*(1+hires+hires/2))+tempangle ) >>FRACBITS) - 1;
 	if (x2 < 0)
 		return;		// off the left side
 
@@ -732,17 +732,18 @@ void R_DrawPSprite (pspdef_t *psp)
 		vis->texturemid -= PSpriteSY[viewplayer->class]
 			[players[consoleplayer].readyweapon];
 	}
+
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-	vis->scale = (pspritescale<<detailshift) << hires;
+        vis->scale = (pspritescale<<detailshift) * (1+hires+hires/2);        
 	if (flip)
 	{
-		vis->xiscale = -pspriteiscale>>hires;
+                vis->xiscale = -pspriteiscale / (1+hires+hires/2);
 		vis->startfrac = spritewidth[lump]-1;
 	}
 	else
 	{
-		vis->xiscale = pspriteiscale>>hires;
+                vis->xiscale = pspriteiscale / (1+hires+hires/2);
 		vis->startfrac = 0;
 	}
 	if (vis->x1 > x1)

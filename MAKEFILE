@@ -28,8 +28,10 @@ EXE2=$(O)\$(ENAME)1024.exe
 
 EXE=$(O)\$(ENAME).exe
        
-# options common to all builds
-CFLAGS_COMMON=-Wall -DGORE -DINTELHACK -DCRVSFIX
+# options common to all builds; 
+# default ones are
+# CFLAGS_COMMON=-Wall -DGORE -DINTELHACK -DCRVSFIX -DWINGMAN
+CFLAGS_COMMON=-Wall -DGORE -DINTELHACK -DCRVSFIX -DWINGMAN
 
 # incomplete or abandoned features
 # -DASPECT
@@ -39,7 +41,7 @@ CFLAGS_HIRES2=-DHIRES2
 CFLAGS_HIRES1=
 CFLAGS_HIRES=$(CFLAGS_HIRES1)
 
-CFLAGS_VER12=-DPATCH12 -DVER_ID=\"Unofficial\" -DPORKPATCH
+CFLAGS_VER12=-DPATCH12 -DVER_ID=\"Unofficial\" -DPORKPATCH -DICANFLY 
 CFLAGS_VER11=-DVER_ID=\"Bernewfie\"
 CFLAGS_VER=$(CFLAGS_VER11)
 
@@ -74,13 +76,13 @@ default: $(EXE$(HIRES))
 
 $(EXE$(HIRES)): $(OBJS$(HIRES)) 
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS$(HIRES)) -o $@ $(LIBS)
-    ifneq ($(wildcard $(UPX)),)
-	$(UPX) -9 $(EXE$(HIRES))
-    else
-        ifneq ($(wildcard $(DJP)),)
-		$(DJP) $(EXE$(HIRES))
-        endif
-    endif
+ifneq ($(wildcard $(UPX)),)
+		$(UPX) -9 $(EXE$(HIRES))
+else
+ifneq ($(wildcard $(DJP)),)
+			$(DJP) $(EXE$(HIRES))
+endif
+endif
 
 $(O)/%.o:    %.c  
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -113,4 +115,4 @@ clean:
 $(O)/_$(VER)_$(HIRES).tmp: 
 	$(RM) $(O)\_*.tmp
 	echo _$(VER)_$(HIRES).tmp > $(O)\_$(VER)_$(HIRES).tmp
-	
+        

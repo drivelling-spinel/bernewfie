@@ -110,6 +110,10 @@ int P_GetPlayerNum(player_t *player);
 void P_TeleportOther(mobj_t *victim);
 void ResetBlasted(mobj_t *mo);
 
+#ifdef ICANFLY
+extern int peoplecanfly;
+#endif
+
 // ***** P_MOBJ *****
 
 // Any floor type >= FLOOR_LIQUID will floorclip sprites

@@ -356,6 +356,10 @@ void P_LoadThings(int lump)
 	data = W_CacheLumpNum(lump, PU_STATIC);
 	numthings = W_LumpLength(lump)/sizeof(mapthing_t);
 
+#ifdef ICANFLY
+        peoplecanfly = M_CheckParm("-canfly");
+#endif
+
 	mt = (mapthing_t *)data;
 	for(i = 0; i < numthings; i++, mt++)
 	{

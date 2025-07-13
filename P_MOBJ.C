@@ -1324,6 +1324,9 @@ void P_SpawnPlayer(mapthing_t *mthing)
 		case PCLASS_MAGE:
 			mobj = P_SpawnMobj(x, y, z, MT_PLAYER_MAGE);
 			break;
+                case PCLASS_PIG:
+                        mobj = P_SpawnMobj(x, y, z, MT_PIGPLAYER);
+			break;
 		default:
 			I_Error("P_SpawnPlayer: Unknown class type");
 			break;
@@ -1337,7 +1340,7 @@ void P_SpawnPlayer(mapthing_t *mthing)
 		if(mthing->type == 1)
 		{
 			mobj->flags |= 2<<MF_TRANSSHIFT;
-		}
+                }
 	}
 	else if(mthing->type > 1)
 	{ // Set color translation bits for player sprites
@@ -1363,6 +1366,13 @@ void P_SpawnPlayer(mapthing_t *mthing)
 	{ // Give all keys in death match mode
 		p->keys = 2047;
 	}
+#ifdef ICANFLY
+        if(peoplecanfly)
+        {
+                P_GivePower(p, pw_flight);
+        }
+#endif
+
 }
 
 //==========================================================================

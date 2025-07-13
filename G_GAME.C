@@ -148,8 +148,17 @@ int             dclicktime, dclickstate, dclicks;
 int             dclicktime2, dclickstate2, dclicks2;
 
 int             joyxmove, joyymove;         // joystick values are repeated
-boolean         joyarray[5];
+boolean         joyarray[
+#ifdef WINGMAN
+7
+#else
+5
+#endif
+];
 boolean         *joybuttons = &joyarray[1];     // allow [-1]
+#ifdef WINGMAN
+int             joyxhat, joyyhat;
+#endif
 
 int     savegameslot;
 char    savedescription[32];
@@ -221,7 +230,7 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 	else
 		tspeed = speed;
 
-	if(gamekeydown[key_lookdown] || gamekeydown[key_lookup])
+        if(gamekeydown[key_lookdown] || gamekeydown[key_lookup])
 	{
 		lookheld += ticdup;
 	}
@@ -288,11 +297,19 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 	{
 		forward -= forwardmove[pClass][speed];
 	}
-	if (gamekeydown[key_straferight])
+	if (gamekeydown[key_straferight]
+#ifdef WINGMAN
+           || joyxhat > 0
+#endif
+        )
 	{
 		side += sidemove[pClass][speed];
 	}
-	if (gamekeydown[key_strafeleft])
+	if (gamekeydown[key_strafeleft]
+#ifdef WINGMAN
+           || joyxhat < 0
+#endif
+        )
 	{
 		side -= sidemove[pClass][speed];
 	}
@@ -313,11 +330,19 @@ void G_BuildTiccmd (ticcmd_t *cmd)
 
 
 	// Fly up/down/drop keys
-	if(gamekeydown[key_flyup])
+        if(gamekeydown[key_flyup]
+#ifdef WINGMAN
+           || joyyhat > 0
+#endif
+        )
 	{
 		flyheight = 5; // note that the actual flyheight will be twice this
 	}
-	if(gamekeydown[key_flydown])
+	if(gamekeydown[key_flydown]
+#ifdef WINGMAN
+           || joyyhat < 0
+#endif
+        )
 	{
 		flyheight = -5;
 	}
@@ -621,6 +646,9 @@ void G_DoLoadLevel (void)
 
 	memset (gamekeydown, 0, sizeof(gamekeydown));
 	joyxmove = joyymove = 0;
+#ifdef WINGMAN
+        joyxhat = joyyhat = 0;
+#endif
 	mousex = mousey = 0;
 	sendpause = sendsave = paused = false;
 	memset (mousebuttons, 0, sizeof(mousebuttons));
@@ -770,6 +798,15 @@ boolean G_Responder(event_t *ev)
 			joyxmove = ev->data2;
 			joyymove = ev->data3;
 			return(true); // eat events
+
+#ifdef WINGMAN
+                case ev_joyextra:
+                        joybuttons[4] = ev->data1&1;
+                        joybuttons[5] = ev->data1&2;
+                        joyxhat = ev->data2;
+                        joyyhat = ev->data3;
+			return(true); // eat events
+#endif
 
 		default:
 			break;

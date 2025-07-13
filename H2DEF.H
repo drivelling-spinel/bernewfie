@@ -195,7 +195,10 @@ typedef enum
 	ev_keydown,
 	ev_keyup,
 	ev_mouse,
-	ev_joystick
+        ev_joystick
+#ifdef WINGMAN
+        , ev_joyextra
+#endif
 } evtype_t;
 
 typedef struct
@@ -1052,8 +1055,8 @@ extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
 
 #ifdef HIRES2
-#define MAXSCREENWIDTH (1280)
-#define MAXSCREENHEIGHT (1024)
+#define MAXSCREENWIDTH (1600)
+#define MAXSCREENHEIGHT (1200)
 #else
 #define MAXSCREENWIDTH (640)
 #define MAXSCREENHEIGHT (400)

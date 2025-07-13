@@ -709,7 +709,7 @@ void D_CheckNetGame (void)
 	if(i = M_CheckParm("-class"))
 	{
 		pClass = atoi(myargv[i+1]);
-		if(pClass > PCLASS_MAGE || pClass < PCLASS_FIGHTER)
+                if(pClass > PCLASS_MAGE + 1 || pClass < PCLASS_FIGHTER)
 		{
 			I_Error("Invalid player class: %d\n", pClass);
 		}

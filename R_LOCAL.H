@@ -16,8 +16,8 @@
 #define ANGLETOSKYSHIFT         22              // sky map is 256*128*4 maps
 
 #ifdef HIRES2
-#define MAXWIDTH                        1280
-#define MAXHEIGHT                       1024
+#define MAXWIDTH                        1600
+#define MAXHEIGHT                       1200
 #else
 #define MAXWIDTH                        1120
 #define MAXHEIGHT                       832

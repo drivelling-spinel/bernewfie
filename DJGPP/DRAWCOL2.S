@@ -377,6 +377,127 @@ powerof2_hi2:
  ret
 
 
+
+//================
+//
+// R_DrawColumn1
+//
+//================
+
+ .text
+ .align 8
+ .globl _R_DrawColumn1
+_R_DrawColumn1:
+ pushl %ebp
+ pushl %esi
+ pushl %edi
+ pushl %ebx
+ movl _dc_yh,%esi
+ movl _dc_yl,%edx
+ movl _dc_x,%eax
+ incl %esi
+ movl _ylookup(,%edx,4),%ebx
+ subl %edx,%esi
+ jle end1
+ addl _columnofs(,%eax,4),%ebx
+ movl _dc_texheight,%eax
+ subl _centery,%edx
+ movl _dc_source,%ebp
+ imull _dc_iscale,%edx
+ leal -1(%eax),%ecx
+ movl _dc_colormap,%edi
+ addl _dc_texturemid,%edx
+
+// killough 11/98: add hires support
+ jmp hi1
+
+ .align 8
+end1:
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+hi1:
+ testl %eax,%ecx
+ je powerof2_hi1
+ sall $16,%eax
+
+red1_hi1:
+ subl %eax,%edx
+ jge red1_hi1
+
+red2_hi1:
+ addl %eax,%edx
+ jl red2_hi1
+
+ .align 8,0x90
+nonp2loop_hi1:
+ movl %edx,%ecx
+ sarl $16,%ecx
+ addl _dc_iscale,%edx
+ movzbl (%ecx,%ebp),%ecx
+ movb (%edi,%ecx),%cl
+ movb %cl,(%ebx)
+ addl $1600,%ebx
+ cmpl %eax,%edx
+ jge wraparound_hi1
+ decl %esi
+ jg nonp2loop_hi1
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+wraparound_hi1:
+ subl %eax,%edx
+ decl %esi
+ jg nonp2loop_hi1
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+p2loop_hi1:
+ movl %edx,%eax
+ sarl $16,%eax
+ addl _dc_iscale,%edx
+ andl %ecx,%eax
+ movzbl (%eax,%ebp),%eax
+ movb (%eax,%edi),%al
+ movb %al,(%ebx)
+ movl %edx,%eax
+ addl _dc_iscale,%edx
+ sarl $16,%eax
+ andl %ecx,%eax
+ movzbl (%eax,%ebp),%eax
+ addl $3200,%ebx
+ movb (%eax,%edi),%al
+ movb %al,-1600(%ebx)
+
+powerof2_hi1:
+ addl $-2,%esi
+ jge p2loop_hi1
+ jnp end1
+ sarl $16,%edx
+ andl %ecx,%edx
+ xorl %eax,%eax
+ movb (%edx,%ebp),%al
+ movb (%eax,%edi),%al
+ movb %al,(%ebx)
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+
 //----------------------------------------------------------------------------
 // $Id: drawcol.s,v 1.1.1.1 2000-07-29 13:20:39 fraggle Exp $
 //----------------------------------------------------------------------------

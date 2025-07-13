@@ -14,6 +14,10 @@
 #include "p_local.h"
 #include "soundst.h"
 
+#ifdef ICANFLY
+int peoplecanfly = 0;
+#endif
+
 void P_PlayerNextArtifact(player_t *player);
 
 // Macros
@@ -887,6 +891,10 @@ void P_PlayerThink(player_t *player)
 	{
 		player->powers[pw_infrared]--;
 	}
+#ifdef ICANFLY
+        if(!peoplecanfly)
+        {
+#endif
 #ifdef PATCH12
         if(player->powers[pw_flight] && deathmatch && netgame)
 #else
@@ -911,6 +919,9 @@ void P_PlayerThink(player_t *player)
 			BorderTopRefresh = true; //make sure the sprite's cleared out
 		}
 	}
+#ifdef ICANFLY
+        }
+#endif
 	if(player->powers[pw_speed])
 	{
 		player->powers[pw_speed]--;
