@@ -256,6 +256,135 @@ powerof2_hi3:
  popl %ebp
  ret
 
+//================
+//
+// R_DrawColumn3w
+//
+//================
+//
+// 2/15/98 Lee Killough
+//
+// Converted C code with TFE fix to assembly and tuned
+//
+// 2/21/98 killough: added translucency support
+//
+// 11/98 killough: added hires support
+//
+//================
+
+ .text
+ .align 8
+ .globl _R_DrawColumn3w
+_R_DrawColumn3w:
+ pushl %ebp
+ pushl %esi
+ pushl %edi
+ pushl %ebx
+ movl _dc_yh,%esi
+ movl _dc_yl,%edx
+ movl _dc_x,%eax
+ incl %esi
+ movl _ylookup(,%edx,4),%ebx
+ subl %edx,%esi
+ jle end3w
+ addl _columnofs(,%eax,4),%ebx
+ movl _dc_texheight,%eax
+ subl _centery,%edx
+ movl _dc_source,%ebp
+ imull _dc_iscale,%edx
+ leal -1(%eax),%ecx
+ movl _dc_colormap,%edi
+ addl _dc_texturemid,%edx
+
+// killough 11/98: add hires support
+ jmp hi3w
+
+ .align 8
+end3w:
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+hi3w:
+ testl %eax,%ecx
+ je powerof2_hi3w
+ sall $16,%eax
+
+red1_hi3w:
+ subl %eax,%edx
+ jge red1_hi3w
+
+red2_hi3w:
+ addl %eax,%edx
+ jl red2_hi3w
+
+ .align 8,0x90
+nonp2loop_hi3w:
+ movl %edx,%ecx
+ sarl $16,%ecx
+ addl _dc_iscale,%edx
+ movzbl (%ecx,%ebp),%ecx
+ movb (%edi,%ecx),%cl
+ movb %cl,(%ebx)
+ addl $1366,%ebx
+ cmpl %eax,%edx
+ jge wraparound_hi3w
+ decl %esi
+ jg nonp2loop_hi3w
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+wraparound_hi3w:
+ subl %eax,%edx
+ decl %esi
+ jg nonp2loop_hi3w
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
+ .align 8
+p2loop_hi3w:
+ movl %edx,%eax
+ sarl $16,%eax
+ addl _dc_iscale,%edx
+ andl %ecx,%eax
+ movzbl (%eax,%ebp),%eax
+ movb (%eax,%edi),%al
+ movb %al,(%ebx)
+ movl %edx,%eax
+ addl _dc_iscale,%edx
+ sarl $16,%eax
+ andl %ecx,%eax
+ movzbl (%eax,%ebp),%eax
+ addl $2732,%ebx
+ movb (%eax,%edi),%al
+ movb %al,-1366(%ebx)
+
+powerof2_hi3w:
+ addl $-2,%esi
+ jge p2loop_hi3w
+ jnp end3w
+ sarl $16,%edx
+ andl %ecx,%edx
+ xorl %eax,%eax
+ movb (%edx,%ebp),%al
+ movb (%eax,%edi),%al
+ movb %al,(%ebx)
+ popl %ebx
+ popl %edi
+ popl %esi
+ popl %ebp
+ ret
+
 
 //================
 //

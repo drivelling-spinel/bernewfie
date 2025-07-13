@@ -223,6 +223,7 @@ void    R_DrawColumn1 (void);
 void    R_DrawColumn2 (void);
 void    R_DrawColumn3 (void);
 void    R_DrawColumn4 (void);
+void    R_DrawColumn3w (void);
 #endif
 
 //variables:
@@ -709,6 +710,12 @@ vesa_mode_1600x1200=0x11c;
                   screen_h=1024;
 #endif
 	 	}
+        else if (SCREENWIDTH == 1366 && vesa_mode_1366x768 > 0 && vesa_set_mode(vesa_mode_1366x768)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  screen_w=1366; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=768;
+	 	}
         else if (SCREENHEIGHT == 768 && vesa_mode_1024x768 > 0 && vesa_set_mode(vesa_mode_1024x768)!=-1)      
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
@@ -888,6 +895,7 @@ void I_InitGraphics(void)
 
 #ifndef HIRESMENU
   if(M_ParmExists("-1200p")) screenresolution = 6;
+  else if(M_ParmExists("-768w")) screenresolution = 7;
   else if(M_ParmExists("-1024p")) screenresolution = 5;
   else if(M_ParmExists("-768p")) screenresolution = 4;
   else if(M_ParmExists("-600p")) screenresolution = 3;
@@ -934,6 +942,12 @@ void I_InitGraphics(void)
         SCREENHEIGHT = 1200;
         hiresfunc = R_DrawColumn1;
         break;
+     case 7:
+        hires = 3;
+        SCREENWIDTH = 1366;
+        SCREENHEIGHT = 768;
+        hiresfunc = R_DrawColumn3w;
+        break;
      case 0:
      default: 
         hires = 0;
@@ -950,6 +964,10 @@ void I_InitGraphics(void)
   asmp6parm = M_ParmExists("-asmp6");
   nolfbparm = M_ParmExists("-nolfb");
   nopmparm = M_ParmExists("-nopm");
+
+#ifdef HIRES2
+  if(SCREENWIDTH % 4 != 0 || safeparm) cpu_family = 0;   
+#endif
 
 #if !defined(HIRES2) || defined(ASPECT)
   SCREENWIDTH = 320 << hires;
