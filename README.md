@@ -4,7 +4,7 @@
 ![BERNEWFIE screenshot](/DOC/hex_000.png)   
 _Are you ready to die?_
 
-BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard and mouse bindings (HEXEN.CFG) and ASETUP.EXE is used to configure Allegro for sound and music (SETUP.CFG). 
+BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by \@Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard, mouse and joystick bindings (HEXEN.CFG) and ASETUP.EXE is used to configure Allegro for sound and music and calibrate joystick (SETUP.CFG). 
 
 ### What's been added
 - High resolution support activated with one of the below arguments   
@@ -13,6 +13,7 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
   `-600p`    
   `-768p`    
   `-1024p`    
+  `-1200p`    
 - mouse look and alternative flight controls activated with `-mlook` command line argument   
   (when flying hold mouse jump button and move mouse vertically to fly up and down)
 - `-novert` command line argument
@@ -22,7 +23,7 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
   quickloading instead of respawning, less prompts and end game/suicide buttons switched off
 - 10 more savegame slots available with high resolution options   
   (new slots have filenames like hexa*.*, hexb*.* etc in HEXNDATA)
-- additional command line arguments to fine-tune Gerwin's VESA code
+- additional command line arguments to fine-tune \@Gerwin's video code
   (see [readme](DOC/MBFUP204.TXT) for details):
   `-show_fps`    
   `-use_vsync`    
@@ -33,12 +34,16 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
   `-nopm`    
 - support for WAV sound effect lumps and 16-bit samples    
   (in case a SoundBulb-like mod for Hexen arrives some day)
-- `-extra` command line argument for a second way to provide PWADs to be loaded to the engine   
-  (e.g. to `HEXENDK.EXE -extra PWADS\BERNEW.WAD`)   
+- `-extra` command line argument for an alternative way to provide PWADs to be loaded to the engine   
+  (e.g. to `HEXENDK.EXE -extra FMMUS.WAD`)   
 - `-noorb` command line to spend as few time as possible in the start screen 
   and jump to the title screen instead   
-- Hexen Unofficial Update v1.2 \@Boondorl ported from ZScript C
-  (optionally included at compile time)   
+- Hexen Unofficial Update v1.2 by \@Boondorl ported from ZScript C
+  (optionally included at compile time, e.g. in `BERNEW12.EXE`)   
+- basic support for "POV hats" on joysticks (no remapping)
+- fix to avoid crashes with Porkelator when facing the Wyvern
+  (only included for builds that also contain 1.2 features - see above)
+- joke mode with permanent flight actviated with `-canfly`
 - more visplanes (bumped to 960), also more vissprites (bumped to 256)
 
 ### BERNEWFIE in action
@@ -64,8 +69,8 @@ _Additional savegame slots_
 
 ### Code changes
 Most of the code in BERNEWFIE is untouched Hexen code, except for:
-- improved VESA and Allegro system routines by Gerwin
-- zone memory management, some math and column drawing assembly code by Lee Killough
+- sound, video and system routines taken from MBF 2.04 (by Gerwin, CRVS)
+- memory management, some math and column drawing assembly code also from MBF (by Lee Killough)
 
 
 Also changes were made to:
@@ -79,6 +84,7 @@ Also changes were made to:
   a portion of the lower screen part in higher resolution
 - visplanes structure to extened height from 8 to 16 bits for higher resolution screens
 - sky scaling code to work correctly in higher resolutions and with mouse look
-- player weapon sprites scaing code to show correctly in higher resolutions
+- player weapon sprites scaing code to, well, scale accordingly in higher resolutions
 - game subsystems startup order to accomodate for changes to graphic mode initialization 
+
 
