@@ -14,6 +14,7 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
   `-768p`    
   `-1024p`    
   `-1200p`    
+  `-wxga`    
 - mouse look and alternative flight controls activated with `-mlook` command line argument   
   (when flying hold mouse jump button and move mouse vertically to fly up and down)
 - `-novert` command line argument
@@ -43,7 +44,7 @@ BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM t
 - basic support for "POV hats" on joysticks (no remapping)
 - fix to avoid crashes with Porkelator when facing the Wyvern
   (only included for builds that also contain 1.2 features - see above)
-- joke mode with permanent flight actviated with `-canfly`
+- joke mode with permanent flight activated with `-canfly`
 - more visplanes (bumped to 960), also more vissprites (bumped to 256)
 
 ### BERNEWFIE in action
@@ -84,7 +85,7 @@ Also changes were made to:
   a portion of the lower screen part in higher resolution
 - visplanes structure to extened height from 8 to 16 bits for higher resolution screens
 - sky scaling code to work correctly in higher resolutions and with mouse look
-- player weapon sprites scaing code to, well, scale accordingly in higher resolutions
-- game subsystems startup order to accomodate for changes to graphic mode initialization 
+- player weapon sprites scaling code to, well, scale accordingly in higher resolutions
+- game subsystems startup order to accommodate for changes to graphic mode initialization 
 
 

@@ -895,7 +895,7 @@ void I_InitGraphics(void)
 
 #ifndef HIRESMENU
   if(M_ParmExists("-1200p")) screenresolution = 6;
-  else if(M_ParmExists("-768w")) screenresolution = 7;
+  else if(M_ParmExists("-wxga")) screenresolution = 7;
   else if(M_ParmExists("-1024p")) screenresolution = 5;
   else if(M_ParmExists("-768p")) screenresolution = 4;
   else if(M_ParmExists("-600p")) screenresolution = 3;
