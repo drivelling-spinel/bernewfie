@@ -365,6 +365,26 @@ subsector_t *R_PointInSubsector (fixed_t x, fixed_t y);
 //void R_AddPointToBox (int x, int y, fixed_t *box);
 
 
+#ifdef ASPECTCORRECT
+extern int aspect_correct;
+extern int aspect_const;
+
+#define ASPECT_CONST (aspect_const)
+
+#define ASPECT_RATIO(x) ((x) * 12 / ASPECT_CONST)
+#define INVERSE_RATIO(x) ((x) * ASPECT_CONST / 12)
+#define ASPECT_CORRECT(x) (aspect_correct ? ASPECT_RATIO(x) : (x))
+#define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
+#define ASPECT_INVERSE(x) (aspect_correct ? INVERSE_RATIO(x) : (x))
+#define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))
+#else
+#define ASPECT_CORRECT(x) (x)
+#define ASPECT_INVERSE(x) (x)
+#define ASPECT_CORRECT_PS(x, p) (x)
+#define ASPECT_INVERSE_PS(x, p) (x)
+#endif
+
+
 //
 // R_bsp.c
 //

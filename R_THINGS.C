@@ -403,10 +403,10 @@ void R_DrawVisSprite (vissprite_t *vis, int x1, int x2)
 			((vis->mobjflags&MF_TRANSLATION)>>(MF_TRANSSHIFT-8));
 	}
 
-	dc_iscale = abs(vis->xiscale)>>detailshift;
+	dc_iscale = ASPECT_INVERSE_PS(abs(vis->xiscale), vis->psprite)>>detailshift;
 	dc_texturemid = vis->texturemid;
 	frac = vis->startfrac;
-	spryscale = vis->scale;
+	spryscale = ASPECT_CORRECT_PS(vis->scale, vis->psprite);
 
 	sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
 

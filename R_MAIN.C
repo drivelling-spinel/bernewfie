@@ -612,6 +612,7 @@ void R_ExecuteSetViewSize (void)
                  pspshift = ((50 + 5 * hires) << FRACBITS) - FRACUNIT / 2 -
                             (SCREENHEIGHT << FRACBITS) / 2 / (1 + hires + hires);
         }
+        pspshift = ASPECT_CORRECT_PS(ASPECT_CORRECT_PS(ASPECT_CORRECT_PS(pspshift, true), true), true);
 #endif
 
 	detailshift = setdetail;

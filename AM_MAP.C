@@ -80,7 +80,7 @@ static char cheat_kills[] = { 'k', 'i', 'l', 'l', 's' };
 static boolean ShowKills = 0;
 static unsigned ShowKillsCount = 0;
 #ifdef PATCH12
-static boolean ShowMarkers = 0;
+static boolean ShowMarkers = 1;
 #endif
 
 extern boolean viewactive;

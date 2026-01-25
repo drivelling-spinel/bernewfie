@@ -47,10 +47,6 @@ static const char rcsid[] = "$Id: i_video.c,v 1.3 2000-08-12 21:29:28 fraggle Ex
 extern int usejoystick;
 extern int joystickpresent;
 
-#ifdef ASPECT
-byte * vscreen2 = NULL;
-#endif
-
 // fraggle: commented these out for allegro 3.12
 #if(ALLEGRO_VERSION>=3 && ALLEGRO_SUB_VERSION==0)
 extern int joy_x,joy_y;
@@ -226,6 +222,11 @@ void    R_DrawColumn4 (void);
 void    R_DrawColumn3w (void);
 #endif
 
+#ifdef ASPECTCORRECT
+int aspect_correct;
+int aspect_const;
+#endif
+
 //variables:
 extern boolean setsizeneeded;
 boolean noblit;
@@ -333,116 +334,6 @@ void show_info_proc()
 	}
 }
 
-#ifdef ASPECT
-
-static const byte * restore;
-
-static byte * _restore_vscreen()
-{
-   vscreen = restore;
-   return vscreen;
-}
-
-static byte * _scale_vscreen()
-{
-    int i;
-    int w = SCREENWIDTH;
-    int sz = SCREENHEIGHT - 10;
-    byte * scr = vscreen2;
-    int z = 6;
-    restore = vscreen;
-
-    if(!in_hires)
-      return vscreen;
-
-    for ( i = 0 ; i <= sz ; i += 10 )
-      {
-        int q;  
-        if (cpu_family >= 6 || asmp6parm)       // PPro or PII
-          {
-            z ^= 2;
-            q = z * w;
-            ppro_blit(scr,q);
-            vscreen += q - w;
-            scr += q; 
-            ppro_blit(scr,w);
-            vscreen += w;
-            scr += w;
-
-            z ^= 2;
-            q = z * w;
-            ppro_blit(scr,q);
-            vscreen += q - w;
-            scr += q; 
-            ppro_blit(scr,w);
-            vscreen += w;
-            scr += w;
-          }
-        else if (cpu_family >= 5)  // Pentium
-          {
-            z ^= 2;
-            q = z * w;
-            pent_blit(scr,q);
-            vscreen += q - w;
-            scr += q; 
-            pent_blit(scr,w);
-            vscreen += w;
-            scr += w;
-
-            z ^= 2;
-            q = z * w;
-            pent_blit(scr,q);
-            vscreen += q - w;
-            scr += q; 
-            pent_blit(scr,w);
-            vscreen += w;
-            scr += w;
-          }
-        else                       // Others
-          {
-            z ^= 2;
-            q = z * w;
-            memcpy(scr,vscreen,q);
-            vscreen += q - w;
-            scr += q; 
-            memcpy(scr,vscreen,w);
-            vscreen += w;
-            scr += w;
-
-            z ^= 2;
-            q = z * w;
-            memcpy(scr,vscreen,q);
-            vscreen += q - w;
-            scr += q; 
-            memcpy(scr,vscreen,w);
-            vscreen += w;
-            scr += w;
-          }
-      }
-    
-    sz %= 10;
-    if(sz < 0) sz = -sz;
-    
-    if(sz) 
-      {
-        if (cpu_family >= 6 || asmp6parm)       // PPro or PII
-          {
-            ppro_blit(scr, sz * w);
-          }
-        else if (cpu_family >= 5)  // Pentium
-          {
-            pent_blit(scr, sz * w);
-          }
-        else                       // Others
-          {
-            memcpy(scr, vscreen, sz * w);
-          }      
-       }
-    
-    vscreen = vscreen2;
-    return vscreen2;
-}
-#endif
 
 //-----------------------------------------------------------------------------
 void I_FinishUpdate(void)
@@ -473,19 +364,9 @@ void I_FinishUpdate(void)
    // draws little dots on the bottom of the screen:
    if (debugmode) devparm_proc(ymax);
 
-   scr = 
-#ifdef ASPECT
-     _scale_vscreen()
-#else
-     vscreen
-#endif
-   ;
+   scr = vscreen;
 
-   size =
-#ifdef ASPECT
-   in_hires ? (SCREENWIDTH * SCREENHEIGHT * 6 / 5) :
-#endif
-   (SCREENWIDTH*ymax);
+   size = (SCREENWIDTH*ymax);
 
    if (in_page_flip)
       if (!in_hires && (current_mode<256)) // Transfer from system memory to planar 'mode X' video memory:
@@ -502,9 +383,6 @@ void I_FinishUpdate(void)
          else                              {if (ymax==SCREENHEIGHT) blast           (dascreen, scr);  // Other CPUs, e.g. 486
                                             else           blast_nobar     (dascreen, scr);}
          outportw(0x3d4, screen_base_addr | 0x0c);              // page flip 
-#ifdef ASPECT
-         _restore_vscreen();
-#endif
          return;
       } 
       else scroll_offset = scroll_offset ? 0 : screen_h;        // hires hardware page-flipping (VBE 2.0)
@@ -550,9 +428,6 @@ void I_FinishUpdate(void)
    }
 
    if (in_page_flip) vesa_set_displaystart(0, scroll_offset, use_vsync); // hires hardware page-flipping (VBE 2.0 Only, Do not waste frames on 1.2)
-#ifdef ASPECT
-   _restore_vscreen();
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -703,12 +578,7 @@ vesa_mode_1600x1200=0x11c;
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
                   screen_w=1280; // Necessary for when mode 13h/X has overwritten them.
-#ifdef ASPECT
-                  screen_h=800;
-                  blackband=32;
-#else
                   screen_h=1024;
-#endif
 	 	}
         else if (SCREENWIDTH == 1366 && vesa_mode_1366x768 > 0 && vesa_set_mode(vesa_mode_1366x768)!=-1)      
 		{                       
@@ -842,10 +712,6 @@ vesa_mode_1600x1200=0x11c;
   in_hires = hires;
   setsizeneeded = true;
   //if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
-#ifdef ASPECT
-  if(in_hires)
-    vscreen2 = I_AllocLow(SCREENWIDTH * SCREENHEIGHT * 6 / 5);
-#endif
   modeswitched=1; 
   if (current_mode==0x12) sprintf(mode_string,"%sMODE X  SIZE %dX%d  LFB %s  CPU %d  VBE %d",  safestring,               screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);  
   else                    sprintf(mode_string,"%sMODE %xH  SIZE %dX%d  LFB %s  CPU %d  VBE %d",safestring, current_mode, screen_w, screen_h, linear ? "Y" : "N", cpu_family, vesa_version);
@@ -890,6 +756,26 @@ void I_InitGraphics(void)
   show_fps = M_ParmExists("-show_fps");
   use_vsync = M_ParmExists("-use_vsync");
   page_flip = M_ParmExists("-page_flip");
+
+#ifdef ASPECTCORRECT
+  aspect_correct = M_CheckParm("-aspect");
+  if(aspect_correct && aspect_correct < myargc - 1) 
+  {
+     aspect_correct = atoi(myargv[aspect_correct + 1]);
+     if(aspect_correct < 1 || aspect_correct > 2)
+        aspect_correct = 0;      
+  }
+  else
+     aspect_correct = 0;
+
+  if(M_ParmExists("-widescreen") || M_ParmExists("-wide16x10"))
+     aspect_const = 10;
+  else if(M_ParmExists("-wide16x9"))
+     aspect_const = 9;
+  else 
+     aspect_const = 10;
+
+#endif  
 
 #ifdef HIRES2 
 
@@ -969,7 +855,7 @@ void I_InitGraphics(void)
   if(SCREENWIDTH % 4 != 0 || safeparm) cpu_family = 0;   
 #endif
 
-#if !defined(HIRES2) || defined(ASPECT)
+#if !defined(HIRES2) 
   SCREENWIDTH = 320 << hires;
   SCREENHEIGHT = 200 << hires;
 #endif  
