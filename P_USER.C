@@ -254,12 +254,12 @@ void P_MovePlayer(player_t *player)
 			  m = s ? -look : look;
 			  m = ((m & 1) << 1) | ((m & 6) << 2) | ((m && 4) << 1);
 				player->lookdir += s ? -m : m;
-				if(player->lookdir > 180)
+				if(player->lookdir > 90)
 				{
-					player->lookdir = 180;
-				} else if(player->lookdir < -180)
+					player->lookdir = 90;
+				} else if(player->lookdir < -110)
 				{
-					player->lookdir = -180;
+					player->lookdir = -110;
 				}
 			}
 			else

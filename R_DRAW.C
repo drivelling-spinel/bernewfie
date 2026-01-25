@@ -444,7 +444,11 @@ void R_InitBuffer (int width, int height)
 	if (width == SCREENWIDTH)
 		viewwindowy = 0;
 	else
+#ifdef HIRES2
+		viewwindowy = (SCREENHEIGHT-(hires ? 0 : SBARHEIGHT)-height) >> 1;
+#else
 		viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1;
+#endif
 	for (i=0 ; i<height ; i++)
 		ylookup[i] = vscreen + (i+viewwindowy)*SCREENWIDTH;
 }

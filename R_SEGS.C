@@ -93,9 +93,7 @@ void R_RenderMaskedSegRange (drawseg_t *ds, int x1, int x2)
 
 	rw_scalestep = ds->scalestep;
 	spryscale = ASPECT_CORRECT(ds->scale1 + (x1 - ds->x1)*rw_scalestep);
-#ifdef ASPECTCORRECT
 	rw_scalestep = ASPECT_CORRECT(rw_scalestep);
-#endif
 	mfloorclip = ds->sprbottomclip;
 	mceilingclip = ds->sprtopclip;
 
@@ -228,7 +226,7 @@ void R_RenderSegLoop (void)
 				index = MAXLIGHTSCALE-1;
 			dc_colormap = walllights[index];
 			dc_x = rw_x;
-			dc_iscale = 0xffffffffu / (unsigned) (ASPECT_CORRECT(rw_scale));
+			dc_iscale = 0xffffffffu / (unsigned) rw_scale;
 		}
 
 //
@@ -371,11 +369,13 @@ void R_StoreWallRange (int start, int stop)
 //
 	ds_p->scale1 = rw_scale =
 		R_ScaleFromGlobalAngle (viewangle + xtoviewangle[start]);
+		rw_scale = ASPECT_CORRECT(rw_scale);
 	if (stop > start )
 	{
 		ds_p->scale2 = R_ScaleFromGlobalAngle (viewangle + xtoviewangle[stop]);
 		ds_p->scalestep = rw_scalestep =
-			(ds_p->scale2 - rw_scale) / (stop-start);
+			(ds_p->scale2 - ds_p->scale1) / (stop-start);
+		rw_scalestep = ASPECT_CORRECT(rw_scalestep);
 	}
 	else
 	{
@@ -594,11 +594,11 @@ void R_StoreWallRange (int start, int stop)
 	worldtop >>= 4;
 	worldbottom >>= 4;
 
-	topstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldtop);
-	topfrac = (centeryfrac>>4) - FixedMul (worldtop, ASPECT_CORRECT(rw_scale));
+	topstep = -FixedMul (rw_scalestep, worldtop);
+	topfrac = (centeryfrac>>4) - FixedMul (worldtop, rw_scale);
 
-	bottomstep = -FixedMul (ASPECT_CORRECT(rw_scalestep),worldbottom);
-	bottomfrac = (centeryfrac>>4) - FixedMul (worldbottom, ASPECT_CORRECT(rw_scale));
+	bottomstep = -FixedMul (rw_scalestep,worldbottom);
+	bottomfrac = (centeryfrac>>4) - FixedMul (worldbottom, rw_scale);
 
 	if (backsector)
 	{
@@ -607,13 +607,13 @@ void R_StoreWallRange (int start, int stop)
 
 		if (worldhigh < worldtop)
 		{
-			pixhigh = (centeryfrac>>4) - FixedMul (worldhigh, ASPECT_CORRECT(rw_scale));
-			pixhighstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldhigh);
+			pixhigh = (centeryfrac>>4) - FixedMul (worldhigh, rw_scale);
+			pixhighstep = -FixedMul (rw_scalestep, worldhigh);
 		}
 		if (worldlow > worldbottom)
 		{
-				pixlow = (centeryfrac>>4) - FixedMul (worldlow, ASPECT_CORRECT(rw_scale));
-		pixlowstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldlow);
+				pixlow = (centeryfrac>>4) - FixedMul (worldlow, rw_scale);
+		pixlowstep = -FixedMul (rw_scalestep, worldlow);
 		}
 	}
 

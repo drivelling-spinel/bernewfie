@@ -413,9 +413,9 @@ void R_DrawVisSprite (vissprite_t *vis, int x1, int x2)
 	// check to see if vissprite is a weapon
 	if(vis->psprite)
 	{
-		dc_texturemid += FixedMul(((centery-viewheight/2)<<FRACBITS),
-			vis->xiscale);
-		sprtopscreen += (viewheight/2-centery)<<FRACBITS;
+		dc_texturemid += FixedMul(((centery_psp-viewheight/2)<<FRACBITS),
+			ASPECT_INVERSE_PS(vis->xiscale, true));
+		sprtopscreen += (viewheight/2-centery_psp)<<FRACBITS;
 	}
 
 	if(vis->floorclip && !vis->psprite)
@@ -660,6 +660,16 @@ int PSpriteSY[NUMCLASSES][NUMWEAPONS] =
 	{ 10*FRACUNIT, 10*FRACUNIT, 10*FRACUNIT, 10*FRACUNIT } // Pig
 };
 
+#ifdef PSPARALLAX
+// Y-adjustment values for mouse look mode (4 weapons)
+int PSpriteMlook[NUMCLASSES][NUMWEAPONS] =
+{
+	{ 0, 0, 0, 12*FRACUNIT }, // Fighter
+	{ 0, 12*FRACUNIT, 12*FRACUNIT, 0 }, // Cleric
+	{ 12*FRACUNIT, 26*FRACUNIT, 22*FRACUNIT, 20*FRACUNIT }, // Mage 
+	{ 12*FRACUNIT, 12*FRACUNIT, 12*FRACUNIT, 12*FRACUNIT } // Pig
+};
+#endif
 void R_DrawPSprite (pspdef_t *psp)
 {
 	fixed_t		tx;
@@ -669,6 +679,7 @@ void R_DrawPSprite (pspdef_t *psp)
 	int			lump;
 	boolean		flip;
 	vissprite_t	*vis, avis;
+	int			offs=0; 
 
 	int tempangle;
 
@@ -727,11 +738,16 @@ void R_DrawPSprite (pspdef_t *psp)
 		-(psp->sy-spritetopoffset[lump]);
 #endif 
 
+#ifdef PSPARALLAX
+	if(mlook)
+		offs = PSpriteMlook[viewplayer->class]
+		[players[consoleplayer].readyweapon];
+	else
+#endif
 	if(viewheight == SCREENHEIGHT)
-	{
-		vis->texturemid -= PSpriteSY[viewplayer->class]
+		offs = PSpriteSY[viewplayer->class]
 			[players[consoleplayer].readyweapon];
-	}
+	vis->texturemid -= offs;
 
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;

@@ -58,8 +58,34 @@ extern int hires;
 
 extern int lightscaleshiftvar;
 extern int lightscaleshift_det;
+
+extern fixed_t scaledcenteroffset;
+extern int minskyscale;
+#endif
+extern int psphiresscale;
+
+#ifdef ASPECTCORRECT
+extern int aspect_correct;
+extern int aspect_den;
+extern int aspect_num;
+
+#define ASPECT_RATIO(x) ((x) * aspect_num / aspect_den)
+#define INVERSE_RATIO(x) ((x) * aspect_den / aspect_num)
+#define ASPECT_CORRECT(x) (aspect_correct ? ASPECT_RATIO(x) : (x))
+#define ASPECT_CORRECT_FLAT(x) (aspect_correct ? ((x) / aspect_den * aspect_num)  : (x))
+#define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
+#define ASPECT_INVERSE(x) (aspect_correct ? INVERSE_RATIO(x) : (x))
+#define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))
+
+#else
+#define ASPECT_CORRECT(x) (x)
+#define ASPECT_INVERSE(x) (x)
+#define ASPECT_CORRECT_PS(x, p) (x)
+#define ASPECT_INVERSE_PS(x, p) (x)
+#define ASPECT_CORRECT_FLAT(x) (x)
 #endif
 
+extern int psp_bump;
 
 /*
 ==============================================================================
@@ -351,6 +377,7 @@ extern  int                             flyheight;
 extern  fixed_t                 centerxfrac;
 extern  fixed_t                 centeryfrac;
 extern  fixed_t                 projection;
+extern  int                             centery_psp;
 
 extern  int                             validcount;
 

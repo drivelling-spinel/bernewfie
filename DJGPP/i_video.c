@@ -215,7 +215,6 @@ int psphiresscale = 1;
 #ifdef HIRES2
 int screenresolution;
 int minskyscale;
-fixed_t scaledcenteroffset;
 void            (*hiresfunc) (void);
 
 void    R_DrawColumn (void);
@@ -905,7 +904,7 @@ void I_InitGraphics(void)
   else if(M_ParmExists("-wide16x9"))
   {
      if(aspect_num % 9 == 0) aspect_num /= 9;
-     else aspect_den *= 5;
+     else aspect_den *= 9;
      if(aspect_den % 16 == 0) aspect_den /= 16;
      else aspect_num *= 16;
   }
@@ -923,20 +922,6 @@ void I_InitGraphics(void)
 
 #ifdef HIRES2
   if(SCREENWIDTH % 4 != 0 || safeparm) cpu_family = 0;   
-
-  {
-     fixed_t excess;
-     excess = (SCREENWIDTH<<FRACBITS) / psphiresscale / 320; 
-    // FIXME: with vertical scaling adjustment of weapon sprites 
-    //        to compensate for offset use
-     excess = ASPECT_INVERSE_PS(excess, true);
-    //        but because this eats up much screen space, we use push weapon slightly
-     #define PSPRBUMP (aspect_correct > 1 ? 20 : 0)
-     if(excess > FRACUNIT) excess = FRACUNIT;
-     scaledcenteroffset = FixedMul(excess, ((320<<FRACBITS) / SCREENWIDTH) * SCREENHEIGHT);
-     scaledcenteroffset = 
-       (-(PSPRBUMP<<FRACBITS) + scaledcenteroffset / 2 + (200 << FRACBITS) - scaledcenteroffset);
-  }
 #endif
 
 #if !defined(HIRES2) 

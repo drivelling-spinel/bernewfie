@@ -25,7 +25,17 @@ int			validcount = 1;		// increment every time a check is made
 lighttable_t	*fixedcolormap;
 extern	lighttable_t	**walllights;
 
+#ifdef HIRES2
+fixed_t			scaledcenteroffset;
+#endif
+
+#ifdef PSPARALLAX
+fixed_t			psparlim;
+#endif
+
 int				centerx, centery;
+int				centery_psp;
+int				psp_bump=0;
 fixed_t			centerxfrac, centeryfrac;
 fixed_t			projection;
 
@@ -594,25 +604,49 @@ void R_ExecuteSetViewSize (void)
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	}
+#ifdef HIRES2
 	else if (setblocks == 10 && hires) {
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	} else 	{
-#ifdef HIRES2
-		setblocks += 1; 
-		do
-		{
-			setblocks -= 1;
-			scaledviewwidth = (setblocks*(SCREENWIDTH/10));
-			viewheight = (setblocks*(SCREENHEIGHT - SBARHEIGHT)/10);
-		}
-		while(viewheight > SCREENHEIGHT || scaledviewwidth > SCREENWIDTH);
+		scaledviewwidth = (setblocks*(SCREENWIDTH/10));
+		viewheight = (setblocks*(SCREENHEIGHT - (hires ? 0 : SBARHEIGHT))/10);
 #else
+	} else 	{
 		scaledviewwidth = (setblocks*32) << hires;
 		viewheight = (setblocks*(LORESHEIGHT - SBARHEIGHT)/10) << hires;
 #endif
-
 	}
+
+#ifdef HIRES2
+	{
+		fixed_t excess;
+		int unscaledheight = (!hires || scaledviewwidth == SCREENWIDTH) ? LORESHEIGHT : LORESHEIGHT - SBARHEIGHT / 2;
+		excess = (SCREENWIDTH<<FRACBITS) / psphiresscale / LORESWIDTH; 
+		excess = ASPECT_INVERSE_PS(excess, true);
+#ifndef PSPARALLAX
+		psp_bump = (aspect_correct > 1 ? 20 : 0);
+#else
+		psp_bump = (aspect_correct > 1 ? 20 : mlook ? 10 : 0);
+#endif
+		if(excess > FRACUNIT) excess = FRACUNIT;
+		scaledcenteroffset = FixedMul(excess, ((LORESWIDTH<<FRACBITS) / SCREENWIDTH) * SCREENHEIGHT);
+		scaledcenteroffset = 
+		(-(psp_bump<<FRACBITS) + scaledcenteroffset / 2 + (unscaledheight << FRACBITS) - scaledcenteroffset);
+	}
+#endif
+
+#ifdef PSPARALLAX
+	psparlim = (-10 -psp_bump) << FRACBITS;
+#ifdef HIRES2
+	{
+		fixed_t excess;
+		excess = (psphiresscale<<FRACBITS) * LORESWIDTH / SCREENWIDTH; 
+		psparlim = FixedMul(psparlim, excess);
+	}
+#endif
+	psparlim = ASPECT_CORRECT_PS((psparlim / LORESWIDTH) * SCREENWIDTH, true);
+#endif
 
 	detailshift = setdetail;
 	viewwidth = scaledviewwidth>>detailshift;
@@ -625,6 +659,8 @@ void R_ExecuteSetViewSize (void)
 	centerxfrac = centerx<<FRACBITS;
 	centeryfrac = centery<<FRACBITS;
 	projection = centerxfrac;
+
+	centery_psp = centery;
 
 	if (!detailshift)
 	{
@@ -768,6 +804,7 @@ void R_SetupFrame(player_t *player)
 	int tableAngle;
 	int tempCentery;
 	int intensity;
+	int lookdiradj;
 
 	//drawbsp = 1;
 	viewplayer = player;
@@ -794,9 +831,22 @@ void R_SetupFrame(player_t *player)
 	extralight = player->extralight;
 	viewz = player->viewz;
 	
-	tempCentery = viewheight/2+(player->lookdir)*screenblocks/10;
+	lookdiradj = player->lookdir;
+	lookdiradj = (lookdiradj * SCREENWIDTH / LORESWIDTH);
+	tempCentery = viewheight/2+lookdiradj*screenblocks/10;
 	if(centery != tempCentery)
 	{
+		centery_psp = tempCentery;
+#ifdef PSPARALLAX
+		if(mlook)
+		{
+			fixed_t scaledlookdir = lookdiradj << FRACBITS;
+			if(scaledlookdir < psparlim) 
+				centery_psp = viewheight/2+(((scaledlookdir - psparlim + psparlim / 3)*screenblocks/10)>>FRACBITS);
+			else if(scaledlookdir < 0) 
+				centery_psp = viewheight/2+(((scaledlookdir / 3)*screenblocks/10)>>FRACBITS);
+		}
+#endif
 		centery = tempCentery;
 		centeryfrac = centery<<FRACBITS;
 		for(i = 0; i < viewheight; i++)
