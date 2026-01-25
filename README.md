@@ -78,8 +78,8 @@ Also changes were made to:
 - game subsystems startup order to accommodate for changes to graphic mode initialization 
 
 For building from source one should be mindful of the following make variables:
-- `VER` switches between original Hexen gamplay (default, value `11`) and modified (value `12`)
-- `HIRES` switches between obsolete (default, value `1`) and actual (value `2`) implementations of higher screen resolution supoprt
+- `VER` switches between original Hexen gameplay (default, value `11`) and modified (value `12`)
+- `HIRES` switches between obsolete (default, value `1`) and actual (value `2`) implementations of higher screen resolution support
 
 For example:
 
