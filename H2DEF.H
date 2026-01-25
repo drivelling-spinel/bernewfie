@@ -868,9 +868,11 @@ extern int viewwidth;
 extern int scaledviewwidth;
 extern int viewheight;
 #ifdef HIRES2
-extern fixed_t pspshift;
+extern fixed_t scaledcenteroffset;
 extern int screenresolution;
+extern int minskyscale;
 #endif
+extern int psphiresscale;
 
 extern int screenblocks;
 
@@ -1269,6 +1271,26 @@ int	R_CheckTextureNumForName (char *name);
 // called by P_Ticker for switches and animations
 // returns the texture number for the texture name
 
+#ifdef ASPECTCORRECT
+extern int aspect_correct;
+extern int aspect_den;
+extern int aspect_num;
+
+#define ASPECT_RATIO(x) ((x) * aspect_num / aspect_den)
+#define INVERSE_RATIO(x) ((x) * aspect_den / aspect_num)
+#define ASPECT_CORRECT(x) (aspect_correct ? ASPECT_RATIO(x) : (x))
+#define ASPECT_CORRECT_FLAT(x) (aspect_correct ? ((x) / aspect_den * aspect_num)  : (x))
+#define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
+#define ASPECT_INVERSE(x) (aspect_correct ? INVERSE_RATIO(x) : (x))
+#define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))
+
+#else
+#define ASPECT_CORRECT(x) (x)
+#define ASPECT_INVERSE(x) (x)
+#define ASPECT_CORRECT_PS(x, p) (x)
+#define ASPECT_INVERSE_PS(x, p) (x)
+#define ASPECT_CORRECT_FLAT(x) (x)
+#endif
 
 //----
 //MISC

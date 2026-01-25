@@ -37,6 +37,7 @@ static const char rcsid[] = "$Id: i_main.c,v 1.2 2000-08-12 21:29:28 fraggle Exp
 #include <sys/stat.h>
 
 void I_GenerateAllegroCfg(char * fname);
+void M_LoadDefaultsEarly(const char * fname);
 #endif
 
 // cleanup handling -- killough:
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
 #ifdef DEFAULTCFG
   if(!stat("hexen.cfg", &sbuf) && stat("SETUP.CFG", &sbuf))
   {
-    M_LoadDefaults("hexen.cfg");
+    M_LoadDefaultsEarly("hexen.cfg");
     I_GenerateAllegroCfg("SETUP.CFG");
   }
   else

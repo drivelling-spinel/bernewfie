@@ -403,7 +403,7 @@ void R_DrawPlanes(void)
 #endif
 
 #ifdef HIRES2
-        skyscale = (hires + (mlook ? 1 : 0));
+        skyscale = (minskyscale + (mlook ? 1 : 0));
         if(skyscale > 2) skyscale = 2;
 #else
         skyscale = (hires || mlook) ? 1 : 0;

@@ -210,8 +210,12 @@ extern void ppro_blast(void *destin, void *src);        // same but for PPro CPU
 extern void blast_nobar(void *destin, void *src);       // as above but without doing lower part
 extern void ppro_blast_nobar(void *destin, void *src);  // as above but without doing lower part
 
+int psphiresscale = 1;
+
 #ifdef HIRES2
 int screenresolution;
+int minskyscale;
+fixed_t scaledcenteroffset;
 void            (*hiresfunc) (void);
 
 void    R_DrawColumn (void);
@@ -789,70 +793,103 @@ void I_InitGraphics(void)
   {
      case 1:
         hires = 1;
+        minskyscale = 1;
+        psphiresscale = 2;
         SCREENWIDTH = 640;
         SCREENHEIGHT = 400;
-        aspect_den *= 8;
-        aspect_num *= 5;
+        if(aspect_num % 8 == 0) aspect_num /= 8;
+        else aspect_den *= 8;
+        if(aspect_den % 5 == 0) aspect_den /= 5;
+        else aspect_num *= 5;
         hiresfunc = R_DrawColumn;
         break;
      case 2:
         hires = 1;
+        minskyscale = 1;
+        psphiresscale = 2;
         SCREENWIDTH = 640;
         SCREENHEIGHT = 480;
-        aspect_den *= 4;
-        aspect_num *= 3;
+        if(aspect_num % 4 == 0) aspect_num /= 4;
+        else aspect_den *= 4;
+        if(aspect_den % 3 == 0) aspect_den /= 3;
+        else aspect_num *= 3;
         hiresfunc = R_DrawColumn;
         break;
      case 3:
-        hires = 2;
+        hires = 1;
+        minskyscale = 2;
+        psphiresscale = 3;
         SCREENWIDTH = 800;
         SCREENHEIGHT = 600;
-        aspect_den *= 4;
-        aspect_num *= 3;
+        if(aspect_num % 4 == 0) aspect_num /= 4;
+        else aspect_den *= 4;
+        if(aspect_den % 3 == 0) aspect_den /= 3;
+        else aspect_num *= 3;
         hiresfunc = R_DrawColumn4;
         break;
      case 4:
-        hires = 2;
+        hires = 1;
+        minskyscale = 2;
+        psphiresscale = 4;
         SCREENWIDTH = 1024;
         SCREENHEIGHT = 768;
-        aspect_den *= 4;
-        aspect_num *= 3;
+        if(aspect_num % 4 == 0) aspect_num /= 4;
+        else aspect_den *= 4;
+        if(aspect_den % 3 == 0) aspect_den /= 3;
+        else aspect_num *= 3;
         hiresfunc = R_DrawColumn3;
         break;
      case 5:
-        hires = 2;
+        hires = 1;
+        minskyscale = 2;
+        psphiresscale = 5;
         SCREENWIDTH = 1280;
         SCREENHEIGHT = 1024;
-        aspect_den *= 5;
-        aspect_num *= 4;
+        if(aspect_num % 5 == 0) aspect_num /= 5;
+        else aspect_den *= 5;
+        if(aspect_den % 4 == 0) aspect_den /= 4;
+        else aspect_num *= 4;
         hiresfunc = R_DrawColumn2;
         break;
      case 6:
-        hires = 3;
+        hires = 1;
+        minskyscale = 2;
+        psphiresscale = 6;
         SCREENWIDTH = 1600;
         SCREENHEIGHT = 1200;
-        aspect_den *= 4;
-        aspect_num *= 3;
+        if(aspect_num % 4 == 0) aspect_num /= 4;
+        else aspect_den *= 4;
+        if(aspect_den % 3 == 0) aspect_den /= 3;
+        else aspect_num *= 3;
         hiresfunc = R_DrawColumn1;
         break;
      case 7:
-        hires = 3;
+        hires = 1;
+        minskyscale = 2;
+        psphiresscale = 5;
         SCREENWIDTH = 1366;
         SCREENHEIGHT = 768;
         hiresfunc = R_DrawColumn3w;
-        aspect_den *= 16;
-        aspect_num *= 9;
+        if(aspect_num % 16 == 0) aspect_num /= 16;
+        else aspect_den *= 16;
+        if(aspect_den % 9 == 0) aspect_den /= 9;
+        else aspect_num *= 9;
         break;
      case 0:
      default: 
         hires = 0;
+        minskyscale = 0;
+        psphiresscale = 1;
         SCREENWIDTH = 320;
         SCREENHEIGHT = 200;
-        aspect_den *= 8;
-        aspect_num *= 5;
+        if(aspect_num % 8 == 0) aspect_num /= 8;
+        else aspect_den *= 8;
+        if(aspect_den % 5 == 0) aspect_den /= 5;
+        else aspect_num *= 5;
         hiresfunc = R_DrawColumn;
         break;
   }
+
 #else
   hires = M_ParmExists("-hires") ? 1 : 0;
 #endif
@@ -860,13 +897,17 @@ void I_InitGraphics(void)
 #ifdef ASPECTCORRECT
   if(M_ParmExists("-widescreen") || M_ParmExists("-wide16x10"))
   {     
-     aspect_den *= 5;
-     aspect_num *= 8;
+     if(aspect_num % 5 == 0) aspect_num /= 5;
+     else aspect_den *= 5;
+     if(aspect_den % 8 == 0) aspect_den /= 8;
+     else aspect_num *= 8;
   }
   else if(M_ParmExists("-wide16x9"))
   {
-     aspect_den *= 9;
-     aspect_num *= 16;
+     if(aspect_num % 9 == 0) aspect_num /= 9;
+     else aspect_den *= 5;
+     if(aspect_den % 16 == 0) aspect_den /= 16;
+     else aspect_num *= 16;
   }
   else
   {
@@ -882,6 +923,20 @@ void I_InitGraphics(void)
 
 #ifdef HIRES2
   if(SCREENWIDTH % 4 != 0 || safeparm) cpu_family = 0;   
+
+  {
+     fixed_t excess;
+     excess = (SCREENWIDTH<<FRACBITS) / psphiresscale / 320; 
+    // FIXME: with vertical scaling adjustment of weapon sprites 
+    //        to compensate for offset use
+     excess = ASPECT_INVERSE_PS(excess, true);
+    //        but because this eats up much screen space, we use push weapon slightly
+     #define PSPRBUMP (aspect_correct > 1 ? 20 : 0)
+     if(excess > FRACUNIT) excess = FRACUNIT;
+     scaledcenteroffset = FixedMul(excess, ((320<<FRACBITS) / SCREENWIDTH) * SCREENHEIGHT);
+     scaledcenteroffset = 
+       (-(PSPRBUMP<<FRACBITS) + scaledcenteroffset / 2 + (200 << FRACBITS) - scaledcenteroffset);
+  }
 #endif
 
 #if !defined(HIRES2) 

@@ -1136,7 +1136,7 @@ static void DrawAnimatedIcons(void)
 			|| !(CPlayer->powers[pw_invulnerability]&16))
 		{
 			frame = (leveltime/3)&15;
-			V_DrawPatch(260 >> hires, 19, W_CacheLumpNum(SpinDefenseLump+frame, 
+			V_DrawPatch(SCREENWIDTH - LORESWIDTH + 260, 19, W_CacheLumpNum(SpinDefenseLump+frame, 
 				PU_CACHE));
 		}
 		BorderTopRefresh = true;
@@ -1150,7 +1150,7 @@ static void DrawAnimatedIcons(void)
 			|| !(CPlayer->powers[pw_minotaur]&16))
 		{
 			frame = (leveltime/3)&15;
-			V_DrawPatch(300 >> hires, 19, W_CacheLumpNum(SpinMinotaurLump+frame, 
+			V_DrawPatch(SCREENWIDTH - LORESWIDTH + 300, 19, W_CacheLumpNum(SpinMinotaurLump+frame, 
 				PU_CACHE));
 		}
 		BorderTopRefresh = true;

@@ -516,10 +516,21 @@ void R_InitTextureMapping (void)
 
 #define		DISTMAP	2
 
+#ifdef HIRES2
+int lightscaleshiftvar;
+int lightscaleshift_det;
+#endif
+
 void R_InitLightTables (void)
 {
 	int		i,j, level, startmap;
 	int		scale;
+
+#ifdef HIRES2
+	lightscaleshiftvar = 1 << 12;
+	lightscaleshiftvar = lightscaleshiftvar / LORESWIDTH * SCREENWIDTH;
+	lightscaleshift_det = lightscaleshiftvar >> detailshift;
+#endif
 
 //
 // Calculate the light levels to use for each level / distance combination
@@ -530,7 +541,7 @@ void R_InitLightTables (void)
 		for (j=0 ; j<MAXLIGHTZ ; j++)
 		{
 			scale = FixedDiv ((SCREENWIDTH/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
-			scale >>= LIGHTSCALESHIFT;
+			scale = SHIFTLIGHTTOSCALE(scale);
 			level = startmap - scale/DISTMAP;
 			if (level < 0)
 				level = 0;
@@ -583,40 +594,31 @@ void R_ExecuteSetViewSize (void)
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	}
-#ifdef HIRES2
-//        else if (hires) {
 	else if (setblocks == 10 && hires) {
-#else
-	else if (setblocks == 10 && hires) {
-#endif
 		scaledviewwidth = SCREENWIDTH;
 		viewheight = SCREENHEIGHT;
 	} else 	{
 #ifdef HIRES2
-                setblocks += 1; 
-                do
-                {
-                setblocks -= 1;
-#endif
+		setblocks += 1; 
+		do
+		{
+			setblocks -= 1;
+			scaledviewwidth = (setblocks*(SCREENWIDTH/10));
+			viewheight = (setblocks*(SCREENHEIGHT - SBARHEIGHT)/10);
+		}
+		while(viewheight > SCREENHEIGHT || scaledviewwidth > SCREENWIDTH);
+#else
 		scaledviewwidth = (setblocks*32) << hires;
 		viewheight = (setblocks*(LORESHEIGHT - SBARHEIGHT)/10) << hires;
-#ifdef HIRES2
-                }
-                while(viewheight > SCREENHEIGHT || scaledviewwidth > SCREENWIDTH);
 #endif
-	}
 
-#ifdef HIRES2
-        pspshift = 0;
-        if (viewheight == SCREENHEIGHT && hires) {
-                 pspshift = ((50 + 5 * hires) << FRACBITS) - FRACUNIT / 2 -
-                            (SCREENHEIGHT << FRACBITS) / 2 / (1 + hires + hires);
-        }
-        pspshift = ASPECT_CORRECT_PS(ASPECT_CORRECT_PS(ASPECT_CORRECT_PS(pspshift, true), true), true);
-#endif
+	}
 
 	detailshift = setdetail;
 	viewwidth = scaledviewwidth>>detailshift;
+#ifdef HIRES2
+	lightscaleshift_det = lightscaleshiftvar >> detailshift;
+#endif
 
 	centery = viewheight/2;
 	centerx = viewwidth/2;

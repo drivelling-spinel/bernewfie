@@ -458,16 +458,16 @@ void I_GenerateAllegroCfg(char * fname)
 			       MIDI_AWE32,
 			       MIDI_NONE    
 };
+  char digi = (snd_DesiredSfxDevice >= 0
+      && snd_DesiredSfxDevice < sizeof(digi_lookup) / sizeof(digi_lookup[0])) ?
+	digi_lookup[snd_DesiredSfxDevice] : DIGI_AUTODETECT;
 
   memset(asetup, 0, sizeof(asetup));
-  sprintf(asetup, template,
-    (snd_DesiredSfxDevice >= 0
-      && snd_DesiredSfxDevice < sizeof(digi_lookup) / sizeof(digi_lookup[0])) ?
-	digi_lookup[snd_DesiredSfxDevice] : DIGI_AUTODETECT,
+  sprintf(asetup, template, digi,
     (snd_DesiredMusicDevice >= 0
       && snd_DesiredMusicDevice < sizeof(midi_lookup) / sizeof(midi_lookup[0])) ?
 	midi_lookup[snd_DesiredMusicDevice] : MIDI_AUTODETECT,
-    snd_Channels,
+    digi != DIGI_NONE ? snd_Channels : 0,
     snd_SBport,
 //    because of the hiccups with SB16 we leave it to liballeg to assign DMA
 //    snd_SBdma,

@@ -601,7 +601,7 @@ void R_ProjectSprite (mobj_t *thing)
 		vis->colormap = colormaps;		// full bright
 	else
 	{									// diminished light
-		index = xscale>>(LIGHTSCALESHIFT-detailshift);
+		index = SHIFTLIGHTTODET(xscale);
 		if (index >= MAXLIGHTSCALE)
 			index = MAXLIGHTSCALE-1;
 		vis->colormap = spritelights[index];
@@ -705,11 +705,11 @@ void R_DrawPSprite (pspdef_t *psp)
 	{
 		tempangle = 0;
 	}
-        x1 = (centerxfrac + FixedMul (tx,pspritescale*(1+hires+hires/2))+tempangle ) >>FRACBITS;
+        x1 = (centerxfrac + FixedMul (tx,pspritescale*psphiresscale)+tempangle ) >>FRACBITS;
 	if (x1 > viewwidth)
 		return;		// off the right side
 	tx +=  spritewidth[lump];
-        x2 = ((centerxfrac + FixedMul (tx,pspritescale*(1+hires+hires/2))+tempangle ) >>FRACBITS) - 1;
+        x2 = ((centerxfrac + FixedMul (tx,pspritescale*psphiresscale)+tempangle ) >>FRACBITS) - 1;
 	if (x2 < 0)
 		return;		// off the left side
 
@@ -720,12 +720,12 @@ void R_DrawPSprite (pspdef_t *psp)
 	vis->mobjflags = 0;
 	vis->class = 0;
 	vis->psprite = true;
-        vis->texturemid = (100<<FRACBITS)+FRACUNIT/2
+#ifdef HIRES2 
+	vis->texturemid = (scaledcenteroffset+FRACUNIT/2-(psp->sy-spritetopoffset[lump]));
+#else
+	vis->texturemid = (100<<FRACBITS)+FRACUNIT/2
 		-(psp->sy-spritetopoffset[lump]);
-
-#ifdef HIRES2
-        vis->texturemid += pspshift;
-#endif
+#endif 
 
 	if(viewheight == SCREENHEIGHT)
 	{
@@ -735,15 +735,15 @@ void R_DrawPSprite (pspdef_t *psp)
 
 	vis->x1 = x1 < 0 ? 0 : x1;
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-        vis->scale = (pspritescale<<detailshift) * (1+hires+hires/2);        
+        vis->scale = (pspritescale<<detailshift) * psphiresscale;        
 	if (flip)
 	{
-                vis->xiscale = -pspriteiscale / (1+hires+hires/2);
+                vis->xiscale = -pspriteiscale / psphiresscale;
 		vis->startfrac = spritewidth[lump]-1;
 	}
 	else
 	{
-                vis->xiscale = pspriteiscale / (1+hires+hires/2);
+                vis->xiscale = pspriteiscale / psphiresscale;
 		vis->startfrac = 0;
 	}
 	if (vis->x1 > x1)

@@ -27,6 +27,7 @@
 #include "h2def.h"
 #include "p_local.h"
 #include "soundst.h"
+#include "m_dflts.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -408,45 +409,10 @@ void M_ForceUppercase(char *text)
 int     usemouse;
 int     usejoystick;
 
-extern int key_right, key_left, key_up, key_down;
-extern int key_strafeleft, key_straferight, key_jump;
-extern int key_fire, key_use, key_strafe, key_speed;
-extern int key_flyup, key_flydown, key_flycenter;
-extern int key_lookup, key_lookdown, key_lookcenter;
-extern int key_invleft, key_invright, key_useartifact;
-
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
-extern int mousebjump;
-
-extern int joybfire;
-extern int joybstrafe;
-extern int joybuse;
-extern int joybspeed;
-extern int joybjump;
-
-extern boolean messageson;
-
-extern  int     viewwidth, viewheight;
-
 int mouseSensitivity;
 
-extern char *chat_macros[10];
-
-typedef struct
-{
-	char    *name;
-	int     *location;
-	int     defaultvalue;
-	int     scantranslate;      // PC scan code hack
-	int     untranslated;       // lousy hack
-} default_t;
-
 #ifndef __NeXT__
-extern int snd_Channels;
 int snd_DesiredMusicDevice, snd_DesiredSfxDevice;
-extern int snd_MusicDevice, // current music card # (index to dmxCodes)
 	snd_SfxDevice; // current sfx card # (index to dmxCodes)
 
 int     snd_SBport, snd_SBirq, snd_SBdma;       // sound blaster variables
@@ -517,9 +483,6 @@ default_t defaults[] =
 	{ "joyb_jump", &joybjump, -1 },
 
 	{ "screenblocks", &screenblocks, 10 },
-#ifdef HIRESMENU
-        { "screenresolution", &screenresolution, 2 },
-#endif
 
 #ifndef __NeXT__
 	{ "snd_channels", &snd_Channels, 3 },
@@ -597,6 +560,19 @@ void M_SaveDefaults (void)
 
 extern byte scantokey[128];
 
+#ifdef DEFAULTCFG
+void M_SetBaseValues(void)
+{
+	int i;
+	// Set everything to base values
+	numdefaults = sizeof(defaults)/sizeof(defaults[0]);
+	for(i = 0; i < numdefaults; i++)
+	{
+		*defaults[i].location = defaults[i].defaultvalue;
+	}
+}
+#endif
+
 void M_LoadDefaults(char *fileName)
 {
 	int i;
@@ -607,14 +583,16 @@ void M_LoadDefaults(char *fileName)
 	char *newstring;
 	int parm;
 	boolean isstring;
-
+#ifndef DEFAULTCFG
 	// Set everything to base values
 	numdefaults = sizeof(defaults)/sizeof(defaults[0]);
 	for(i = 0; i < numdefaults; i++)
 	{
 		*defaults[i].location = defaults[i].defaultvalue;
 	}
-
+#else
+	M_SetBaseValues();  
+#endif
 	// Check for a custom config file
 	i = M_CheckParm("-config");
 	if(i && i < myargc-1)

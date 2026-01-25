@@ -347,8 +347,13 @@ void AM_LevelInit(void)
   leveljuststarted = 0;
 
   f_x = f_y = 0;
-  f_w = finit_width;
-  f_h = finit_height;
+  f_w = SCREENWIDTH;
+#ifdef HIRES2
+  f_h = SCREENHEIGHT - (SBARHEIGHT + 3);
+#else
+  f_h = SCREENHEIGHT-((SBARHEIGHT+3) << hires);
+#endif
+
 	mapxstart = mapystart = 0;
 
 #ifdef PATCH12
@@ -377,10 +382,11 @@ void AM_Start (void)
 {
   static int lastlevel = -1, lastepisode = -1;
   
-  finit_width = SCREENWIDTH;
 #ifdef HIRES2
-  finit_height = SCREENHEIGHT - (SBARHEIGHT + 3);
+  finit_width = LORESWIDTH;
+  finit_height = LORESHEIGHT - (SBARHEIGHT + 3);
 #else
+  finit_width = SCREENWIDTH;
   finit_height = SCREENHEIGHT-((SBARHEIGHT+3) << hires);
 #endif
  
@@ -632,7 +638,7 @@ void AM_clearFB(int color)
 	int dmapx;
 	int dmapy;
 	int shx;
-	int limy;
+	int limy, klim, jlim;
 
 	if(followplayer)
 	{
@@ -669,27 +675,52 @@ void AM_clearFB(int color)
 		mapystart += finit_height;
 	}
 
-  shx = mapxstart >> hires;
-  limy = hires ? SCREENHEIGHT : SCREENHEIGHT - SBARHEIGHT;
 	//blit the automap background to the screen.
+	limy = hires ? SCREENHEIGHT : SCREENHEIGHT - SBARHEIGHT;
+#ifdef HIRES2
+	shx = mapxstart;
+	j=mapystart*finit_width;
+	klim = SCREENWIDTH / LORESWIDTH;
+	jlim = finit_height * finit_width;
+#else
+	shx = mapxstart >> hires;
 	j=(mapystart>>hires)*LORESWIDTH;
+	klim = 1 << hires;
+	jlim = LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3);
+#endif
 	for(i = 0; i < limy; i++)
 	{
-	  int k;
-	  char *dst = vscreen + i * finit_width;
-          if(j >= LORESWIDTH*(LORESHEIGHT-SBARHEIGHT-3))
-                j=0;
-	  for(k = 0 ; k < (1<<hires) ; k ++, dst += LORESWIDTH) {
-      memcpy(dst, maplump + j + shx, LORESWIDTH - shx);
-      memcpy(dst + LORESWIDTH - shx, maplump+j, shx);
-    }
+		int k, rem;
+		char *dst = vscreen + i * SCREENWIDTH;
+		if(j >= jlim)
+			j=0;
+		for(k = 0 ; k < klim ; k ++, dst += LORESWIDTH) 
+		{
+			memcpy(dst, maplump + j + shx, LORESWIDTH - shx);
+			memcpy(dst + LORESWIDTH - shx, maplump+j, shx);
+		}
+#ifdef HIRES2
+		rem = SCREENWIDTH % LORESWIDTH;
+		if(rem > 0)
+		{
+			if(rem > LORESWIDTH - shx)
+			{  
+				memcpy(dst, maplump + j + shx, LORESWIDTH - shx);
+				memcpy(dst + LORESWIDTH - shx, maplump+j, rem - LORESWIDTH + shx);
+			}
+			else
+			{
+				memcpy(dst, maplump + j + shx, rem);
+			}
+		}
+#endif
 		j += LORESWIDTH;
 	}
 
-  if(hires)
-  {
-    SB_state = -1;
-  }
+	if(hires)
+	{
+		SB_state = -1;
+	}
 //	 memcpy(screen, maplump, finit_width*finit_height);
 //  memset(fb, color, f_w*f_h);
 }
@@ -881,14 +912,14 @@ void PUTDOT(short xx,short yy,byte *cc, byte *cm)
 
 	if(xx < 32)
 		cc += 7-(xx>>2);
-	else if(xx > (finit_width - 32))
-		cc += 7-((finit_width-xx) >> 2);
+	else if(xx > (f_w - 32))
+		cc += 7-((f_w-xx) >> 2);
 //	if(cc==oldcc) //make sure that we don't double fade the corners.
 //	{
 		if(yy < 32)
 			cc += 7-(yy>>2);
-		else if(yy > (finit_height - 32))
-			cc += 7-((finit_height-yy) >> 2);
+		else if(yy > (f_h - 32))
+			cc += 7-((f_h-yy) >> 2);
 //	}
 	if(cc > cm && cm != NULL)
 	{

@@ -677,12 +677,12 @@ static void DrawAndBlit(void)
 	{
 		if(!netgame)
 		{
-			V_DrawPatch(160 << hires, viewwindowy+5, W_CacheLumpName("PAUSED",
+			V_DrawPatch(SCREENWIDTH / 2, viewwindowy+5, W_CacheLumpName("PAUSED",
 				PU_CACHE));
 		}
 		else
 		{
-			V_DrawPatch(160 << hires, 70 << hires, W_CacheLumpName("PAUSED",
+			V_DrawPatch(SCREENWIDTH / 2, (SCREENHEIGHT - LORESHEIGHT) / 2 + 70, W_CacheLumpName("PAUSED",
 				PU_CACHE));
 		}
 	}
