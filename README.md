@@ -77,4 +77,12 @@ Also changes were made to:
 - player weapon sprites scaling code to, well, scale accordingly in higher resolutions
 - game subsystems startup order to accommodate for changes to graphic mode initialization 
 
+For building from source one should be mindful of the following make variables:
+- `VER` switches between original Hexen gamplay (default, value `11`) and modified (value `12`)
+- `HIRES` switches between obsolete (default, value `1`) and actual (value `2`) implementations of higher screen resolution supoprt
 
+For example:
+
+      make VER=12 HIRES=2 clean all
+
+Bernewfie requires this [patched version](https://github.com/drivelling-spinel/alleg30b) of liballeg 3.
