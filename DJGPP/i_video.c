@@ -590,7 +590,13 @@ vesa_mode_1600x1200=0x11c;
                   screen_w=1366; // Necessary for when mode 13h/X has overwritten them.
                   screen_h=768;
 	 	}
-        else if (SCREENHEIGHT == 768 && vesa_mode_1024x768 > 0 && vesa_set_mode(vesa_mode_1024x768)!=-1)      
+        else if (SCREENWIDTH == 1366 && vesa_mode_1360x768 > 0 && vesa_set_mode(vesa_mode_1360x768)!=-1)      
+		{                       
+  		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
+                  SCREENWIDTH=screen_w=1360; // Necessary for when mode 13h/X has overwritten them.
+                  screen_h=768;
+	 	}
+        else if (SCREENWIDTH != 1366 && SCREENHEIGHT == 768 && vesa_mode_1024x768 > 0 && vesa_set_mode(vesa_mode_1024x768)!=-1)      
 		{                       
   		  if (current_mode!=current_mode_info) vesa_get_mode_info(current_mode); 
                   screen_w=1024; // Necessary for when mode 13h/X has overwritten them.
@@ -643,13 +649,6 @@ vesa_mode_1600x1200=0x11c;
         I_Error("Failed to switch to high resolution. Try -safe.\n");
         return;
      }
-#ifdef HIRES2
-     else
-     {
-        printf("vesa:%d mode:%xh w:%d h:%d banksize:%d BPS:%d\n",vesa_version,current_mode, screen_w, screen_h, mode_banksize, mode_BPS);
-        printf("vesa:%d modehi:%d modehi2:%d modelow:%d\n",vesa_version, vesa_mode_640x400, vesa_mode_640x480, vesa_mode_320x200);
-     }
-#endif
   }
 
   // NORMAL RESOLUTION - 320x200 modes, three options:
@@ -725,17 +724,7 @@ vesa_mode_1600x1200=0x11c;
 //-----------------------------------------------------------------------------
 void I_ResetScreen(void)
 {
-  if (!in_graphics_mode)
-  {
-     setsizeneeded = true;
-     V_Init();
-     return;
-  }
-
-  //I_ShutdownGraphics(); // Switch out of old graphics mode // GB 2014, not necessary
-
-  bg = 1;
-  I_InitGraphicsMode();     // Switch to new graphics mode
+  I_InitGraphics();     
 
   Z_CheckHeap();
 }

@@ -46,6 +46,7 @@ extern int vesa_mode_1280x1024;
 extern int vesa_mode_800x600;
 extern int vesa_mode_1024x768;
 extern int vesa_mode_1366x768;
+extern int vesa_mode_1360x768;
 extern int vesa_mode_1600x1200;
 #endif
 extern unsigned long screen_base_addr;

@@ -311,7 +311,7 @@ void I_InitSound(void)
   mus_card=1;
 
   // Secure and configure sound device first.
-  fputs("I_InitSound: ", stdout);
+  ST_Message("I_InitSound: ", stdout);
 
   memset(_secondaries, 0, sizeof(_secondaries));
 
@@ -360,7 +360,7 @@ void I_InitSound(void)
 //  if (install_sound(snd_card_new, mus_card_new, "none")!=0) //jff 1/18/98 autodect MIDI
     if (install_sound(DIGI_AUTODETECT , MIDI_AUTODETECT, "none")!=0) // GB 2016 Policy change: Use setup.exe + setup.cfg
     {
-      printf("ALLEGRO SOUND INIT ERROR!\n%s\n", allegro_error); // killough 8/8/98
+      ST_Message("ALLEGRO SOUND INIT ERROR!\n%s\n", allegro_error); // killough 8/8/98
       //jff 1/22/98 on error, disable sound this invocation
       //in future - nice to detect if either sound or music might be ok
       //jff end disable sound this invocation
@@ -371,8 +371,8 @@ void I_InitSound(void)
       //GB 2014, show sound driver:
       snd_card=1;
 	  mus_card=1;
-	  printf(" Sound: %s\n",digi_driver->desc);
-    printf(" Music: %s\n",midi_driver->desc);
+	  ST_Message(" Sound: %s\n",digi_driver->desc);
+   ST_Message(" Music: %s\n",midi_driver->desc);
 	  LOCK_VARIABLE(channel);  // killough 2/7/98: prevent VM swapping of sfx
       atexit(I_ShutdownSound); // killough
 
@@ -381,13 +381,13 @@ void I_InitSound(void)
     }
 
   // Initialize external data (all sounds) at start, keep static.
-  fputs("I_InitSound: Load sound data",stdout); // killough 8/8/98 // GB 2014 added suffix
+  ST_Message("I_InitSound: Load sound data",stdout); // killough 8/8/98 // GB 2014 added suffix
 
   for (i=1; i<NUMSFX; i++)
       S_sfx[i].snd_ptr = getsfx(S_sfx[i].lumpname, &lengths[i]);
 
   // Finished initialization.
-  puts("\nI_InitSound: sound module ready");    // killough 8/8/98
+  ST_Message("\nI_InitSound: sound module ready");    // killough 8/8/98
 
   //rest(4000);
   //sleep(8); //uncomment for debugging
@@ -567,7 +567,7 @@ int I_RegisterSong(void *data)
      )
     {
       handle=-1;
-      cprintf("Error loading midi: %d",err);
+      ST_Message("Error loading midi: %d",err);
     }
   else
     {

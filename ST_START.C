@@ -47,7 +47,6 @@ extern void GetPaletteHR(byte *palette);
 extern void FadeToPaletteHR(byte *palette);
 extern void FadeToBlackHR(void);
 extern void BlackPaletteHR(void);
-extern void I_StartupReadKeys(void);
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
 
@@ -176,6 +175,8 @@ void ST_UpdateNotches(int notchPosition)
 	int y = ST_PROGRESS_Y;
 	SlamBlockHR(x,y, ST_NOTCH_WIDTH,ST_NOTCH_HEIGHT, notchTable);
 #endif
+	printf(".");
+	delay(100);
 }
 
 
@@ -192,6 +193,8 @@ void ST_UpdateNetNotches(int notchPosition)
 	int y = ST_NETPROGRESS_Y;
 	SlamBlockHR(x,y, ST_NETNOTCH_WIDTH, ST_NETNOTCH_HEIGHT, netnotchTable);
 #endif
+	printf("*");
+	delay(100);
 }
 
 
@@ -203,11 +206,7 @@ void ST_UpdateNetNotches(int notchPosition)
 
 void ST_Progress(void)
 {
-#ifdef __WATCOMC__
 	static int notchPosition=0;
-
-	// Check for ESC press -- during startup all events eaten here
-	I_StartupReadKeys();
 
 	if (debugmode)
 	{
@@ -217,14 +216,14 @@ void ST_Progress(void)
 	{
 		if(notchPosition<ST_MAX_NOTCHES)
 		{
-			ST_UpdateNotches(notchPosition);
-			S_StartSound(NULL, SFX_STARTUP_TICK);
+			if(!M_CheckParm("-noorb"))
+			{
+				ST_UpdateNotches(notchPosition);
+				S_StartSound(NULL, SFX_STARTUP_TICK);
+			}
 			notchPosition++;
 		}
 	}
-#else
-	printf(".");
-#endif
 }
 
 
@@ -236,7 +235,6 @@ void ST_Progress(void)
 
 void ST_NetProgress(void)
 {
-#ifdef __WATCOMC__
 	static int netnotchPosition=0;
 	if (debugmode)
 	{
@@ -246,12 +244,14 @@ void ST_NetProgress(void)
 	{
 		if(netnotchPosition<ST_MAX_NETNOTCHES)
 		{
-			ST_UpdateNetNotches(netnotchPosition);
-			S_StartSound(NULL, SFX_DRIP);
+			if(!M_CheckParm("-noorb"))
+			{
+				ST_UpdateNetNotches(netnotchPosition);
+				S_StartSound(NULL, SFX_DRIP);
+			}
 			netnotchPosition++;
 		}
 	}
-#endif
 }
 
 
@@ -286,14 +286,10 @@ void ST_Message(char *message, ...)
 		I_Error("Long debug message has overwritten memory");
 	}
 
-#ifdef __WATCOMC__
-	if (debugmode)
+	if (debugmode || !M_CheckParm("-noorb"))
 	{
 		printf(buffer);
 	}
-#else
-        printf(buffer);
-#endif 
 }
 
 //==========================================================================

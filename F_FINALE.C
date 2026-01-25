@@ -404,29 +404,3 @@ static char *GetFinaleText(int sequence)
 	return ClusterMessage;
 }
 
-void F_FadeToBlackInit(int color)
-{
-  DeInitializeFade();
-  InitializeMonochromeFade(0, color);
-}
-
-
-void F_DoFadeToBlack(int color)
-{
-  int fade=70;
-
-  rest(1000);
-  S_StartSound(NULL, SFX_STARTUP_TICK);
-  rest(1000);
-  S_StartSound(NULL, SFX_STARTUP_TICK);
-  rest(1000);
-  S_StartSound(NULL, SFX_STARTUP_TICK);
-
-  while(fade-->0)
-    {
-      FadePic();
-      rest(1000/35);
-      if(fade % 16 == 0) S_StartSound(NULL, SFX_STARTUP_TICK);
-    }
-}
-

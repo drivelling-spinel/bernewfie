@@ -128,6 +128,7 @@ int vesa_mode_640x480=0;
 int vesa_mode_800x600=0;
 int vesa_mode_1024x768=0;
 int vesa_mode_1366x768=0;
+int vesa_mode_1360x768=0;
 int vesa_mode_1280x1024=0;
 int vesa_mode_1600x1200=0;
 #endif
@@ -535,8 +536,10 @@ void vesa_blitscreen_banked(unsigned char *memory_buffer, int size, int scroll_o
 
    // Preparation part 1, calculate offset:
    offset=mode_BPS*scroll_offset; 
+#ifndef HIRES2
    // Some cards have no 640x400 (Intel, Cirrus), use 640x480 with black bars on top and bottom:
    if (screen_h==480) offset+=mode_BPS*40;  
+#endif
 
    if (offset>0)
    {
@@ -714,8 +717,9 @@ int vesa_find_modes(int lfb_disable)
       else if ((mode_info.XResolution == 800) && (mode_info.YResolution == 600)) {vesa_mode_800x600=mode_list[c]+mode_LFB*0x4000; found++;}
       else if ((mode_info.XResolution == 1024) && (mode_info.YResolution == 768)) {vesa_mode_1024x768=mode_list[c]+mode_LFB*0x4000; found++;}
       else if ((mode_info.XResolution == 1366) && (mode_info.YResolution == 768)) {vesa_mode_1366x768=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 1360) && (mode_info.YResolution == 768)) {vesa_mode_1360x768=mode_list[c]+mode_LFB*0x4000; found++;}
 #endif
-          if (found>=8) return found;
+          if (found>=9) return found;
    }
    return found; 
 }
