@@ -367,13 +367,13 @@ subsector_t *R_PointInSubsector (fixed_t x, fixed_t y);
 
 #ifdef ASPECTCORRECT
 extern int aspect_correct;
-extern int aspect_const;
+extern int aspect_den;
+extern int aspect_num;
 
-#define ASPECT_CONST (aspect_const)
-
-#define ASPECT_RATIO(x) ((x) * 12 / ASPECT_CONST)
-#define INVERSE_RATIO(x) ((x) * ASPECT_CONST / 12)
+#define ASPECT_RATIO(x) ((x) * aspect_num / aspect_den)
+#define INVERSE_RATIO(x) ((x) * aspect_den / aspect_num)
 #define ASPECT_CORRECT(x) (aspect_correct ? ASPECT_RATIO(x) : (x))
+#define ASPECT_CORRECT_FLAT(x) (aspect_correct ? ((x) / aspect_den * aspect_num)  : (x))
 #define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
 #define ASPECT_INVERSE(x) (aspect_correct ? INVERSE_RATIO(x) : (x))
 #define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))

@@ -33,6 +33,12 @@ static const char rcsid[] = "$Id: i_main.c,v 1.2 2000-08-12 21:29:28 fraggle Exp
 #include "../h2def.h"
 #include "i_system.h" 
 
+#ifdef DEFAULTCFG
+#include <sys/stat.h>
+
+void I_GenerateAllegroCfg(char * fname);
+#endif
+
 // cleanup handling -- killough:
 static void handler(int s)
 {
@@ -61,6 +67,9 @@ void I_Quit(void);
 
 int main(int argc, char **argv)
 {
+#ifdef DEFAULTCFG
+  struct stat sbuf;
+#endif
   myargc = argc;
   myargv = argv;
 
@@ -79,6 +88,14 @@ int main(int argc, char **argv)
      loud SFX noise because the sound card is
      left in an unstable state.
   */
+#ifdef DEFAULTCFG
+  if(!stat("hexen.cfg", &sbuf) && stat("SETUP.CFG", &sbuf))
+  {
+    M_LoadDefaults("hexen.cfg");
+    I_GenerateAllegroCfg("SETUP.CFG");
+  }
+  else
+#endif
   set_config_file("SETUP.CFG");
   allegro_init();
   Z_Init();                  // 1/18/98 killough: start up memory stuff first

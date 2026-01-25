@@ -406,6 +406,79 @@ void I_LoadSoundBank(void *bank)
   } 
 }
 
+#ifdef DEFAULTCFG
+
+extern int snd_Channels;
+extern int snd_DesiredMusicDevice, snd_DesiredSfxDevice;
+extern snd_SBport, snd_SBirq, snd_SBdma;       
+extern int snd_Mport;                              
+
+
+void I_GenerateAllegroCfg(char * fname)
+{
+  static char template[] = 
+"[sound]\n"
+"digi_card = %d\n"
+"midi_card = %d\n"
+"digi_volume = -1\n"
+"midi_volume = -1\n"
+"digi_voices = %d\n"
+"midi_voices = -1\n"
+"flip_pan = 0\n"
+"sb_port = %x\n"
+"sb_dma = -1\n"
+"sb_irq = %d\n"
+"sb_freq = 11111\n"
+"fm_port = -1\n"
+"mpu_port = %x\n"
+"ibk_file =  \n"
+"ibk_drum_file = \n"  
+"patches = \n\n";
+  static char asetup[sizeof(template) * 2];
+
+  static char digi_lookup[] = {DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_SB,
+			       DIGI_AUTODETECT,
+			       DIGI_GUSPNP,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_NONE},
+	      midi_lookup[] = {MIDI_NONE,
+			       MIDI_NONE,
+			       MIDI_ADLIB,
+			       MIDI_ADLIB,
+			       MIDI_AUTODETECT,
+			       MIDI_GUS,
+			       MIDI_MPU,
+			       MIDI_MPU,
+			       MIDI_MPU,
+			       MIDI_AWE32,
+			       MIDI_NONE    
+};
+
+  memset(asetup, 0, sizeof(asetup));
+  sprintf(asetup, template,
+    (snd_DesiredSfxDevice >= 0
+      && snd_DesiredSfxDevice < sizeof(digi_lookup) / sizeof(digi_lookup[0])) ?
+	digi_lookup[snd_DesiredSfxDevice] : DIGI_AUTODETECT,
+    (snd_DesiredMusicDevice >= 0
+      && snd_DesiredMusicDevice < sizeof(midi_lookup) / sizeof(midi_lookup[0])) ?
+	midi_lookup[snd_DesiredMusicDevice] : MIDI_AUTODETECT,
+    snd_Channels,
+    snd_SBport,
+//    because of the hiccups with SB16 we leave it to liballeg to assign DMA
+//    snd_SBdma,
+    snd_SBirq,
+    snd_Mport
+  );
+  set_config_data(asetup, strlen(asetup) + 1);
+}
+#endif
+
+
 boolean I_IsMusicCardOPL(void)
 {
   return midi_card > 0 && midi_card < MIDI_SB_OUT;

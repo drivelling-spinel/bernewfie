@@ -224,7 +224,8 @@ void    R_DrawColumn3w (void);
 
 #ifdef ASPECTCORRECT
 int aspect_correct;
-int aspect_const;
+int aspect_num;
+int aspect_den;
 #endif
 
 //variables:
@@ -740,7 +741,6 @@ void I_ResetScreen(void)
 void I_InitGraphics(void)
 {
   static int firsttime=1;
-
   if (!firsttime) return;
 
   firsttime=0;
@@ -768,13 +768,8 @@ void I_InitGraphics(void)
   else
      aspect_correct = 0;
 
-  if(M_ParmExists("-widescreen") || M_ParmExists("-wide16x10"))
-     aspect_const = 10;
-  else if(M_ParmExists("-wide16x9"))
-     aspect_const = 9;
-  else 
-     aspect_const = 10;
-
+  aspect_den = 5;
+  aspect_num = 6;
 #endif  
 
 #ifdef HIRES2 
@@ -796,36 +791,48 @@ void I_InitGraphics(void)
         hires = 1;
         SCREENWIDTH = 640;
         SCREENHEIGHT = 400;
+        aspect_den *= 8;
+        aspect_num *= 5;
         hiresfunc = R_DrawColumn;
         break;
      case 2:
         hires = 1;
         SCREENWIDTH = 640;
         SCREENHEIGHT = 480;
+        aspect_den *= 4;
+        aspect_num *= 3;
         hiresfunc = R_DrawColumn;
         break;
      case 3:
         hires = 2;
         SCREENWIDTH = 800;
         SCREENHEIGHT = 600;
+        aspect_den *= 4;
+        aspect_num *= 3;
         hiresfunc = R_DrawColumn4;
         break;
      case 4:
         hires = 2;
         SCREENWIDTH = 1024;
         SCREENHEIGHT = 768;
+        aspect_den *= 4;
+        aspect_num *= 3;
         hiresfunc = R_DrawColumn3;
         break;
      case 5:
         hires = 2;
         SCREENWIDTH = 1280;
         SCREENHEIGHT = 1024;
+        aspect_den *= 5;
+        aspect_num *= 4;
         hiresfunc = R_DrawColumn2;
         break;
      case 6:
         hires = 3;
         SCREENWIDTH = 1600;
         SCREENHEIGHT = 1200;
+        aspect_den *= 4;
+        aspect_num *= 3;
         hiresfunc = R_DrawColumn1;
         break;
      case 7:
@@ -833,18 +840,40 @@ void I_InitGraphics(void)
         SCREENWIDTH = 1366;
         SCREENHEIGHT = 768;
         hiresfunc = R_DrawColumn3w;
+        aspect_den *= 16;
+        aspect_num *= 9;
         break;
      case 0:
      default: 
         hires = 0;
         SCREENWIDTH = 320;
         SCREENHEIGHT = 200;
+        aspect_den *= 8;
+        aspect_num *= 5;
         hiresfunc = R_DrawColumn;
         break;
   }
 #else
   hires = M_ParmExists("-hires") ? 1 : 0;
 #endif
+
+#ifdef ASPECTCORRECT
+  if(M_ParmExists("-widescreen") || M_ParmExists("-wide16x10"))
+  {     
+     aspect_den *= 5;
+     aspect_num *= 8;
+  }
+  else if(M_ParmExists("-wide16x9"))
+  {
+     aspect_den *= 9;
+     aspect_num *= 16;
+  }
+  else
+  {
+     aspect_den = 5;
+     aspect_num = 6;
+  }
+#endif  
 
   safeparm = M_ParmExists("-safe");
   asmp6parm = M_ParmExists("-asmp6");
