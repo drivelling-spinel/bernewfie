@@ -1,9 +1,9 @@
 # BERNEWFIE
-## Hexen source port for DOS
 
 ![BERNEWFIE logo](/DOC/logo.png)   
+### Hexen source port for DOS
+BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by \@Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard, mouse and joystick bindings (HEXEN.CFG) and can also be used for basic audio setup. ASETUP.EXE is used to fine tune Allegro for sound and music configuration and calibrate joystick (SETUP.CFG).  RESPONSE.EXE is provided for easy selection of startup options specific to Bernewfie, which generates a BERNEW.RSP response file that can be passed to the game exe with `@BERNEW.RSP` command line argument.
 
-BERNEWFIE is a source port of Hexen 1996 PC game by Raven Software from WATCOM to GCC that combines [original source](https://sourceforge.net/projects/heretic/files/) with functions taken from [MBF 2.04](https://archive.org/details/doom-mbf-204) maintenance release by \@Gerwin. DJGPP environment and Allegro library headers and binaries are a prerequisite to build it. Original SETUP.EXE from Hexen is used to configure game keyboard, mouse and joystick bindings (HEXEN.CFG) and can also be used for basic audio setup. ASETUP.EXE is used to fine tune Allegro for sound and music configuration and calibrate joystick (SETUP.CFG). 
 
 ### What's been added
 - High resolution support activated with one of the below arguments   
