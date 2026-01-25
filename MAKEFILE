@@ -24,7 +24,7 @@ ENAME=hex
 # the exe file name -sf
 EXE1=$(O)\$(ENAME).exe
 
-EXE2=$(O)\$(ENAME)1024.exe
+EXE2=$(O)\$(ENAME)vesa.exe
 
 EXE=$(O)\$(ENAME).exe
        

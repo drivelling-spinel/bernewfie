@@ -387,7 +387,7 @@ void I_InitSound(void)
       S_sfx[i].snd_ptr = getsfx(S_sfx[i].lumpname, &lengths[i]);
 
   // Finished initialization.
-  ST_Message("\nI_InitSound: sound module ready");    // killough 8/8/98
+  ST_Message("\nI_InitSound: sound module ready\n");    // killough 8/8/98
 
   //rest(4000);
   //sleep(8); //uncomment for debugging

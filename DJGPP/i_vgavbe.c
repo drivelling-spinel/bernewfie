@@ -719,7 +719,7 @@ int vesa_find_modes(int lfb_disable)
       else if ((mode_info.XResolution == 1366) && (mode_info.YResolution == 768)) {vesa_mode_1366x768=mode_list[c]+mode_LFB*0x4000; found++;}
       else if ((mode_info.XResolution == 1360) && (mode_info.YResolution == 768)) {vesa_mode_1360x768=mode_list[c]+mode_LFB*0x4000; found++;}
 #endif
-          if (found>=9) return found;
+          if (found>=8) return found;
    }
    return found; 
 }

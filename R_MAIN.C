@@ -754,6 +754,10 @@ void R_Init(void)
 	R_InitData();
 	R_InitPointToAngle();
 	R_InitTables();
+}
+
+void R_InitDeferred(void)
+{
 	// viewwidth / viewheight / detailLevel are set by the defaults
 	R_SetViewSize(screenblocks, detailLevel);
 	R_InitPlanes();

@@ -301,7 +301,9 @@ void H2_Main(void)
 		BorderNeedRefresh = true;
 		if(autostart || netgame)
 		{
-                        I_ResetScreen();
+			I_ResetScreen();
+			R_InitDeferred();
+			
 			G_StartNewInit();
 			G_InitNew(startskill, startepisode, startmap);
 		}
@@ -540,6 +542,7 @@ void H2_GameLoop(void)
 {
 
   I_ResetScreen();
+  R_InitDeferred();
   I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
 
   while(1)

@@ -1252,6 +1252,7 @@ void R_RenderPlayerView (player_t *player);
 // called by G_Drawer
 
 void R_Init (void);
+void R_InitDeferred (void);
 // called by startup code
 
 void R_DrawViewBorder (void);
